@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">Final Capstone</string>
+    <string name="register_here_tv">Don\'t have an account?</string>
+    <string name="login">Login</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="register_here"><u> Register here</u></string>
+    <string name="name">Name</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="register">Register</string>
+    <string name="what_are_you_n_feeling_today">What are you \n\t\t feeling today?</string>
+    <string name="greetings">Good Morning, Rajwa \n\n\t\t\t\tWhat are you feeling today?</string>
+    <string name="mood_reason">Why are you feeling like this</string>
+    <string name="your_note">\t your note..</string>
+    <string name="calender">Calender</string>
+    <string name="list">List</string>
+    <string name="map">Map</string>
+    <string name="moods_list">Moods List</string>
+    <string name="note">Note:</string>
+</resources>

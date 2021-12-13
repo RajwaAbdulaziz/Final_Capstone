@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cnb_unselectedColor="#FFFFFF">
+
+    <item
+        android:id="@+id/calenderFragment2"
+        android:title="@string/calender"
+        android:enabled="true"
+        android:icon="@drawable/ic_baseline_calendar_today_24"
+        app:cnb_iconColor="#3D83BC"
+    />
+
+    <item
+        android:id="@+id/listFragment2"
+        android:icon="@drawable/ic_baseline_list_24"
+        android:enabled="true"
+        android:title="@string/list"
+        app:cnb_iconColor="#3D83BC"
+        />
+
+    <item
+        android:id="@+id/mapViewFragment2"
+        android:icon="@drawable/ic_baseline_map_24"
+        android:title="@string/map"
+        app:cnb_iconColor="#3D83BC"
+        />
+</menu>
