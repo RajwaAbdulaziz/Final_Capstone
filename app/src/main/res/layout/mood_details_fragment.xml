@@ -81,6 +81,7 @@
         app:layout_constraintVertical_bias="0.214">
 
         <ImageButton
+            android:id="@+id/take_pic_btn"
             android:layout_width="50sp"
             android:layout_height="50sp"
             android:background="@drawable/ic_baseline_add_a_photo_24"
@@ -90,13 +91,16 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
+            android:id="@+id/pic_image_view"
             android:layout_width="140sp"
             android:layout_height="140sp"
             android:background="@drawable/rect"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

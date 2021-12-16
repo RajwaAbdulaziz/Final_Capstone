@@ -1,82 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.moodFragment.MoodFragment"
     android:orientation="vertical"
-    android:id="@+id/constraint_layout">
-
-    <HorizontalScrollView
-        android:id="@+id/horizontalScrollView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingStart = "90dp">
-
-            <ImageButton
-                android:id="@+id/good_image_btn"
-                android:layout_width="170dp"
-                android:layout_height="170dp"
-                android:layout_marginEnd="30dp"
-                android:background="@drawable/good" />
-
-            <ImageButton
-                android:id="@+id/great_image_btn"
-                android:layout_width="170dp"
-                android:layout_height="170dp"
-                android:layout_marginEnd="30dp"
-                android:background="@drawable/great" />
-
-            <ImageButton
-                android:id="@+id/sad_image_btn"
-                android:layout_width="170dp"
-                android:layout_height="170dp"
-                android:layout_marginEnd="30dp"
-                android:background="@drawable/sad" />
-
-            <ImageButton
-                android:id="@+id/depressed_image_btn"
-                android:layout_width="170dp"
-                android:layout_height="170dp"
-                android:layout_marginEnd="30dp"
-                android:background="@drawable/depressed" />
-
-            <ImageButton
-                android:id="@+id/angry_image_btn"
-                android:layout_width="170dp"
-                android:layout_height="170dp"
-                android:layout_marginEnd="30dp"
-                android:background="@drawable/angry" />
-
-            <ImageButton
-                android:id="@+id/neutral_image_btn"
-                android:layout_width="200dp"
-                android:layout_height="200dp"
-                android:background="@drawable/neutral" />
-
-<!--            <ImageButton-->
-<!--                android:id="@+id/wtf_image_btn"-->
-<!--                android:layout_width="200dp"-->
-<!--                android:layout_height="200dp"-->
-<!--                android:background="@drawable/wtf" />-->
-
-<!--            <ImageButton-->
-<!--                android:id="@+id/disgusted_image_btn"-->
-<!--                android:layout_width="200dp"-->
-<!--                android:layout_height="200dp"-->
-<!--                android:background="@drawable/disgusted" />-->
-
-        </LinearLayout>
-    </HorizontalScrollView>
+    android:id="@+id/linear_layout"
+    android:gravity="center">
 
     <TextView
         android:id="@+id/greetings_tv"
@@ -86,10 +17,152 @@
         android:text="@string/greetings"
         android:textSize="20sp"
         android:textColor="@color/white"
+        android:layout_marginBottom="30sp"
         app:layout_constraintBottom_toTopOf="@+id/horizontalScrollView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:paddingLeft="50dp"
+                android:paddingTop="30dp">
+
+                <ImageButton
+                    android:id="@+id/good_image_btn"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:background="@drawable/good"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:paddingRight="50dp"
+                android:paddingTop="30dp">
+
+                <ImageButton
+                    android:id="@+id/sad_image_btn"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:background="@drawable/sad"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="3"
+            android:layout_marginTop="20sp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="15sp"
+                android:padding="15sp">
+
+                <ImageButton
+                    android:id="@+id/depressed_image_btn"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:background="@drawable/depressed"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/chosen_mood_image_btn"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginEnd="15sp"
+                android:padding="15sp">
+
+                <ImageButton
+                    android:id="@+id/angry_image_btn"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:background="@drawable/angry"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:paddingLeft="50dp"
+                android:paddingTop="30dp">
+
+                <ImageButton
+                    android:id="@+id/neutral_image_btn"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:background="@drawable/neutral"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:paddingRight="50dp"
+                android:paddingTop="30dp">
+
+                <ImageButton
+                    android:id="@+id/great_image_btn"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:background="@drawable/great"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
 
     <ImageButton
         android:id="@+id/next_arrow"
@@ -101,5 +174,77 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+<!--    <HorizontalScrollView-->
+<!--        android:id="@+id/horizontalScrollView"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent">-->
+
+<!--        <LinearLayout-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:orientation="horizontal"-->
+<!--            android:paddingStart = "90dp">-->
+
+<!--            <ImageButton-->
+<!--                android:id="@+id/good_image_btn"-->
+<!--                android:layout_width="170dp"-->
+<!--                android:layout_height="170dp"-->
+<!--                android:layout_marginEnd="30dp"-->
+<!--                android:background="@drawable/good" />-->
+
+<!--            <ImageButton-->
+<!--                android:id="@+id/great_image_btn"-->
+<!--                android:layout_width="170dp"-->
+<!--                android:layout_height="170dp"-->
+<!--                android:layout_marginEnd="30dp"-->
+<!--                android:background="@drawable/great" />-->
+
+<!--            <ImageButton-->
+<!--                android:id="@+id/sad_image_btn"-->
+<!--                android:layout_width="170dp"-->
+<!--                android:layout_height="170dp"-->
+<!--                android:layout_marginEnd="30dp"-->
+<!--                android:background="@drawable/sad" />-->
+
+<!--            <ImageButton-->
+<!--                android:id="@+id/depressed_image_btn"-->
+<!--                android:layout_width="170dp"-->
+<!--                android:layout_height="170dp"-->
+<!--                android:layout_marginEnd="30dp"-->
+<!--                android:background="@drawable/depressed" />-->
+
+<!--            <ImageButton-->
+<!--                android:id="@+id/angry_image_btn"-->
+<!--                android:layout_width="170dp"-->
+<!--                android:layout_height="170dp"-->
+<!--                android:layout_marginEnd="30dp"-->
+<!--                android:background="@drawable/angry" />-->
+
+<!--            <ImageButton-->
+<!--                android:id="@+id/neutral_image_btn"-->
+<!--                android:layout_width="170dp"-->
+<!--                android:layout_height="170dp"-->
+<!--                android:background="@drawable/neutral" />-->
+
+
+<!--        </LinearLayout>-->
+<!--    </HorizontalScrollView>-->
+
+
+<!--    <ImageButton-->
+<!--        android:layout_width="100sp"-->
+<!--        android:layout_height="100sp"-->
+<!--        android:background="@drawable/great"-->
+<!--        tools:layout_editor_absoluteX="109dp" />-->
+
+<!--    <ImageButton-->
+<!--        android:layout_width="100sp"-->
+<!--        android:layout_height="100sp"-->
+<!--        android:background="@drawable/good"-->
+<!--        tools:layout_editor_absoluteX="199dp" />-->
+
+</LinearLayout>
 

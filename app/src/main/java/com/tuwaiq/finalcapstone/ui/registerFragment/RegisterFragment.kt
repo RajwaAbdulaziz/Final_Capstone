@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -13,10 +14,16 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.FirebaseFirestore
 import com.tuwaiq.finalcapstone.R
+import com.tuwaiq.finalcapstone.model.User
 import com.tuwaiq.finalcapstone.ui.calenderFragment.CalenderFragment
 import com.tuwaiq.finalcapstone.ui.loginFragment.LoginFragment
+import com.tuwaiq.finalcapstone.ui.moodFragment.MoodFragmentDirections
+import com.tuwaiq.finalcapstone.utils.FirebaseUtils
 
+private const val TAG = "RegisterFragment"
 class RegisterFragment : Fragment() {
 
     private lateinit var auth: FirebaseAuth
@@ -25,6 +32,7 @@ class RegisterFragment : Fragment() {
     private lateinit var passwordEt: EditText
     private lateinit var confirmPasswordEt: EditText
     private lateinit var registerBtn: Button
+    private var userId: String? = ""
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,11 +56,13 @@ class RegisterFragment : Fragment() {
     override fun onStart() {
         super.onStart()
 
-        val currentUser = auth.currentUser
-
-        if (currentUser != null) {
-            findNavController().navigate(R.id.action_registerFragment_to_loginFragment)
-        }
+//        val currentUser = auth.currentUser
+//
+//        userId = currentUser?.uid
+//
+//        if (currentUser != null) {
+//            //findNavController().navigate(R.id.action_registerFragment_to_loginFragment)
+//        }
 
         registerBtn.setOnClickListener {
             val name = nameEt.text.toString()
@@ -65,20 +75,29 @@ class RegisterFragment : Fragment() {
                 email.isEmpty() -> showToast("Please enter an email")
                 pass.isEmpty() -> showToast("Please enter a password")
                 confPass != pass -> showToast("Please enter a matching password")
-                else -> register(email, pass)
+                else -> register(name, email, pass)
             }
         }
     }
 
-    private fun register(email: String, pass: String) {
+    private fun register(name: String, email: String, pass: String) {
         auth.createUserWithEmailAndPassword(email, pass)
             .addOnCompleteListener {
                 if (it.isSuccessful) {
-                    showToast("Successful register")
-                    val loginFragment = LoginFragment()
-                    activity?.supportFragmentManager
-                        ?.beginTransaction()?.replace(R.id.fragmentContainerView, loginFragment)?.commit()
+
+                    val user = auth.currentUser
+
+                    val users = User(name, email)
+
+                    Log.d(TAG, "email: ${users.email}")
+
+                    val db = FirebaseFirestore.getInstance()
+                        db.collection("Users")
+                            .document(user!!.uid).set(users)
+
+                    findNavController().navigate(R.id.action_registerFragment_to_loginFragment)
                 } else {
+                    Log.d(TAG, "problem occurred")
                     showToast(it.result.toString())
                 }
             }

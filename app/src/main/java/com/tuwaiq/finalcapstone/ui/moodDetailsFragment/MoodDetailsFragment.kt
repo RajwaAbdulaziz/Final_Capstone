@@ -1,8 +1,15 @@
 package com.tuwaiq.finalcapstone.ui.moodDetailsFragment
 
-import android.animation.ArgbEvaluator
-import android.animation.ObjectAnimator
+import android.app.Activity.RESULT_OK
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -13,26 +20,50 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import com.tuwaiq.finalcapstone.R
-import com.tuwaiq.finalcapstone.ui.moodFragment.MoodFragmentDirections
+import com.tuwaiq.finalcapstone.model.Mood
+import com.tuwaiq.finalcapstone.model.User
 import com.tuwaiq.finalcapstone.utils.FirebaseUtils
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.lang.Exception
+import java.util.*
 
 private const val TAG = "MoodDetailsFragment"
+private const val REQUEST_IMAGE_CAPTURE = 1
 class MoodDetailsFragment : Fragment() {
 
     private val args: MoodDetailsFragmentArgs by navArgs()
 
+    private val moodDetailsViewModel by lazy { ViewModelProvider(this).get(MoodDetailsViewModel::class.java) }
+
     private lateinit var viewModel: MoodDetailsViewModel
     private lateinit var layout: ConstraintLayout
     private lateinit var moodIv: ImageView
+    private lateinit var picIv: ImageView
     private lateinit var noteEt: EditText
     private lateinit var addMoodButton: ImageButton
+    private lateinit var takePicBtn: ImageButton
+    private lateinit var picFile: File
+    private  var picUrl: String = ""
     private lateinit var color: String
     private lateinit var mood: String
+    private var storageRef = Firebase.storage.reference
+    private lateinit var  fileProviderURI:Uri
+    private lateinit var photoFile:File
+
+    private val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+
+   // private var picUri: Uri? = null
+    private var tempUri: Uri? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,18 +74,105 @@ class MoodDetailsFragment : Fragment() {
         return view
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        val user1 = FirebaseAuth.getInstance().currentUser?.uid
+
+        if (requestCode == REQUEST_IMAGE_CAPTURE ) {
+
+            Log.e("formOnResult","is the photo file here ${photoFile.exists()}")
+
+                val bitmapData = BitmapFactory.decodeFile(photoFile.absolutePath)
+                picIv.setImageBitmap(bitmapData)
+
+
+            // val picUri = data?.extras?.get("data") as Bitmap
+            tempUri = context?.let {
+                getImageUri(it.applicationContext, bitmapData)
+            }
+
+
+//            if (tempUri != null) {
+                try {
+                    tempUri?.let {
+
+
+                        val ref = storageRef.child("pics/$user1")
+                        val pic = ref.putFile(it)
+                       // picIv.setImageURI(it)
+
+                        pic.continueWithTask{ task ->
+                            if (!task.isSuccessful) {
+                                task.exception?.let {
+                                    throw it
+                                }
+                            }
+                            ref.downloadUrl
+                        }
+                            .addOnSuccessListener {
+                                picUrl = it.toString()
+
+                                Log.d(TAG, picUrl)
+//                                if (user1 != null) {
+//                                    FirebaseUtils().firestoreDatabase.collection("Users").document(user1)
+//                                        .set(hashMapOf("pic" to picUrl))
+//                                }
+                            }.addOnFailureListener {
+                                Log.e(TAG, "something" , it)
+                            }
+                    }
+                } catch (e: Exception) {
+
+                }
+            }
+           // picIv.setImageURI(tempUri)
+
+            //picIv.setImageBitmap(piccUri)
+//            data?.data.let {
+//                picUri = it
+//                picIv.setImageURI(it)
+            //}
+
+        }
+
+    private fun getImageUri(inContext: Context, inImage: Bitmap): Uri? {
+        val bytes = ByteArrayOutputStream()
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
+        Log.d("getImageUri" , "bitmap $inImage")
+
+
+        val path: String =
+            MediaStore.Images.Media.insertImage(inContext.contentResolver, inImage, "IMG_" + Calendar.getInstance().getTime(), null)
+        return Uri.parse(path)
+    }
+
     private fun init(view: View) {
         layout = view.findViewById(R.id.constraint_layout2)
         moodIv = view.findViewById(R.id.selected_mood_iv)
         noteEt = view.findViewById(R.id.note_et)
         addMoodButton = view.findViewById(R.id.add_mood)
+        takePicBtn = view.findViewById(R.id.take_pic_btn)
+        picIv = view.findViewById(R.id.pic_image_view)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mood = args.mood
         color = args.color
+
+        //storageRef = Firebase.storage.reference
+
+//        val picModel = PicModel()
+//
+//        picFile = moodDetailsViewModel.getPicFile(picModel)
+//        picUrii = FileProvider.getUriForFile(
+//            requireContext(),
+//            "com.tuwaiq.finalcapstone",
+//            picFile
+//        )
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -68,15 +186,15 @@ class MoodDetailsFragment : Fragment() {
             "sad" -> {
                 moodIv.setImageResource(R.drawable.sad)
             }
-//            "depressed" -> {
-//                moodIv.setImageResource(R.drawable.depressed)
-//            }
+            "depressed" -> {
+                moodIv.setImageResource(R.drawable.depressed)
+            }
             "angry" -> {
                 moodIv.setImageResource(R.drawable.angry)
             }
-//            "huh" -> {
-//                moodIv.setImageResource(R.drawable.huh)
-//            }
+            "neutral" -> {
+                moodIv.setImageResource(R.drawable.neutral)
+            }
 //            "wtf" -> {
 //                moodIv.setImageResource(R.drawable.wtf)
 //            }
@@ -86,37 +204,29 @@ class MoodDetailsFragment : Fragment() {
         }
 
         when (color) {
-//            "yellow" -> {
-//                noteEt.setTextColor(resources.getColor(R.color.yellow))
-//                noteEt.setHintTextColor(resources.getColor(R.color.yellow))
-//            }
-//            "yellowish" -> {
-//                noteEt.setTextColor(resources.getColor(R.color.yellowish))
-//                noteEt.setHintTextColor(resources.getColor(R.color.yellowish))
-//            }
-//            "blue" -> {
-//                noteEt.setTextColor(resources.getColor(R.color.blue))
-//                noteEt.setHintTextColor(resources.getColor(R.color.blue))
-//            }
-//            "dark_blue" -> {
-//                noteEt.setTextColor(resources.getColor(R.color.dark_blue))
-//                noteEt.setHintTextColor(resources.getColor(R.color.dark_blue))
-//            }
-            "purple" -> {
-                noteEt.setTextColor(resources.getColor(R.color.purple))
-                noteEt.setHintTextColor(resources.getColor(R.color.purple))
-            }
             "pink" -> {
-                noteEt.setTextColor(resources.getColor(R.color.pink))
-                noteEt.setHintTextColor(resources.getColor(R.color.pink))
-            }
-            "orange" -> {
-                noteEt.setTextColor(resources.getColor(R.color.orange))
-                noteEt.setHintTextColor(resources.getColor(R.color.orange))
+                noteEt.setTextColor(resources.getColor(R.color.dark_pink))
+                noteEt.setHintTextColor(resources.getColor(R.color.dark_pink))
             }
             "green" -> {
                 noteEt.setTextColor(resources.getColor(R.color.dark_green))
                 noteEt.setHintTextColor(resources.getColor(R.color.dark_green))
+            }
+            "blue" -> {
+                noteEt.setTextColor(resources.getColor(R.color.dark_blue))
+                noteEt.setHintTextColor(resources.getColor(R.color.dark_blue))
+            }
+            "dark_blue" -> {
+                noteEt.setTextColor(resources.getColor(R.color.darkest_blue))
+                noteEt.setHintTextColor(resources.getColor(R.color.darkest_blue))
+            }
+            "red" -> {
+                noteEt.setTextColor(resources.getColor(R.color.red))
+                noteEt.setHintTextColor(resources.getColor(R.color.red))
+            }
+            "gray" -> {
+                noteEt.setTextColor(resources.getColor(R.color.gray))
+                noteEt.setHintTextColor(resources.getColor(R.color.gray))
             }
             else -> {
                 noteEt.setTextColor(resources.getColor(R.color.black))
@@ -124,18 +234,81 @@ class MoodDetailsFragment : Fragment() {
             }
         }
     }
+    private fun getPhotoFile(fileName: String): File {
+
+        val fileDir = File(requireContext().applicationContext.filesDir, "FinalCapstone")
+
+        return fileDir
+
+    }
 
     override fun onStart() {
         super.onStart()
 
+        val user = FirebaseAuth.getInstance().currentUser?.uid
+
+//        val userInfo = hashMapOf<String, Any>(
+//            "name" to User().name,
+//            "email" to User().email
+//        )
+//
+//
+//
+//        if (user != null) {
+//            FirebaseUtils().firestoreDatabase.collection("Users").document(user).set(userInfo, SetOptions.merge())
+//        }
+
+        picIv.setOnClickListener {
+            if (PackageManager.PERMISSION_GRANTED == context?.let {
+                    ContextCompat.checkSelfPermission(it, android.Manifest.permission.CAMERA)
+                }) {
+                //takePictureLauncher.launch(picUri)
+
+
+                intent.also {
+                         photoFile = getPhotoFile(Date().time.toString() + "photo.jpg")
+
+
+                         fileProviderURI = FileProvider.getUriForFile(requireContext(), "com.tuwaiq.finalcapstone" ,photoFile )
+
+                    it.putExtra(MediaStore.EXTRA_OUTPUT , fileProviderURI)
+                    //it.type = "pics/*"
+                    startActivityForResult(it, REQUEST_IMAGE_CAPTURE)
+
+
+                }
+
+
+                // display error state to the user
+            }
+        }
+            //filePath?.putFile(picUrii)
+
+//        picIv.setOnClickListener {
+//            intent.also {
+//                //it.type = "pics/${Mood().id}"
+//                startActivityForResult(it, REQUEST_IMAGE_CAPTURE)
+//            }
+//        }
+
+
         addMoodButton.setOnClickListener {
-            val note = hashMapOf<String, Any>(
-                "note" to noteEt.text.toString(),
-                "color" to color
-            )
-            FirebaseUtils().firestoreDatabase.collection("notes")
-                .add(note)
-            val action = MoodDetailsFragmentDirections.actionMoodDetailsFragmentToListFragment2(color)
+            Log.d(TAG, "email: ${User().email}")
+            val note = Mood(noteEt.text.toString(), color, picUrl)
+//            val note = hashMapOf<String, Any?>(
+//                "note" to noteEt.text.toString(),
+//                "color" to color,
+//                //"pic" to tempUri.toString()
+//            )
+            if (user != null) {
+                FirebaseUtils().firestoreDatabase.collection("Mood").add(note)
+                val uid = FirebaseAuth.getInstance().currentUser?.uid
+                FirebaseUtils().firestoreDatabase.collection("Users")
+                    .document(uid!!).update("note", FieldValue.arrayUnion(note))
+            }
+            Log.d(TAG, "note: $note")
+            val action =
+                MoodDetailsFragmentDirections.actionMoodDetailsFragmentToListFragment2(color)
             findNavController().navigate(action)
         }
     }

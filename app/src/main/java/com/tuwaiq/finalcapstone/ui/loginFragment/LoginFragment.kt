@@ -13,7 +13,9 @@ import android.widget.Toast
 import androidx.lifecycle.get
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.tuwaiq.finalcapstone.R
+import com.tuwaiq.finalcapstone.model.User
 import com.tuwaiq.finalcapstone.ui.calenderFragment.CalenderFragment
 import com.tuwaiq.finalcapstone.ui.registerFragment.RegisterFragment
 
@@ -59,7 +61,10 @@ class LoginFragment : Fragment() {
             when{
                 email.isEmpty() -> showToast("Enter your email")
                 password.isEmpty() -> showToast("Enter your password")
-                else -> loginViewModel.login(email, password)
+                else -> {
+                    loginViewModel.login(email, password)
+                    findNavController().navigate(R.id.action_loginFragment_to_calenderFragment2)
+                }
             }
         }
 
