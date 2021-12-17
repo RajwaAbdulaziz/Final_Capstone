@@ -94,6 +94,7 @@
             android:id="@+id/pic_image_view"
             android:layout_width="140sp"
             android:layout_height="140sp"
+            android:scaleType="centerCrop"
             android:background="@drawable/rect"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

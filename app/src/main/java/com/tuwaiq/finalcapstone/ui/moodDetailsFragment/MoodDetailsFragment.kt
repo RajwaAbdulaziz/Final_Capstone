@@ -1,6 +1,5 @@
 package com.tuwaiq.finalcapstone.ui.moodDetailsFragment
 
-import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -8,7 +7,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -30,7 +28,6 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.tuwaiq.finalcapstone.R
 import com.tuwaiq.finalcapstone.model.Mood
-import com.tuwaiq.finalcapstone.model.User
 import com.tuwaiq.finalcapstone.utils.FirebaseUtils
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -86,21 +83,16 @@ class MoodDetailsFragment : Fragment() {
                 val bitmapData = BitmapFactory.decodeFile(photoFile.absolutePath)
                 picIv.setImageBitmap(bitmapData)
 
-
-            // val picUri = data?.extras?.get("data") as Bitmap
             tempUri = context?.let {
                 getImageUri(it.applicationContext, bitmapData)
             }
 
-
-//            if (tempUri != null) {
                 try {
                     tempUri?.let {
 
 
-                        val ref = storageRef.child("pics/$user1")
+                        val ref = storageRef.child("pics/$user1/${Calendar.getInstance().time}")
                         val pic = ref.putFile(it)
-                       // picIv.setImageURI(it)
 
                         pic.continueWithTask{ task ->
                             if (!task.isSuccessful) {
@@ -110,14 +102,12 @@ class MoodDetailsFragment : Fragment() {
                             }
                             ref.downloadUrl
                         }
-                            .addOnSuccessListener {
-                                picUrl = it.toString()
-
-                                Log.d(TAG, picUrl)
-//                                if (user1 != null) {
-//                                    FirebaseUtils().firestoreDatabase.collection("Users").document(user1)
-//                                        .set(hashMapOf("pic" to picUrl))
-//                                }
+                            .addOnCompleteListener {
+                                if (it.isSuccessful) {
+                                    val picUrll = it.result.toString()
+                                    picUrl = picUrll
+                                    Log.d(TAG, picUrl)
+                                }
                             }.addOnFailureListener {
                                 Log.e(TAG, "something" , it)
                             }
@@ -160,17 +150,6 @@ class MoodDetailsFragment : Fragment() {
         super.onCreate(savedInstanceState)
         mood = args.mood
         color = args.color
-
-        //storageRef = Firebase.storage.reference
-
-//        val picModel = PicModel()
-//
-//        picFile = moodDetailsViewModel.getPicFile(picModel)
-//        picUrii = FileProvider.getUriForFile(
-//            requireContext(),
-//            "com.tuwaiq.finalcapstone",
-//            picFile
-//        )
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -236,7 +215,7 @@ class MoodDetailsFragment : Fragment() {
     }
     private fun getPhotoFile(fileName: String): File {
 
-        val fileDir = File(requireContext().applicationContext.filesDir, "FinalCapstone")
+        val fileDir = File(requireContext().applicationContext.filesDir, fileName)
 
         return fileDir
 
@@ -247,54 +226,26 @@ class MoodDetailsFragment : Fragment() {
 
         val user = FirebaseAuth.getInstance().currentUser?.uid
 
-//        val userInfo = hashMapOf<String, Any>(
-//            "name" to User().name,
-//            "email" to User().email
-//        )
-//
-//
-//
-//        if (user != null) {
-//            FirebaseUtils().firestoreDatabase.collection("Users").document(user).set(userInfo, SetOptions.merge())
-//        }
-
         picIv.setOnClickListener {
             if (PackageManager.PERMISSION_GRANTED == context?.let {
                     ContextCompat.checkSelfPermission(it, android.Manifest.permission.CAMERA)
                 }) {
-                //takePictureLauncher.launch(picUri)
-
 
                 intent.also {
                          photoFile = getPhotoFile(Date().time.toString() + "photo.jpg")
-
-
                          fileProviderURI = FileProvider.getUriForFile(requireContext(), "com.tuwaiq.finalcapstone" ,photoFile )
 
                     it.putExtra(MediaStore.EXTRA_OUTPUT , fileProviderURI)
-                    //it.type = "pics/*"
                     startActivityForResult(it, REQUEST_IMAGE_CAPTURE)
 
-
+                    Log.d(TAG, "url: $picUrl")
                 }
-
-
-                // display error state to the user
             }
         }
-            //filePath?.putFile(picUrii)
-
-//        picIv.setOnClickListener {
-//            intent.also {
-//                //it.type = "pics/${Mood().id}"
-//                startActivityForResult(it, REQUEST_IMAGE_CAPTURE)
-//            }
-//        }
-
 
         addMoodButton.setOnClickListener {
-            Log.d(TAG, "email: ${User().email}")
-            val note = Mood(noteEt.text.toString(), color, picUrl)
+
+            val note = Mood(noteEt.text.toString(), color, picUrl, mood, user)
 //            val note = hashMapOf<String, Any?>(
 //                "note" to noteEt.text.toString(),
 //                "color" to color,

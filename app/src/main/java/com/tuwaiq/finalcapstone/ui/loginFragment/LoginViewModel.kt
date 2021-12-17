@@ -5,27 +5,18 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.tuwaiq.finalcapstone.model.User
+import com.tuwaiq.finalcapstone.repo.Repo
+import com.tuwaiq.finalcapstone.utils.FirebaseUtils
 import java.lang.Exception
 
 class LoginViewModel : ViewModel() {
 
-    private lateinit var auth: FirebaseAuth
+    private var repo = Repo.getInstance()
 
-    fun instance(): FirebaseUser? {
-        auth = FirebaseAuth.getInstance()
-        return auth.currentUser
-    }
 
+    var currentUser = FirebaseUtils().auth.currentUser
 
      fun login(email: String, password: String) {
-        auth = FirebaseAuth.getInstance()
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener {
-                if (it.isSuccessful) {
-                    return@addOnCompleteListener
-                } else {
-                    throw Exception("wrong login")
-                }
-            }
+        repo.login(email, password)
     }
 }

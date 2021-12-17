@@ -33,23 +33,21 @@ class LoginFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.login_fragment, container, false)
+        init(view)
+        return view
+    }
+
+    private fun init(view: View) {
         loginBtn = view.findViewById(R.id.login_btn)
         registerTv = view.findViewById(R.id.login_to_register_tv)
         emailEt = view.findViewById(R.id.login_email_et)
         passwordEt = view.findViewById(R.id.login_password_et)
-        return view
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        loginViewModel.instance()
     }
 
     override fun onStart() {
         super.onStart()
 
-        if (loginViewModel.instance() != null) {
+        if (loginViewModel.currentUser != null) {
             findNavController().navigate(R.id.action_loginFragment_to_calenderFragment2)
         }
 

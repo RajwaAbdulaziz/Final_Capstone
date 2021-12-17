@@ -26,7 +26,8 @@ import com.tuwaiq.finalcapstone.utils.FirebaseUtils
 private const val TAG = "RegisterFragment"
 class RegisterFragment : Fragment() {
 
-    private lateinit var auth: FirebaseAuth
+    private val registerViewModel by lazy { ViewModelProvider(this)[RegisterViewModel::class.java] }
+
     private lateinit var nameEt: EditText
     private lateinit var emailEt: EditText
     private lateinit var passwordEt: EditText
@@ -39,18 +40,16 @@ class RegisterFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.register_fragment, container, false)
+        init(view)
+        return view
+    }
+
+    private fun init(view: View) {
         nameEt = view.findViewById(R.id.register_name_et)
         emailEt = view.findViewById(R.id.register_email_et)
         passwordEt = view.findViewById(R.id.register_password_et)
         confirmPasswordEt = view.findViewById(R.id.register_conf_pass_et)
         registerBtn = view.findViewById(R.id.register_btn)
-        return view
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        auth = FirebaseAuth.getInstance()
     }
 
     override fun onStart() {
@@ -75,33 +74,15 @@ class RegisterFragment : Fragment() {
                 email.isEmpty() -> showToast("Please enter an email")
                 pass.isEmpty() -> showToast("Please enter a password")
                 confPass != pass -> showToast("Please enter a matching password")
-                else -> register(name, email, pass)
+                else -> {
+                    registerViewModel.register(name, email, pass)
+                    findNavController().navigate(R.id.action_registerFragment_to_loginFragment)
+                }
             }
         }
     }
 
-    private fun register(name: String, email: String, pass: String) {
-        auth.createUserWithEmailAndPassword(email, pass)
-            .addOnCompleteListener {
-                if (it.isSuccessful) {
 
-                    val user = auth.currentUser
-
-                    val users = User(name, email)
-
-                    Log.d(TAG, "email: ${users.email}")
-
-                    val db = FirebaseFirestore.getInstance()
-                        db.collection("Users")
-                            .document(user!!.uid).set(users)
-
-                    findNavController().navigate(R.id.action_registerFragment_to_loginFragment)
-                } else {
-                    Log.d(TAG, "problem occurred")
-                    showToast(it.result.toString())
-                }
-            }
-    }
 
     private fun showToast(text: String) {
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show()

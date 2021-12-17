@@ -5,39 +5,30 @@ import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.appcompat.view.menu.MenuItemImpl
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.bottomnavigation.BottomNavigationItemView
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.ktx.storage
-import com.ismaeldivita.chipnavigation.ChipNavigationBar
+import com.bumptech.glide.Glide
 import com.tuwaiq.finalcapstone.R
 import com.tuwaiq.finalcapstone.model.Mood
 import com.tuwaiq.finalcapstone.model.User
 import com.tuwaiq.finalcapstone.utils.FirebaseUtils
-import kotlin.properties.Delegates
+import kotlinx.coroutines.launch
+import java.util.*
 
 private const val TAG = "ListFragment"
 class ListFragment : Fragment() {
 
-    private lateinit var viewModel: ListViewModel
+    private val listViewModel by lazy { ViewModelProvider(this).get(ListViewModel::class.java) }
+
     private lateinit var recyclerView: RecyclerView
     private lateinit var color: String
     private val args: ListFragmentArgs by navArgs()
-
-    private var noteList = mutableListOf<Mood>()
-
-    private var storageRef = Firebase.storage.reference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,33 +43,50 @@ class ListFragment : Fragment() {
         val view = inflater.inflate(R.layout.list_fragment, container, false)
         recyclerView = view.findViewById(R.id.moods_rv)
         recyclerView.layoutManager = LinearLayoutManager(context)
-        FirebaseUtils().firestoreDatabase.collection("Mood")
-            .get()
-            .addOnCompleteListener {
-                if (it.isSuccessful) {
-                    for (doc in it.result) {
-                        val note = doc.toObject(Mood::class.java)
-                        Log.d(TAG, "note: ${Mood().note}")
-                        noteList.add(note)
-                        //Log.d(TAG, "note: ${note}")
-                    }
-                    recyclerView.adapter = MoodAdapter(noteList)
-                }
-            }
+
+        lifecycleScope.launch {
+            updateUI()
+        }
 
         return view
     }
-        inner class MoodViewHolder(view: View): RecyclerView.ViewHolder(view){
 
-        private val noteTv: TextView = itemView.findViewById(R.id.note_tv2)
-            //private val noteIv: ImageView = itemView.findViewById(R.id.item_iv)
+    private suspend fun updateUI() {
+        recyclerView.adapter = MoodAdapter(listViewModel.getListOfMoods())
+    }
+
+    inner class MoodViewHolder(view: View): RecyclerView.ViewHolder(view){
+
+            private val nameTv: TextView = itemView.findViewById(R.id.name_Tv)
+            private val noteTv: TextView = itemView.findViewById(R.id.note_tv2)
+            private val noteIv: ImageView = itemView.findViewById(R.id.item_iv2)
+            private val moodIv: ImageView = itemView.findViewById(R.id.item_iv3)
 
         fun bind(moods: Mood) {
+
+            lifecycleScope.launch {
+                nameTv.text = listViewModel.currentUserName()
+            }
+
             noteTv.text = moods.note
-//            val ref = Firebase.storage.reference.child("pics/${Mood().id}")
-//            ref.downloadUrl.addOnSuccessListener {
-//                noteIv.setImageURI(it)
-//            }
+
+            if (FirebaseUtils().auth.currentUser?.uid == moods.owner) {
+                Glide.with(requireContext())
+                    .load(moods.pic)
+                    .into(noteIv)
+                    } else {
+                        noteIv.setImageBitmap(null)
+            }
+
+            when (moods.mood) {
+                "good" -> moodIv.setImageResource(R.drawable.good)
+                "great" -> moodIv.setImageResource(R.drawable.great)
+                "sad" -> moodIv.setImageResource(R.drawable.sad)
+                "depressed" -> moodIv.setImageResource(R.drawable.depressed)
+                "angry" -> moodIv.setImageResource(R.drawable.angry)
+                "huh" -> moodIv.setImageResource(R.drawable.huh)
+                "disgusted" -> moodIv.setImageResource(R.drawable.disgusted)
+            }
 
 
             when(moods.color) {
@@ -90,7 +98,7 @@ class ListFragment : Fragment() {
         }
     }
 
-    inner class MoodAdapter(var moods: List<Mood>): RecyclerView.Adapter<MoodViewHolder>() {
+    inner class MoodAdapter(private var moods: List<Mood>): RecyclerView.Adapter<MoodViewHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MoodViewHolder{
             val view = layoutInflater.inflate(R.layout.moods_list_item, parent, false)
             return MoodViewHolder(view)
@@ -99,13 +107,6 @@ class ListFragment : Fragment() {
         override fun onBindViewHolder(holder: MoodViewHolder, position: Int) {
             val mood = moods[position]
             holder.bind(mood)
-//            if (position == 0) {
-//                recyclerView.setBackgroundColor(resources.getColor(R.color.yellow))
-//            } else if (position == 1) {
-//                recyclerView.setBackgroundColor(resources.getColor(R.color.blue))
-//            } else if (position == 2) {
-//                recyclerView.setBackgroundColor(resources.getColor(R.color.red))
-//            }
         }
 
         override fun getItemCount(): Int = moods.size
