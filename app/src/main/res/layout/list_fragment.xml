@@ -12,24 +12,42 @@
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="130dp"
+        android:fontFamily="@font/aclonica"
         android:text="@string/moods_list"
         android:textColor="@color/white"
-        android:fontFamily="@font/aclonica"
         android:textSize="25sp"
+        app:layout_constraintBottom_toTopOf="@+id/swipe_refresh_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/moods_rv"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh_layout"
         android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginTop="61dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView2"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/moods_rv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="100dp"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"/>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+<!--    <ImageButton-->
+<!--        android:id="@+id/refresh_ib"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:background="@drawable/ic_baseline_refresh_24"-->
+<!--        android:backgroundTint="@color/dark_blue"-->
+<!--        app:layout_constraintBottom_toTopOf="@+id/moods_rv"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent" />-->
 </androidx.constraintlayout.widget.ConstraintLayout>

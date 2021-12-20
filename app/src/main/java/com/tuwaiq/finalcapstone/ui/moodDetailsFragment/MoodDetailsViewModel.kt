@@ -9,5 +9,8 @@ class MoodDetailsViewModel : ViewModel() {
 
     private val repo = Repo.getInstance()
 
+    suspend fun currentUserName(): String? {
+        return repo.userName()
+    }
 
 }

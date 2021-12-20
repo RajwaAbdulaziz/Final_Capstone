@@ -17,4 +17,5 @@
     <string name="map">Map</string>
     <string name="moods_list">Moods List</string>
     <string name="note">Note:</string>
+    <string name="you">(you)</string>
 </resources>

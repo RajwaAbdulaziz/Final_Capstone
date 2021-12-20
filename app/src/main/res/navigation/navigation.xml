@@ -26,6 +26,9 @@
         app:argType="string"
             android:defaultValue="black"
         />
+        <action
+            android:id="@+id/action_listFragment2_to_moodDetailsFragment"
+            app:destination="@id/moodDetailsFragment" />
     </fragment>
 
     <fragment
@@ -57,6 +60,10 @@
             />
         <argument
             android:name="mood"
+            app:argType="string"
+            />
+        <argument
+            android:name="moodId"
             app:argType="string"
             />
         <action

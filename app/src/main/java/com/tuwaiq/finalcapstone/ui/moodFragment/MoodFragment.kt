@@ -3,6 +3,7 @@ package com.tuwaiq.finalcapstone.ui.moodFragment
 import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -324,7 +325,7 @@ class MoodFragment : Fragment() {
 //        }
 
         nextArrow.setOnClickListener {
-            val action = MoodFragmentDirections.actionMoodFragmentToMoodDetailsFragment(color, mood)
+            val action = MoodFragmentDirections.actionMoodFragmentToMoodDetailsFragment(color, mood, "")
             findNavController().navigate(action)
         }
     }
