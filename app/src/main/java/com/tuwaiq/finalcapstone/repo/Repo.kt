@@ -2,19 +2,30 @@ package com.tuwaiq.finalcapstone.repo
 
 import android.content.Context
 import android.util.Log
+import android.widget.NumberPicker
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.liveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.tuwaiq.finalcapstone.model.Mood
 import com.tuwaiq.finalcapstone.model.User
 import com.tuwaiq.finalcapstone.utils.FirebaseUtils
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.*
 import java.lang.Exception
 import kotlinx.coroutines.tasks.await
 import java.lang.reflect.InvocationTargetException
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 private const val TAG = "Repo"
 class Repo private constructor(context: Context) {
@@ -51,18 +62,29 @@ class Repo private constructor(context: Context) {
             .document("${FirebaseUtils().auth.currentUser?.uid}").get().await().getString("name")
     }
 
-     suspend fun getListOfMoods(): Flow<MutableList<Mood>> {
-         return flow {
-             val datalist = mutableListOf<Mood>()
-             FirebaseUtils().firestoreDatabase.collection("Mood")
-                 .get().await().forEach {
-                     val mood = it.toObject(Mood::class.java)
-                     mood.moodId = it.id
-                     datalist+=mood
-                 }
 
-             emit(datalist)
-         }.flowOn(Dispatchers.IO)
+    //var a: MutableList<Mood> = mutableListOf()
+
+
+      suspend fun getListOfMoods(): Flow<MutableList<Mood>> {
+          var m: MutableList<Mood>
+          return flow {
+
+              val a = FirebaseUtils().firestoreDatabase.collection("Mood").get().await()
+              m = a.toObjects(Mood::class.java)
+              emit(m)
+          }
+      }
+
+    suspend fun getProfileListOfMoods(): Flow<MutableList<Mood>> {
+        var m: MutableList<Mood>
+        return flow {
+
+            val a = FirebaseUtils().firestoreDatabase.collection("Mood")
+                .whereEqualTo("owner", FirebaseUtils().auth.currentUser?.uid).get().await()
+            m = a.toObjects(Mood::class.java)
+            emit(m)
+        }
     }
 
     companion object{

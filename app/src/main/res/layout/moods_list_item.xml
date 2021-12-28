@@ -5,12 +5,12 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:padding="10sp"
+    android:padding="11sp"
     android:layout_margin="10sp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="300sp"
-        android:layout_height="200sp"
+        android:layout_height="300sp"
         android:background="@drawable/rect"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -35,59 +35,73 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="42dp"
-            app:layout_constraintBottom_toTopOf="@+id/item_iv2"
+            app:layout_constraintBottom_toTopOf="@+id/note_bounds_tv"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
 
         <TextView
             android:id="@+id/owner_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#8046D1E3"
             android:layout_marginStart="5dp"
             android:layout_marginTop="16dp"
-            android:layout_marginBottom="42dp"
-            app:layout_constraintBottom_toTopOf="@+id/item_iv2"
+            android:textColor="#8046D1E3"
+            app:layout_constraintBottom_toTopOf="@+id/note_bounds_tv"
             app:layout_constraintStart_toEndOf="@id/name_Tv"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.0" />
 
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:id="@+id/pic_iv"
+            android:layout_width="70dp"
+            android:layout_height="80dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="19dp"
+            android:layout_marginBottom="112dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/note_tv"
+            app:layout_constraintHorizontal_bias="0.333"
+            app:layout_constraintStart_toStartOf="parent"
+            app:riv_corner_radius="20dp" />
+
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:id="@+id/meme_pic_iv"
+            android:layout_width="70dp"
+            android:layout_height="80dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="19dp"
+            android:layout_marginBottom="24dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/note_tv"
+            app:layout_constraintHorizontal_bias="0.333"
+            app:layout_constraintStart_toStartOf="parent"
+            app:riv_corner_radius="20dp" />
+
         <TextView
+            android:id="@+id/note_bounds_tv"
             android:layout_width="171dp"
-            android:layout_height="110dp"
+            android:layout_height="170dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="24dp"
             android:background="@drawable/rect"
             android:backgroundTint="#C5DAE4"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
         <TextView
-            android:id="@+id/note_tv2"
+            android:id="@+id/note_tv"
             android:layout_width="161dp"
-            android:layout_height="100dp"
+            android:layout_height="150dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="32dp"
             android:backgroundTint="@color/white"
             android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <com.makeramen.roundedimageview.RoundedImageView
-            android:id="@+id/item_iv2"
-            android:layout_width="70dp"
-            android:layout_height="110dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="19dp"
-            android:layout_marginBottom="12dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/note_tv2"
-            app:layout_constraintHorizontal_bias="0.555"
-            app:layout_constraintStart_toStartOf="parent"
-            app:riv_corner_radius="20dp" />
-
         <ImageView
-            android:id="@+id/item_iv3"
+            android:id="@+id/chosen_mood_iv"
             android:layout_width="60dp"
             android:layout_height="50dp"
             android:layout_marginTop="16dp"

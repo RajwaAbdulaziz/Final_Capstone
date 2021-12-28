@@ -57,18 +57,28 @@
         <argument
             android:name="color"
             app:argType="string"
+            android:defaultValue="-1"
             />
         <argument
             android:name="mood"
             app:argType="string"
+            android:defaultValue="-1"
             />
         <argument
             android:name="moodId"
             app:argType="string"
+            android:defaultValue="-1"
             />
         <action
             android:id="@+id/action_moodDetailsFragment_to_listFragment2"
             app:destination="@id/listFragment2" />
+        <action
+            android:id="@+id/action_moodDetailsFragment_to_memeApiFragment"
+            app:destination="@id/memeApiFragment" />
+        <argument
+            android:name="meme"
+            app:argType="string"
+            android:defaultValue="-1"/>
     </fragment>
     <fragment
         android:id="@+id/loginFragment"
@@ -90,5 +100,24 @@
         <action
             android:id="@+id/action_registerFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/profileFragment2"
+        android:name="com.tuwaiq.finalcapstone.ui.profileFragment.ProfileFragment"
+        android:label="profile_fragment"
+        tools:layout="@layout/profile_fragment" />
+    <fragment
+        android:id="@+id/memeApiFragment"
+        android:name="com.tuwaiq.finalcapstone.ui.MemeApiFragment"
+        android:label="meme_api_fragment"
+        tools:layout="@layout/meme_api_fragment" >
+        <action
+            android:id="@+id/action_memeApiFragment_to_moodDetailsFragment"
+            app:destination="@id/moodDetailsFragment" >
+            <argument
+                android:name="meme"
+                app:argType="string"
+                android:defaultValue='' />
+        </action>
     </fragment>
 </navigation>

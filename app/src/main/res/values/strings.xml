@@ -18,4 +18,9 @@
     <string name="moods_list">Moods List</string>
     <string name="note">Note:</string>
     <string name="you">(you)</string>
+    <string name="private_pic">Private</string>
+    <string name="public_pic">Public</string>
+    <string name="profile">Profile</string>
+    <string name="public_moods">Public Moods</string>
+    <string name="private_moods">Private Moods</string>
 </resources>

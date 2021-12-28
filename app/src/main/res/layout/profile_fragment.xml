@@ -8,38 +8,50 @@
 
 
     <TextView
-        android:id="@+id/name_tv"
+        android:id="@+id/personal_name_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="44dp"
-        android:text="TextView"
         android:textSize="20sp"
+        android:fontFamily="@font/aclonica"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/email_tv"
+        android:id="@+id/personal_email_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:text="TextView"
         android:textSize="20sp"
+        android:fontFamily="@font/aclonica"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/name_tv" />
+        app:layout_constraintTop_toBottomOf="@+id/personal_name_tv" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/presonal_moods_rv"
+        android:id="@+id/profile_rv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="64dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/email_tv" />
+        app:layout_constraintTop_toBottomOf="@id/personal_email_tv" />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/moods_settings_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textOff="@string/public_moods"
+        android:textOn="@string/private_moods"
+        app:layout_constraintBottom_toTopOf="@+id/profile_rv"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.815"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/personal_email_tv" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,32 +1,150 @@
 package com.tuwaiq.finalcapstone.ui.profileFragment
 
+import android.content.Context
+import android.content.SharedPreferences
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.appcompat.widget.SwitchCompat
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.tuwaiq.finalcapstone.R
+import com.tuwaiq.finalcapstone.model.Mood
+import com.tuwaiq.finalcapstone.utils.FirebaseUtils
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import org.w3c.dom.Text
 
+private const val TAG = "ProfileFragment"
 class ProfileFragment : Fragment() {
 
-    companion object {
-        fun newInstance() = ProfileFragment()
-    }
+    private val profileViewModel by lazy { ViewModelProvider(this)[ProfileViewModel::class.java] }
 
-    private lateinit var viewModel: ProfileViewModel
+    private var mood = Mood()
+
+    private lateinit var profileRv: RecyclerView
+    private lateinit var nameTv: TextView
+    private lateinit var emailTv: TextView
+    private lateinit var moodsSittSwitchCompat: SwitchCompat
+    private lateinit var sharedPref: SharedPreferences
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.profile_fragment, container, false)
+        val view = inflater.inflate(R.layout.profile_fragment, container, false)
+        profileRv = view.findViewById(R.id.profile_rv)
+        nameTv = view.findViewById(R.id.personal_name_tv)
+        emailTv = view.findViewById(R.id.personal_email_tv)
+        moodsSittSwitchCompat = view.findViewById(R.id.moods_settings_switch)
+        profileRv.layoutManager = LinearLayoutManager(context)
+        lifecycleScope.launch {
+            updateUI()
+        }
+        return view
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(ProfileViewModel::class.java)
-        // TODO: Use the ViewModel
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        sharedPref = activity?.getSharedPreferences("switch", Context.MODE_PRIVATE)!!
+    }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        moodsSittSwitchCompat.setOnCheckedChangeListener { compatSwitch, b ->
+            Log.d(TAG, b.toString())
+            val a = sharedPref.edit()?.putBoolean("switch_state", b)?.apply()
+            Log.d(TAG, "put: $a")
+            }
+        }
+
+    override fun onStart() {
+        super.onStart()
+
+        nameTv.text = FirebaseUtils().auth.currentUser?.displayName
+        emailTv.text = FirebaseUtils().auth.currentUser?.email
+
+            moodsSittSwitchCompat.isChecked = sharedPref.getBoolean("switch_state", false)
+            Log.d(TAG, "get: ${moodsSittSwitchCompat.isChecked}")
+
+
+    }
+
+    private suspend fun updateUI() {
+        profileViewModel.getProfileListOfMoods().onEach {
+            profileRv.adapter = ProfileAdapter(it)
+        }.launchIn(lifecycleScope)
+    }
+
+    inner class ProfileViewHolder(view: View): RecyclerView.ViewHolder(view){
+
+        private lateinit var mood: Mood
+        private var profileNoteBoundsTv: TextView = itemView.findViewById(R.id.personal_note_bounds_tv)
+        private var profileNoteTv: TextView = itemView.findViewById(R.id.personal_note_tv)
+        private var profileNoteIv: ImageView = itemView.findViewById(R.id.personal_pic_iv)
+        private var profileMoodIv: ImageView = itemView.findViewById(R.id.personal_chosen_mood_iv)
+        private var deleteMood: ImageButton = itemView.findViewById(R.id.personal_delete_mood)
+
+        fun bind(mood: Mood) {
+            this.mood = mood
+
+            profileNoteTv.text = mood.note
+
+            if(mood.pic != "") {
+                Glide.with(requireContext())
+                    .load(mood.pic)
+                    .into(profileNoteIv)
+            } else {
+                profileNoteIv.visibility = View.GONE
+                val n = profileNoteTv.layoutParams
+                n.width = 850
+                val b = profileNoteBoundsTv.layoutParams
+                b.width = 910
+            }
+
+
+            when (mood.mood) {
+                "good" -> profileMoodIv.setImageResource(R.drawable.good)
+                "great" -> profileMoodIv.setImageResource(R.drawable.great)
+                "sad" -> profileMoodIv.setImageResource(R.drawable.sad)
+                "depressed" -> profileMoodIv.setImageResource(R.drawable.depressed)
+                "angry" -> profileMoodIv.setImageResource(R.drawable.angry)
+                "neutral" -> profileMoodIv.setImageResource(R.drawable.neutral)
+            }
+
+            when (mood.color) {
+                "pink" -> profileNoteTv.setTextColor(resources.getColor(R.color.dark_pink))
+                "green" -> profileNoteTv.setTextColor(resources.getColor(R.color.dark_green))
+                "orange" -> profileNoteTv.setTextColor(resources.getColor(R.color.dark_orange))
+                "purple" -> profileNoteTv.setTextColor(resources.getColor(R.color.dark_purple))
+            }
+        }
+    }
+
+    inner class ProfileAdapter(private var moods: List<Mood>): RecyclerView.Adapter<ProfileViewHolder>(){
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProfileViewHolder {
+            val view = layoutInflater.inflate(R.layout.personal_moods_list_item, parent, false)
+            return ProfileViewHolder(view)
+        }
+
+        override fun onBindViewHolder(holder: ProfileViewHolder, position: Int) {
+            val mood = moods[position]
+            holder.bind(mood)
+        }
+
+        override fun getItemCount(): Int = moods.size
+
     }
 
 }

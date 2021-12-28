@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.pm.PackageManager
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -12,93 +13,140 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
+import androidx.core.view.get
+import com.bumptech.glide.Glide
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.MapView
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.tuwaiq.finalcapstone.R
+import com.tuwaiq.finalcapstone.model.Mood
+import com.tuwaiq.finalcapstone.utils.FirebaseUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
-private const val LOCATION_PERMISSION_REQ_CODE = 1000
-class MapViewFragment : Fragment() {
 
-    private lateinit var viewModel: MapViewViewModel
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private var latitude: Double = 0.0
-    private var longitude: Double = 0.0
-    private lateinit var textView: TextView
-    private lateinit var textView2: TextView
-    private lateinit var button: Button
+
+import android.graphics.Bitmap
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import android.graphics.BitmapFactory
+import com.google.common.reflect.Reflection.getPackageName
+
+
+
+
+
+
+private const val TAG = "MapViewFragment"
+class MapViewFragment : Fragment(), OnMapReadyCallback {
+
+    private lateinit var googleMap: GoogleMap
+    private lateinit var map: MapView
+    private var moodPic = 0
+    private var lat = 0.0
+    private var long = 0.0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.map_view_fragment, container, false)
+        val view = inflater.inflate(com.tuwaiq.finalcapstone.R.layout.map_view_fragment, container, false)
+        map = view.findViewById(com.tuwaiq.finalcapstone.R.id.map) as MapView
+        map.onCreate(savedInstanceState)
+        map.onResume()
+        map.getMapAsync(this)
         return view
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // initialize fused location client
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
-    }
-
-    override fun onStart() {
-        super.onStart()
-        button.setOnClickListener {
-            getCurrentLocation()
+    override fun onMapReady(p0: GoogleMap) {
+        p0.let {
+            googleMap = it
         }
-    }
-    private fun getCurrentLocation() {
-        // checking location permission
-        if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-            &&  ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // request permission
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_REQ_CODE
-            )
-            return
-        }
+        FirebaseUtils().firestoreDatabase.collection("Mood").get().addOnSuccessListener {
+            it.forEach {
+                CoroutineScope(Dispatchers.Main).launch {
+                    val b = FirebaseUtils().firestoreDatabase.collection("Mood").document(it.id).get().await()
+//                    lat = b.getDouble("lat")!!
+//                    long = b.getDouble("long")!!
+//                    Log.d(TAG, "lat: $lat long: $long")
 
-        fusedLocationClient.lastLocation
-            .addOnSuccessListener { location ->
-                // getting the last known or current location
-//                latitude = location.latitude
-//                longitude = location.longitude
-//                textView.text = latitude.toString()
-//                textView2.text = longitude.toString()
-                Toast.makeText(context, "${location.latitude}, ${location.longitude}", Toast.LENGTH_SHORT).show()
-//                tvLatitude.text = "Latitude: ${location.latitude}"
-//                tvLongitude.text = "Longitude: ${location.longitude}"
-                //tvProvider.text = "Provider: ${location.provider}"
-                //btOpenMap.visibility = View.VISIBLE
-            }
-            .addOnFailureListener {
-                Toast.makeText(
-                    context, "Failed on getting current location",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-    }
+                    var smallDot = BitmapFactory.decodeResource(
+                        requireContext().resources,
+                        com.tuwaiq.finalcapstone.R.drawable.good
+                    )
 
-//    override fun onRequestPermissionsResult(
-//        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
-//    ) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-//        when (requestCode) {
-//            LOCATION_PERMISSION_REQ_CODE -> {
-//                if (grantResults.isNotEmpty() &&
-//                    grantResults[0] == PackageManager.PERMISSION_GRANTED
-//                ) {
-//                    // permission granted
-//                } else {
-//                    // permission denied
-//                    Toast.makeText(
-//                        context, "You need to grant permission to access location",
-//                        Toast.LENGTH_SHORT
-//                    ).show()
+
+
+                    when(b.getString("mood")) {
+                        "good" -> {
+                            smallDot = BitmapFactory.decodeResource(
+                                requireContext().resources,
+                                com.tuwaiq.finalcapstone.R.drawable.good
+                            )
+                        }
+                        "great" -> {
+                            smallDot = BitmapFactory.decodeResource(
+                                requireContext().resources,
+                                com.tuwaiq.finalcapstone.R.drawable.great
+                            )
+                        }
+                        "sad" -> {
+                            smallDot = BitmapFactory.decodeResource(
+                                requireContext().resources,
+                                com.tuwaiq.finalcapstone.R.drawable.sad
+                            )
+                        }
+                        "depressed" -> {
+                            smallDot = BitmapFactory.decodeResource(
+                                requireContext().resources,
+                                com.tuwaiq.finalcapstone.R.drawable.depressed
+                            )
+                        }
+                        "angry" -> {
+                            smallDot = BitmapFactory.decodeResource(
+                                requireContext().resources,
+                                com.tuwaiq.finalcapstone.R.drawable.angry
+                            )
+                        }
+                        "neutral" -> {
+                            smallDot = BitmapFactory.decodeResource(
+                                requireContext().resources,
+                                com.tuwaiq.finalcapstone.R.drawable.neutral
+                            )
+                        }
+                    }
+
+                    val resizedBitmap = Bitmap.createScaledBitmap(smallDot, 80, 80, false)
+
+                    val new = BitmapDescriptorFactory.fromBitmap(resizedBitmap)
+
+                    googleMap.addMarker(
+                        MarkerOptions()
+                            .position(LatLng(b.getDouble("lat")!!, b.getDouble("long")!!))
+                            .icon(new)
+
+                    )
+                    Log.d(TAG, "${b.getDouble("lat")!!} ${b.getDouble("long")!!}")
+                    }
+                }
+//                    .addOnSuccessListener {
+//                    lat = it.getString("lat")?.toDouble() ?: 0.0
+//                    long = it.getString("long")?.toDouble() ?: 0.0
 //                }
-//            }
-//        }
-//    }
+            }
+
+
+
+
+
+        googleMap.setMaxZoomPreference(200f)
+    }
 }

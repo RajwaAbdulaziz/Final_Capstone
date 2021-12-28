@@ -1,5 +1,6 @@
 package com.tuwaiq.finalcapstone.ui.moodDetailsFragment
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -9,31 +10,32 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.text.Editable
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.ProgressBar
+import android.widget.*
+import androidx.appcompat.widget.SwitchCompat
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import coil.load
 import com.bumptech.glide.Glide
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.OnProgressListener
-import com.google.firebase.storage.UploadTask
 import com.google.firebase.storage.ktx.storage
+import com.google.type.LatLng
 import com.tuwaiq.finalcapstone.R
 import com.tuwaiq.finalcapstone.model.Mood
 import com.tuwaiq.finalcapstone.ui.listFragment.TASK
@@ -42,39 +44,45 @@ import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.lang.Exception
-import java.net.URI
 import java.util.*
 
 private const val TAG = "MoodDetailsFragment"
 private const val REQUEST_IMAGE_CAPTURE = 1
+var c = false.toString()
 class MoodDetailsFragment : Fragment() {
 
     private val args: MoodDetailsFragmentArgs by navArgs()
 
     private val moodDetailsViewModel by lazy { ViewModelProvider(this).get(MoodDetailsViewModel::class.java) }
 
-    private lateinit var viewModel: MoodDetailsViewModel
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var layout: ConstraintLayout
     private lateinit var moodIv: ImageView
     private lateinit var picIv: ImageView
     private lateinit var noteEt: EditText
     private lateinit var addMoodButton: ImageButton
     private lateinit var takePicBtn: ImageButton
-    private lateinit var picFile: File
+    private lateinit var memePickerIv: ImageView
+    private lateinit var locationBtn: ImageButton
+    private lateinit var latLangTv: TextView
+    private var lat = 0.0
+    private var long = 0.0
     private  var picUrl: String = ""
     private lateinit var color: String
     private lateinit var mood: String
     private lateinit var moodId: String
+    private lateinit var meme: String
     private lateinit var userName: String
     private var storageRef = Firebase.storage.reference
     private lateinit var  fileProviderURI:Uri
     private lateinit var photoFile:File
     private lateinit var progressBar: ProgressBar
+    private lateinit var picSwitch: SwitchCompat
+    private lateinit var noteTextView: TextView
     private var colorRes = 0
 
     private val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
 
-   // private var picUri: Uri? = null
     private var tempUri: Uri? = null
 
     override fun onCreateView(
@@ -150,7 +158,6 @@ class MoodDetailsFragment : Fragment() {
         inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
         Log.d("getImageUri" , "bitmap $inImage")
 
-
         val path: String =
             MediaStore.Images.Media.insertImage(inContext.contentResolver, inImage, "IMG_" + Calendar.getInstance().getTime(), null)
         return Uri.parse(path)
@@ -164,6 +171,11 @@ class MoodDetailsFragment : Fragment() {
         takePicBtn = view.findViewById(R.id.take_pic_btn)
         picIv = view.findViewById(R.id.pic_image_view)
         progressBar = view.findViewById(R.id.progress_bar)
+        picSwitch = view.findViewById(R.id.pic_switch)
+        memePickerIv = view.findViewById(R.id.meme_picker_iv)
+        locationBtn = view.findViewById(R.id.location_btn)
+        latLangTv = view.findViewById(R.id.lat_lang_tv)
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -171,11 +183,14 @@ class MoodDetailsFragment : Fragment() {
         mood = args.mood
         color = args.color
         moodId = args.moodId
+        meme = args.meme
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
 
         when (mood) {
             "good" -> {
@@ -241,22 +256,22 @@ class MoodDetailsFragment : Fragment() {
                 colorRes = R.color.black
             }
         }
-
-
     }
+
     private fun getPhotoFile(fileName: String): File {
 
-        val fileDir = File(requireContext().applicationContext.filesDir, fileName)
-
-        return fileDir
-
+        return File(requireContext().applicationContext.filesDir, fileName)
     }
 
     override fun onStart() {
         super.onStart()
 
+        memePickerIv.load(meme)
         val user = FirebaseAuth.getInstance().currentUser?.uid
 
+        memePickerIv.setOnClickListener {
+            findNavController().navigate(R.id.action_moodDetailsFragment_to_memeApiFragment)
+        }
         picIv.setOnClickListener {
             if (PackageManager.PERMISSION_GRANTED == context?.let {
                     ContextCompat.checkSelfPermission(it, android.Manifest.permission.CAMERA)
@@ -278,6 +293,10 @@ class MoodDetailsFragment : Fragment() {
             }
         }
 
+        locationBtn.setOnClickListener{
+            getCurrentLocation()
+        }
+
         if (TASK == "UPDATE") {
             FirebaseUtils().firestoreDatabase.collection("Mood")
                 .document(moodId).get().addOnCompleteListener {
@@ -297,6 +316,8 @@ class MoodDetailsFragment : Fragment() {
 
                     picUrl = it.result.getString("pic")!!
 
+                    memePickerIv.load(it.result.getString("memePic"))
+
                     addMoodButton.setOnClickListener {
                         val uid = FirebaseAuth.getInstance().currentUser?.uid
                         Log.d(TAG, "urlll $picUrl")
@@ -304,21 +325,25 @@ class MoodDetailsFragment : Fragment() {
                             userName = moodDetailsViewModel.currentUserName().toString()
                             Log.d(TAG, userName)
                         }.invokeOnCompletion {
-                            val note = Mood(
-                                noteEt.text.toString(),
-                                color,
-                                picUrl,
-                                mood,
-                                uid,
-                                userName,
-                                moodId
-                            )
+                            val note = uid?.let { uid ->
+                                Mood(
+                                    noteEt.text.toString(),
+                                    color,
+                                    picUrl,
+                                    mood,
+                                    uid,
+                                    userName,
+                                    moodId
+                                )
+                            }
                             Log.d(TAG, note.toString())
                             FirebaseUtils().firestoreDatabase.collection("Users")
                                 .document(uid!!).update("note", FieldValue.arrayUnion(note))
 
-                            FirebaseUtils().firestoreDatabase.collection("Mood")
-                                .document(moodId).set(note)
+                            if (note != null) {
+                                FirebaseUtils().firestoreDatabase.collection("Mood")
+                                    .document(moodId).set(note)
+                            }
 
                             val action =
                                 MoodDetailsFragmentDirections.actionMoodDetailsFragmentToListFragment2(
@@ -331,6 +356,10 @@ class MoodDetailsFragment : Fragment() {
             TASK = ""
         }
 
+        picSwitch.setOnCheckedChangeListener { compoundButton, b ->
+            c = b.toString()
+            Log.d(TAG, c)
+        }
 
         addMoodButton.setOnClickListener {
 
@@ -340,24 +369,59 @@ class MoodDetailsFragment : Fragment() {
                 Log.d(TAG, userName)
             }.invokeOnCompletion {
 
-                val note = Mood(noteEt.text.toString(), color, picUrl, mood, user, userName)
-
-//            val note = hashMapOf<String, Any?>(
-//                "note" to noteEt.text.toString(),
-//                "color" to color,
-//                //"pic" to tempUri.toString()
-//            )
                 if (user != null) {
-                    FirebaseUtils().firestoreDatabase.collection("Mood").add(note)
-                    //val uid = FirebaseAuth.getInstance().currentUser?.uid
+
+                    val note = Mood(
+                        noteEt.text.toString(),
+                        color,
+                        picUrl,
+                        mood,
+                        user,
+                        userName,
+                        meme,
+                        lat,
+                        long
+                    )
+
+                    val ref = FirebaseFirestore.getInstance().collection("Mood").document()
+                    note.moodId = ref.id
+                    note.privatePic = c
+                    ref.set(note)
+
+                    Log.d(TAG, "onStart: $note")
                     FirebaseUtils().firestoreDatabase.collection("Users")
                         .document(user).update("note", FieldValue.arrayUnion(note))
                 }
-               // Log.d(TAG, "note: $note")
+
                 val action =
                     MoodDetailsFragmentDirections.actionMoodDetailsFragmentToListFragment2(color)
                 findNavController().navigate(action)
             }
+        }
+        }
+
+    private fun getCurrentLocation() {
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return
+        }
+        fusedLocationClient.lastLocation.addOnSuccessListener {
+            latLangTv.text = "${it.latitude}  ${it.longitude}"
+            lat = it.latitude
+            long = it.longitude
         }
     }
 }

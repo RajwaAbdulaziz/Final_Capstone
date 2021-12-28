@@ -1,5 +1,6 @@
 package com.tuwaiq.finalcapstone.ui.listFragment
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tuwaiq.finalcapstone.model.Mood
@@ -17,7 +18,7 @@ class ListViewModel : ViewModel() {
         return repo.userName()
     }
 
-     suspend fun getListOfMoods(): Flow<MutableList<Mood>> {
+      suspend fun getListOfMoods(): Flow<MutableList<Mood>> {
         return repo.getListOfMoods()
     }
 }

@@ -50,7 +50,7 @@
         android:id="@+id/note_boundary"
         android:layout_width="300dp"
         android:layout_height="200dp"
-        android:layout_marginTop="44dp"
+        android:layout_marginTop="20dp"
         android:background="@drawable/rect"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
@@ -76,11 +76,12 @@
         android:id="@+id/add_mood"
         android:layout_width="38dp"
         android:layout_height="32dp"
-        android:layout_marginBottom="100dp"
+        android:layout_marginBottom="80dp"
         android:background="@drawable/ic_baseline_post_add_24"
+        android:backgroundTint="@color/blue"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.911"
         app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -88,7 +89,7 @@
         android:layout_width="140sp"
         android:layout_height="140sp"
         android:layout_marginStart="52dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="30sp"
         app:layout_constraintBottom_toTopOf="@id/add_mood"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/note_boundary"
@@ -108,8 +109,8 @@
             android:id="@+id/pic_image_view"
             android:layout_width="140sp"
             android:layout_height="140sp"
-            android:scaleType="centerCrop"
             android:background="@drawable/rect"
+            android:scaleType="centerCrop"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -123,8 +124,7 @@
         android:layout_width="140sp"
         android:layout_height="140sp"
         android:layout_marginStart="16dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@id/add_mood"
+        android:layout_marginTop="39sp"
         app:layout_constraintStart_toEndOf="@id/relative_layout1"
         app:layout_constraintTop_toBottomOf="@id/note_boundary">
 
@@ -142,14 +142,49 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
+            android:id="@+id/meme_picker_iv"
             android:layout_width="140sp"
             android:layout_height="140sp"
             android:background="@drawable/rect"
+            android:scaleType="centerCrop"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/pic_switch"
+        android:layout_width="52dp"
+        android:layout_height="31dp"
+        android:layout_marginStart="96dp"
+        android:layout_marginBottom="292dp"
+        android:textOff="@string/public_pic"
+        android:textOn="@string/private_pic"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageButton
+        android:id="@+id/location_btn"
+        android:layout_width="40dp"
+        android:layout_height="38dp"
+        android:layout_marginStart="52dp"
+        android:layout_marginBottom="76dp"
+        android:background="@drawable/ic_baseline_map_24"
+        android:backgroundTint="@color/blue"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/lat_lang_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="84dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/location_btn" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

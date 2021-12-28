@@ -58,16 +58,6 @@ class MoodFragment : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_mood, container, false)
         init(view)
-//        val images = listOf(
-//            Mood(R.drawable.happy),
-//            Mood(R.drawable.sad),
-//            Mood(R.drawable.angry)
-//        )
-//        recyclerView = view.findViewById(R.id.moods_recycler_view)
-//        val m = LinearLayoutManager(context)
-//        m.orientation = LinearLayoutManager.HORIZONTAL
-//        recyclerView.layoutManager = m
-//        recyclerView.adapter = MoodAdapter(images)
         return view
     }
 
@@ -80,8 +70,6 @@ class MoodFragment : Fragment() {
         angryImageBtn = view.findViewById(R.id.angry_image_btn)
         neutralImageButton = view.findViewById(R.id.neutral_image_btn)
         chosenMoodImageView = view.findViewById(R.id.chosen_mood_image_btn)
-//        wtfImageBtn = view.findViewById(R.id.wtf_image_btn)
-//        disgustedImageBtn = view.findViewById(R.id.disgusted_image_btn)
         nextArrow = view.findViewById(R.id.next_arrow)
     }
 
@@ -325,7 +313,7 @@ class MoodFragment : Fragment() {
 //        }
 
         nextArrow.setOnClickListener {
-            val action = MoodFragmentDirections.actionMoodFragmentToMoodDetailsFragment(color, mood, "")
+            val action = MoodFragmentDirections.actionMoodFragmentToMoodDetailsFragment(color, mood)
             findNavController().navigate(action)
         }
     }

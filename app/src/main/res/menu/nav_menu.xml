@@ -25,4 +25,11 @@
         android:title="@string/map"
         app:cnb_iconColor="#3D83BC"
         />
+
+    <item
+        android:id="@+id/profileFragment2"
+        android:icon="@drawable/ic_baseline_person_outline_24"
+        android:title="@string/profile"
+        app:cnb_iconColor="#3D83BC"
+        />
 </menu>
