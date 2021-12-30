@@ -34,34 +34,23 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
     <ImageView
         android:id="@+id/selected_mood_iv"
         android:layout_width="98dp"
         android:layout_height="85dp"
         android:layout_gravity="center"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
 
-
-    <TextView
-        android:id="@+id/note_boundary"
-        android:layout_width="300dp"
-        android:layout_height="200dp"
-        android:layout_marginTop="20dp"
-        android:background="@drawable/rect"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.495"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/selected_mood_iv" />
-
     <EditText
         android:id="@+id/note_et"
         android:layout_width="270dp"
         android:layout_height="170dp"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="56dp"
         android:background="@null"
         android:ems="10"
         android:gravity="start|top"
@@ -76,24 +65,48 @@
         android:id="@+id/add_mood"
         android:layout_width="38dp"
         android:layout_height="32dp"
-        android:layout_marginBottom="80dp"
+        android:layout_marginBottom="96dp"
         android:background="@drawable/ic_baseline_post_add_24"
         android:backgroundTint="@color/blue"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.911"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.788"
+        app:layout_constraintStart_toStartOf="@+id/lat_lang_tv"
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout2"
+        app:layout_constraintVertical_bias="0.657" />
+
+    <ImageButton
+        android:id="@+id/location_btn"
+        android:layout_width="40dp"
+        android:layout_height="38dp"
+        android:layout_marginStart="52dp"
+        android:layout_marginBottom="92dp"
+        android:background="@drawable/ic_baseline_map_24"
+        android:backgroundTint="@color/blue"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/relative_layout1"
+        app:layout_constraintVertical_bias="0.692" />
+
+    <TextView
+        android:id="@+id/lat_lang_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="112dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/location_btn" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/relative_layout1"
         android:layout_width="140sp"
         android:layout_height="140sp"
         android:layout_marginStart="52dp"
-        android:layout_marginTop="30sp"
+        android:layout_marginTop="35sp"
         app:layout_constraintBottom_toTopOf="@id/add_mood"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/note_boundary"
-        app:layout_constraintVertical_bias="0.214">
+        app:layout_constraintVertical_bias="0.288">
 
         <ImageButton
             android:id="@+id/take_pic_btn"
@@ -113,18 +126,19 @@
             android:scaleType="centerCrop"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintHorizontal_bias="0.191"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintVertical_bias="0.72" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout2"
         android:layout_width="140sp"
         android:layout_height="140sp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="39sp"
+        android:layout_marginTop="44dp"
         app:layout_constraintStart_toEndOf="@id/relative_layout1"
         app:layout_constraintTop_toBottomOf="@id/note_boundary">
 
@@ -149,10 +163,10 @@
             android:scaleType="centerCrop"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintHorizontal_bias="0.767"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintVertical_bias="0.719" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -161,30 +175,21 @@
         android:layout_width="52dp"
         android:layout_height="31dp"
         android:layout_marginStart="96dp"
-        android:layout_marginBottom="292dp"
+        android:layout_marginBottom="316dp"
         android:textOff="@string/public_pic"
         android:textOn="@string/private_pic"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <ImageButton
-        android:id="@+id/location_btn"
-        android:layout_width="40dp"
-        android:layout_height="38dp"
-        android:layout_marginStart="52dp"
-        android:layout_marginBottom="76dp"
-        android:background="@drawable/ic_baseline_map_24"
-        android:backgroundTint="@color/blue"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
     <TextView
-        android:id="@+id/lat_lang_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginBottom="84dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/location_btn" />
+        android:id="@+id/note_boundary"
+        android:layout_width="300dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/rect"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/selected_mood_iv" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

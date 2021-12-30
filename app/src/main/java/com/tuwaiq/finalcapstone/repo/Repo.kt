@@ -5,20 +5,16 @@ import android.util.Log
 import android.widget.NumberPicker
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
+import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.EventListener
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.*
+import com.google.firebase.storage.UploadTask
 import com.tuwaiq.finalcapstone.model.Mood
 import com.tuwaiq.finalcapstone.model.User
 import com.tuwaiq.finalcapstone.utils.FirebaseUtils
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.sendBlocking
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.*
 import java.lang.Exception
 import kotlinx.coroutines.tasks.await
@@ -64,6 +60,14 @@ class Repo private constructor(context: Context) {
 
 
     //var a: MutableList<Mood> = mutableListOf()
+
+    suspend fun displayMoods(): Flow<Task<QuerySnapshot>> {
+        return flow<Task<QuerySnapshot>> {
+                FirebaseUtils().firestoreDatabase.collection("Mood").get().addOnCompleteListener {
+
+                }
+            }
+        }
 
 
       suspend fun getListOfMoods(): Flow<MutableList<Mood>> {

@@ -22,9 +22,6 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.model.BitmapDescriptor
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
 import com.tuwaiq.finalcapstone.R
 import com.tuwaiq.finalcapstone.model.Mood
 import com.tuwaiq.finalcapstone.utils.FirebaseUtils
@@ -36,8 +33,9 @@ import kotlinx.coroutines.tasks.await
 
 
 import android.graphics.Bitmap
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import android.graphics.BitmapFactory
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.*
 import com.google.common.reflect.Reflection.getPackageName
 
 
@@ -58,8 +56,8 @@ class MapViewFragment : Fragment(), OnMapReadyCallback {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(com.tuwaiq.finalcapstone.R.layout.map_view_fragment, container, false)
-        map = view.findViewById(com.tuwaiq.finalcapstone.R.id.map) as MapView
+        val view = inflater.inflate(R.layout.map_view_fragment, container, false)
+        map = view.findViewById(R.id.map) as MapView
         map.onCreate(savedInstanceState)
         map.onResume()
         map.getMapAsync(this)
@@ -70,56 +68,53 @@ class MapViewFragment : Fragment(), OnMapReadyCallback {
         p0.let {
             googleMap = it
         }
+        googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(requireContext(), R.raw.map_style))
+
         FirebaseUtils().firestoreDatabase.collection("Mood").get().addOnSuccessListener {
             it.forEach {
                 CoroutineScope(Dispatchers.Main).launch {
                     val b = FirebaseUtils().firestoreDatabase.collection("Mood").document(it.id).get().await()
-//                    lat = b.getDouble("lat")!!
-//                    long = b.getDouble("long")!!
-//                    Log.d(TAG, "lat: $lat long: $long")
 
                     var smallDot = BitmapFactory.decodeResource(
                         requireContext().resources,
-                        com.tuwaiq.finalcapstone.R.drawable.good
+                        R.drawable.good
                     )
-
-
 
                     when(b.getString("mood")) {
                         "good" -> {
                             smallDot = BitmapFactory.decodeResource(
                                 requireContext().resources,
-                                com.tuwaiq.finalcapstone.R.drawable.good
+                                R.drawable.good
                             )
                         }
                         "great" -> {
                             smallDot = BitmapFactory.decodeResource(
                                 requireContext().resources,
-                                com.tuwaiq.finalcapstone.R.drawable.great
+                                R.drawable.great
                             )
                         }
                         "sad" -> {
                             smallDot = BitmapFactory.decodeResource(
                                 requireContext().resources,
-                                com.tuwaiq.finalcapstone.R.drawable.sad
+                                R.drawable.sad
                             )
                         }
                         "depressed" -> {
                             smallDot = BitmapFactory.decodeResource(
                                 requireContext().resources,
-                                com.tuwaiq.finalcapstone.R.drawable.depressed
+                                R.drawable.depressed
                             )
                         }
                         "angry" -> {
                             smallDot = BitmapFactory.decodeResource(
                                 requireContext().resources,
-                                com.tuwaiq.finalcapstone.R.drawable.angry
+                                R.drawable.angry
                             )
                         }
                         "neutral" -> {
                             smallDot = BitmapFactory.decodeResource(
                                 requireContext().resources,
-                                com.tuwaiq.finalcapstone.R.drawable.neutral
+                                R.drawable.neutral
                             )
                         }
                     }
@@ -128,25 +123,31 @@ class MapViewFragment : Fragment(), OnMapReadyCallback {
 
                     val new = BitmapDescriptorFactory.fromBitmap(resizedBitmap)
 
-                    googleMap.addMarker(
-                        MarkerOptions()
-                            .position(LatLng(b.getDouble("lat")!!, b.getDouble("long")!!))
-                            .icon(new)
+                    if (b.getDouble("lat") == 0.0 && b.getDouble("long") == 0.0) {
 
-                    )
-                    Log.d(TAG, "${b.getDouble("lat")!!} ${b.getDouble("long")!!}")
+                    } else {
+                        b.getDouble("lat")?.let { it1 -> LatLng(it1, b.getDouble("long")!!) }
+                            ?.let { it2 ->
+                                MarkerOptions()
+                                    .position(it2)
+                                    .icon(new)
+                            }?.let { it3 ->
+                            googleMap.addMarker(
+                                it3
+
+                            )
+                        }
+                        googleMap.moveCamera(
+                            CameraUpdateFactory.newLatLng(
+                                LatLng(
+                                    b.getDouble("lat")!!,
+                                    b.getDouble("long")!!
+                                )
+                            )
+                        )
+                    }
                     }
                 }
-//                    .addOnSuccessListener {
-//                    lat = it.getString("lat")?.toDouble() ?: 0.0
-//                    long = it.getString("long")?.toDouble() ?: 0.0
-//                }
             }
-
-
-
-
-
-        googleMap.setMaxZoomPreference(200f)
     }
 }

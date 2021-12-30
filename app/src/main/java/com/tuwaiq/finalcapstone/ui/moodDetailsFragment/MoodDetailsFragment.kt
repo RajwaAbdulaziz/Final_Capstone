@@ -3,6 +3,7 @@ package com.tuwaiq.finalcapstone.ui.moodDetailsFragment
 import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Bitmap
@@ -40,6 +41,7 @@ import com.tuwaiq.finalcapstone.R
 import com.tuwaiq.finalcapstone.model.Mood
 import com.tuwaiq.finalcapstone.ui.listFragment.TASK
 import com.tuwaiq.finalcapstone.utils.FirebaseUtils
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -80,6 +82,7 @@ class MoodDetailsFragment : Fragment() {
     private lateinit var picSwitch: SwitchCompat
     private lateinit var noteTextView: TextView
     private var colorRes = 0
+    private lateinit var sharedPref: SharedPreferences
 
     private val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
 
@@ -180,10 +183,17 @@ class MoodDetailsFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mood = args.mood
-        color = args.color
-        moodId = args.moodId
+//        mood = args.mood
+//        color = args.color
         meme = args.meme
+
+
+        sharedPref = activity?.getSharedPreferences("switch", Context.MODE_PRIVATE)!!
+        color = sharedPref.getString("color", "").toString()
+        mood = sharedPref.getString("mood", "").toString()
+        moodId = sharedPref.getString("moodId", "").toString()
+
+//        Log.d(TAG, "color: $meme")
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
@@ -266,8 +276,9 @@ class MoodDetailsFragment : Fragment() {
     override fun onStart() {
         super.onStart()
 
-        memePickerIv.load(meme)
         val user = FirebaseAuth.getInstance().currentUser?.uid
+
+        memePickerIv.load(meme)
 
         memePickerIv.setOnClickListener {
             findNavController().navigate(R.id.action_moodDetailsFragment_to_memeApiFragment)
@@ -298,6 +309,7 @@ class MoodDetailsFragment : Fragment() {
         }
 
         if (TASK == "UPDATE") {
+
             FirebaseUtils().firestoreDatabase.collection("Mood")
                 .document(moodId).get().addOnCompleteListener {
 
@@ -308,13 +320,56 @@ class MoodDetailsFragment : Fragment() {
                         "depressed" -> moodIv.setImageResource(R.drawable.depressed)
                         "angry" -> moodIv.setImageResource(R.drawable.angry)
                         "neutral" -> moodIv.setImageResource(R.drawable.neutral)
+                        else -> moodIv.setImageBitmap(null)
                     }
+
+                    when (it.result.getString("color")) {
+                            "pink" -> {
+                                noteEt.setTextColor(resources.getColor(R.color.dark_pink))
+                                noteEt.setHintTextColor(resources.getColor(R.color.dark_pink))
+                                colorRes = R.color.dark_pink
+                            }
+                            "green" -> {
+                                noteEt.setTextColor(resources.getColor(R.color.dark_green))
+                                noteEt.setHintTextColor(resources.getColor(R.color.dark_green))
+                                colorRes = R.color.green
+                            }
+                            "blue" -> {
+                                noteEt.setTextColor(resources.getColor(R.color.dark_blue))
+                                noteEt.setHintTextColor(resources.getColor(R.color.dark_blue))
+                                colorRes = R.color.blue
+                            }
+                            "dark_blue" -> {
+                                noteEt.setTextColor(resources.getColor(R.color.darkest_blue))
+                                noteEt.setHintTextColor(resources.getColor(R.color.darkest_blue))
+                                colorRes = R.color.dark_blue
+                            }
+                            "light_red" -> {
+                                noteEt.setTextColor(resources.getColor(R.color.red))
+                                noteEt.setHintTextColor(resources.getColor(R.color.red))
+                                colorRes = R.color.red
+                            }
+                            "light_gray" -> {
+                                noteEt.setTextColor(resources.getColor(R.color.gray))
+                                noteEt.setHintTextColor(resources.getColor(R.color.gray))
+                                colorRes = R.color.gray
+                            }
+                            else -> {
+                                noteEt.setTextColor(resources.getColor(R.color.black))
+                                noteEt.setHintTextColor(resources.getColor(R.color.black))
+                                colorRes = R.color.black
+                            }
+                    }
+
                     noteEt.setText(it.result.getString("note"))
+
                     Glide.with(requireContext())
                         .load(it.result.getString("pic"))
                         .into(picIv)
 
+                    if (it.result.getString("pic") != null) {
                     picUrl = it.result.getString("pic")!!
+                    }
 
                     memePickerIv.load(it.result.getString("memePic"))
 
@@ -349,7 +404,7 @@ class MoodDetailsFragment : Fragment() {
                                 MoodDetailsFragmentDirections.actionMoodDetailsFragmentToListFragment2(
                                     color
                                 )
-                            findNavController().navigate(action)
+                            findNavController().navigate(R.id.action_moodDetailsFragment_to_listFragment2)
                         }
                     }
                 }
@@ -367,6 +422,7 @@ class MoodDetailsFragment : Fragment() {
             lifecycleScope.launch {
                 userName = moodDetailsViewModel.currentUserName().toString()
                 Log.d(TAG, userName)
+                Log.d(TAG, lat.toString())
             }.invokeOnCompletion {
 
                 if (user != null) {
@@ -398,7 +454,7 @@ class MoodDetailsFragment : Fragment() {
                 findNavController().navigate(action)
             }
         }
-        }
+    }
 
     private fun getCurrentLocation() {
         if (ActivityCompat.checkSelfPermission(
@@ -409,8 +465,7 @@ class MoodDetailsFragment : Fragment() {
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
+
             // here to request the missing permissions, and then overriding
             //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
             //                                          int[] grantResults)
@@ -418,6 +473,7 @@ class MoodDetailsFragment : Fragment() {
             // for ActivityCompat#requestPermissions for more details.
             return
         }
+
         fusedLocationClient.lastLocation.addOnSuccessListener {
             latLangTv.text = "${it.latitude}  ${it.longitude}"
             lat = it.latitude

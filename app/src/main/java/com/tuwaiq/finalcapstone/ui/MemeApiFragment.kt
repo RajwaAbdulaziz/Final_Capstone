@@ -1,5 +1,7 @@
 package com.tuwaiq.finalcapstone.ui
 
+import android.content.Context
+import android.content.SharedPreferences
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.util.Log
@@ -25,6 +27,7 @@ class MemeApiFragment : Fragment() {
     private val memeApiViewModel by lazy { ViewModelProvider(this).get(MemeApiViewModel::class.java)}
 
     private lateinit var memeRv: RecyclerView
+    //private lateinit var sharedPref: SharedPreferences
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,6 +41,11 @@ class MemeApiFragment : Fragment() {
         return view
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+       // sharedPref = activity?.getSharedPreferences("switch", Context.MODE_PRIVATE)!!
+    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewLifecycleOwner.lifecycleScope.launch {

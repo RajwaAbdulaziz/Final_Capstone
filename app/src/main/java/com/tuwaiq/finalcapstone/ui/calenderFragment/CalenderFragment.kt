@@ -38,7 +38,7 @@ class CalenderFragment : Fragment() {
         calendarView.maxDate = Calendar.getInstance().timeInMillis
 
         calendarView.setOnDateChangeListener { p0, p1, p2, p3 ->
-            findNavController().navigate(R.id.action_calenderFragment2_to_moodFragment)
+            //findNavController().navigate(R.id.action_calenderFragment2_to_moodFragment)
         }
     }
 }

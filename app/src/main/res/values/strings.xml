@@ -23,4 +23,6 @@
     <string name="profile">Profile</string>
     <string name="public_moods">Public Moods</string>
     <string name="private_moods">Private Moods</string>
+    <string name="map_id">68eeeeecfcb51a99</string>
+    <string name="chat">Chat</string>
 </resources>

@@ -4,14 +4,6 @@
     app:cnb_unselectedColor="#FFFFFF">
 
     <item
-        android:id="@+id/calenderFragment2"
-        android:title="@string/calender"
-        android:enabled="true"
-        android:icon="@drawable/ic_baseline_calendar_today_24"
-        app:cnb_iconColor="#3D83BC"
-    />
-
-    <item
         android:id="@+id/listFragment2"
         android:icon="@drawable/ic_baseline_list_24"
         android:enabled="true"
@@ -20,9 +12,10 @@
         />
 
     <item
-        android:id="@+id/mapViewFragment2"
-        android:icon="@drawable/ic_baseline_map_24"
-        android:title="@string/map"
+        android:id="@+id/chatFragment2"
+        android:title="@string/chat"
+        android:enabled="true"
+        android:icon="@drawable/ic_baseline_chat_24"
         app:cnb_iconColor="#3D83BC"
         />
 

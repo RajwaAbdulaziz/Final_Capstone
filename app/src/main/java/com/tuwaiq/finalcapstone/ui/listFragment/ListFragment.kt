@@ -1,6 +1,7 @@
 package com.tuwaiq.finalcapstone.ui.listFragment
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Build
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
@@ -9,40 +10,50 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.OvershootInterpolator
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.ViewCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.tuwaiq.finalcapstone.R
 import com.tuwaiq.finalcapstone.model.Mood
 import com.tuwaiq.finalcapstone.utils.FirebaseUtils
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlin.math.exp
 
 private const val TAG = "ListFragment"
 var TASK = ""
+var bool = false
+var bool1 = false
 class ListFragment : Fragment() {
 
     private val listViewModel by lazy { ViewModelProvider(this).get(ListViewModel::class.java) }
 
     private lateinit var recyclerView: RecyclerView
-    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var color: String
+    private lateinit var fab: FloatingActionButton
+    private lateinit var mapIb: ImageButton
+    private lateinit var sharedPref: SharedPreferences
     private val args: ListFragmentArgs by navArgs()
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        color = args.colorr
+        sharedPref = activity?.getSharedPreferences("switch", Context.MODE_PRIVATE)!!
     }
 
     override fun onCreateView(
@@ -51,8 +62,10 @@ class ListFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.list_fragment, container, false)
         recyclerView = view.findViewById(R.id.moods_rv)
-        recyclerView.layoutManager = LinearLayoutManager(context)
-        swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout)
+        fab = view.findViewById(R.id.fab)
+        mapIb = view.findViewById(R.id.map_ib)
+        recyclerView.layoutManager = GridLayoutManager(context, 2)
+        //swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout)
 
         lifecycleScope.launch {
                 updateUI()
@@ -67,6 +80,29 @@ class ListFragment : Fragment() {
         return view
     }
 
+    override fun onStart() {
+        super.onStart()
+
+        fab.setOnClickListener {
+            //bool = if (!bool) {
+                findNavController().navigate(R.id.action_listFragment2_to_moodFragment)
+                val interpolator = OvershootInterpolator()
+                ViewCompat.animate(fab).rotation(135f).withLayer().setDuration(300)
+                    .setInterpolator(interpolator).start()
+               // true
+            }
+//            else {
+//                findNavController().navigate(R.id.action_moodFragment_to_listFragment2)
+//                val interpolator = OvershootInterpolator()
+//                ViewCompat.animate(fab).rotation(90f).withLayer().setDuration(300)
+//                    .setInterpolator(interpolator).start()
+//                false
+//            }
+
+        mapIb.setOnClickListener{
+            findNavController().navigate(R.id.action_listFragment2_to_mapViewFragment2)
+        }
+    }
     private suspend fun updateUI() {
 
             listViewModel.getListOfMoods().onEach {
@@ -96,10 +132,14 @@ class ListFragment : Fragment() {
         private val moodIv: ImageView = itemView.findViewById(R.id.chosen_mood_iv)
         private val deleteMood: ImageButton = itemView.findViewById(R.id.delete_mood)
         private val memePicIv: ImageView = itemView.findViewById(R.id.meme_pic_iv)
+        private val expandIb: ImageButton = itemView.findViewById(R.id.expand_ib)
+        private val layout: ConstraintLayout = itemView.findViewById(R.id.item_layout)
+
 
         init {
             itemView.setOnClickListener(this)
             deleteMood.setOnClickListener(this)
+            expandIb.setOnClickListener(this)
         }
 
         @RequiresApi(Build.VERSION_CODES.Q)
@@ -111,6 +151,10 @@ class ListFragment : Fragment() {
 
                 ownerTv.text = getString(R.string.you)
 
+            if (moods.pic != "" || moods.memePic != "") {
+                expandIb.visibility = View.VISIBLE
+            }
+
                 if (moods.privatePic == "false") {
 
                     Glide.with(requireContext())
@@ -118,16 +162,17 @@ class ListFragment : Fragment() {
                         .into(noteIv)
                 }
 
-            Glide.with(requireContext())
-                .load(moods.memePic)
-                .into(memePicIv)
+            Log.d(TAG, moods.memePic)
 
-                if (moods.privatePic == "true" || (moods.pic == "" && moods.memePic == "")) {
+
+
+                if (moods.privatePic == "true" || (moods.pic == "" && moods.memePic == "-1")) {
                     noteIv.visibility = View.GONE
-                    val n = noteTv.layoutParams
-                    n.width = 660
-                    val b = noteBoundsTv.layoutParams
-                    b.width = 720
+                    expandIb.visibility = View.GONE
+//                    val n = noteTv.layoutParams
+//                    n.width = 660
+//                    val b = noteBoundsTv.layoutParams
+//                    b.width = 720
                 }
 
                 when (moods.mood) {
@@ -142,8 +187,11 @@ class ListFragment : Fragment() {
                 when (moods.color) {
                     "pink" -> noteTv.setTextColor(resources.getColor(R.color.dark_pink))
                     "green" -> noteTv.setTextColor(resources.getColor(R.color.dark_green))
-                    "orange" -> noteTv.setTextColor(resources.getColor(R.color.dark_orange))
-                    "purple" -> noteTv.setTextColor(resources.getColor(R.color.dark_purple))
+                    "blue" -> noteTv.setTextColor(resources.getColor(R.color.dark_blue))
+                    "dark_blue" -> noteTv.setTextColor(resources.getColor(R.color.darkest_blue))
+                    "light_red" -> noteTv.setTextColor(resources.getColor(R.color.red))
+                    "light_gray" -> noteTv.setTextColor(resources.getColor(R.color.gray))
+                    else -> noteTv.setTextColor(resources.getColor(R.color.black))
                 }
             }
 
@@ -162,12 +210,35 @@ class ListFragment : Fragment() {
                     ref.get().addOnSuccessListener {
                         it.forEach { documentId ->
                             if (documentId.id == moods.moodId) {
-                                Log.d(TAG, "colorrrr ${moods.color}")
+
+                                sharedPref.edit().putString("moodId", moods.moodId).apply()
+
                                 val action = ListFragmentDirections.actionListFragment2ToMoodDetailsFragment(moods.color, moods.mood, moods.moodId)
                                 findNavController().navigate(action)
                             }
                         }
                     }
+                }
+                expandIb -> {
+                    if (!bool1) {
+                        memePicIv.visibility = View.VISIBLE
+                        noteIv.visibility = View.VISIBLE
+                        Glide.with(requireContext())
+                            .load(moods.memePic)
+                            .into(memePicIv)
+                        val interpolator = OvershootInterpolator()
+                        ViewCompat.animate(expandIb).rotation(180f).withLayer().setDuration(300)
+                            .setInterpolator(interpolator).start()
+                        bool1 = true
+                    } else if (bool1){
+                        memePicIv.visibility = View.GONE
+                        noteIv.visibility = View.GONE
+                        val interpolator = OvershootInterpolator()
+                        ViewCompat.animate(expandIb).rotation(360f).withLayer().setDuration(300)
+                            .setInterpolator(interpolator).start()
+                        bool1 = false
+                    }
+                    recyclerView.requestLayout()
                 }
             }
         }

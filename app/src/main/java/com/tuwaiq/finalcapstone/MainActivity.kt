@@ -14,13 +14,23 @@ import android.view.WindowManager
 
 import android.os.Build
 import android.view.Window
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.ismaeldivita.chipnavigation.ChipNavigationBar
+import com.joaquimley.faboptions.FabOptions
+import androidx.core.view.ViewCompat
+
+import android.view.animation.OvershootInterpolator
+
+
+
 
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var bottomNav: BottomNavigationView
     private lateinit var chipNav: ChipNavigationBar
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,6 +39,7 @@ class MainActivity : AppCompatActivity() {
         bottomNav = findViewById(R.id.bottom_nav)
         chipNav = findViewById(R.id.chip_nav)
 
+
         val navController = findNavController(R.id.fragmentContainerView)
 
         chipNav.setOnItemSelectedListener {
@@ -36,7 +47,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            chipNav.setItemSelected(destination.id) }
+            chipNav.setItemSelected(destination.id )}
+
+
 
         bottomNav.setupWithNavController(navController)
 

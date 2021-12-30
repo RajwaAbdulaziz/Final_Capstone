@@ -48,7 +48,7 @@ class LoginFragment : Fragment() {
         super.onStart()
 
         if (loginViewModel.currentUser != null) {
-            findNavController().navigate(R.id.action_loginFragment_to_calenderFragment2)
+            findNavController().navigate(R.id.action_loginFragment_to_listFragment2)
         }
 
         loginBtn.setOnClickListener {
@@ -61,7 +61,7 @@ class LoginFragment : Fragment() {
                 password.isEmpty() -> showToast("Enter your password")
                 else -> {
                     loginViewModel.login(email, password)
-                    findNavController().navigate(R.id.action_loginFragment_to_calenderFragment2)
+                    findNavController().navigate(R.id.action_loginFragment_to_listFragment2)
                 }
             }
         }

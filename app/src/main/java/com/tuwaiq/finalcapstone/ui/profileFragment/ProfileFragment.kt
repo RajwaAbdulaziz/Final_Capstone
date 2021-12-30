@@ -77,8 +77,6 @@ class ProfileFragment : Fragment() {
 
             moodsSittSwitchCompat.isChecked = sharedPref.getBoolean("switch_state", false)
             Log.d(TAG, "get: ${moodsSittSwitchCompat.isChecked}")
-
-
     }
 
     private suspend fun updateUI() {
@@ -94,7 +92,7 @@ class ProfileFragment : Fragment() {
         private var profileNoteTv: TextView = itemView.findViewById(R.id.personal_note_tv)
         private var profileNoteIv: ImageView = itemView.findViewById(R.id.personal_pic_iv)
         private var profileMoodIv: ImageView = itemView.findViewById(R.id.personal_chosen_mood_iv)
-        private var deleteMood: ImageButton = itemView.findViewById(R.id.personal_delete_mood)
+        //private var deleteMood: ImageButton = itemView.findViewById(R.id.personal_delete_mood)
 
         fun bind(mood: Mood) {
             this.mood = mood
@@ -108,9 +106,9 @@ class ProfileFragment : Fragment() {
             } else {
                 profileNoteIv.visibility = View.GONE
                 val n = profileNoteTv.layoutParams
-                n.width = 850
+                n.width = 660
                 val b = profileNoteBoundsTv.layoutParams
-                b.width = 910
+                b.width = 720
             }
 
 

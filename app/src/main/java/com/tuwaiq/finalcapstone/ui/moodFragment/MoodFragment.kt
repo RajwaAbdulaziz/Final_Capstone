@@ -2,6 +2,8 @@ package com.tuwaiq.finalcapstone.ui.moodFragment
 
 import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -29,6 +31,7 @@ class MoodFragment : Fragment() {
     private lateinit var neutralImageButton: ImageButton
     private lateinit var chosenMoodImageView: ImageView
     private lateinit var nextArrow: ImageButton
+    private lateinit var sharedPref: SharedPreferences
 
 
 
@@ -59,6 +62,12 @@ class MoodFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_mood, container, false)
         init(view)
         return view
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        sharedPref = activity?.getSharedPreferences("switch", Context.MODE_PRIVATE)!!
     }
 
     private fun init(view: View) {
@@ -312,9 +321,12 @@ class MoodFragment : Fragment() {
 //            mood = "disgusted"
 //        }
 
+
+
         nextArrow.setOnClickListener {
-            val action = MoodFragmentDirections.actionMoodFragmentToMoodDetailsFragment(color, mood)
-            findNavController().navigate(action)
+            sharedPref.edit().putString("color", color).apply()
+            sharedPref.edit().putString("mood", mood).apply()
+            findNavController().navigate(R.id.action_moodFragment_to_moodDetailsFragment)
         }
     }
 

@@ -13,5 +13,5 @@ data class Mood(
     var lat: Double = 0.0,
     var long: Double = 0.0,
     var moodId: String = "",
-    var privatePic: String = "",
+    var privatePic: String = ""
         )

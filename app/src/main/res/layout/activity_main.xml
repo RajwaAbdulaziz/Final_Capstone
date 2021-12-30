@@ -13,8 +13,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:defaultNavHost="true"
-        app:navGraph="@navigation/navigation"
-        app:layout_constraintBottom_toTopOf="@id/chip_nav"/>
+        app:layout_constraintBottom_toTopOf="@id/chip_nav"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:navGraph="@navigation/navigation" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_nav"
@@ -22,24 +24,31 @@
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         android:visibility="gone"
-        app:menu="@menu/nav_menu"/>
+        app:menu="@menu/nav_menu" />
 
     <com.ismaeldivita.chipnavigation.ChipNavigationBar
         android:id="@+id/chip_nav"
-        android:layout_width="match_parent"
+        android:layout_width="370dp"
         android:layout_height="wrap_content"
-        android:background="@drawable/background_gradient"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/rounded"
         android:elevation="16dp"
         android:padding="8dp"
+        app:cnb_menuResource="@menu/nav_menu"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:cnb_menuResource="@menu/nav_menu" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/viewpager"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintBottom_toTopOf="@id/chip_nav"
-        android:layout_alignParentTop="true"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+
+    <!--    <androidx.viewpager.widget.ViewPager-->
+<!--        android:id="@+id/viewpager"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        app:layout_constraintBottom_toTopOf="@id/chip_nav"-->
+<!--        android:layout_alignParentTop="true"-->
+<!--        app:layout_behavior="@string/appbar_scrolling_view_behavior" />-->
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

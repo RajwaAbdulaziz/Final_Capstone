@@ -3,17 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation"
-    app:startDestination="@id/loginFragment">
+    app:startDestination="@id/listFragment2">
 
     <fragment
         android:id="@+id/calenderFragment2"
         android:name="com.tuwaiq.finalcapstone.ui.calenderFragment.CalenderFragment"
         android:label="calender_fragment"
-        tools:layout="@layout/calender_fragment" >
-        <action
-            android:id="@+id/action_calenderFragment2_to_moodFragment"
-            app:destination="@id/moodFragment" />
-    </fragment>
+        tools:layout="@layout/calender_fragment"/>
 
     <fragment
         android:id="@+id/listFragment2"
@@ -21,14 +17,19 @@
         android:label="list_fragment"
         tools:layout="@layout/list_fragment">
 
-        <argument
-        android:name="colorr"
-        app:argType="string"
-            android:defaultValue="black"
-        />
         <action
             android:id="@+id/action_listFragment2_to_moodDetailsFragment"
             app:destination="@id/moodDetailsFragment" />
+        <action
+            android:id="@+id/action_listFragment2_to_mapViewFragment2"
+            app:destination="@id/mapViewFragment2" />
+        <argument
+            android:name="colorr"
+            android:defaultValue="black"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_listFragment2_to_moodFragment"
+            app:destination="@id/moodFragment" />
     </fragment>
 
     <fragment
@@ -41,12 +42,14 @@
         android:id="@+id/moodFragment"
         android:name="com.tuwaiq.finalcapstone.ui.moodFragment.MoodFragment"
         android:label="fragment_mood"
-        tools:layout="@layout/fragment_mood" >
+        tools:layout="@layout/fragment_mood">
         <action
             android:id="@+id/action_moodFragment_to_moodDetailsFragment"
             app:destination="@id/moodDetailsFragment"
-            app:enterAnim="@anim/slide_up_animation">
-        </action>
+            app:enterAnim="@anim/slide_up_animation"></action>
+        <action
+            android:id="@+id/action_moodFragment_to_listFragment2"
+            app:destination="@id/listFragment2" />
     </fragment>
 
     <fragment
@@ -54,21 +57,6 @@
         android:name="com.tuwaiq.finalcapstone.ui.moodDetailsFragment.MoodDetailsFragment"
         android:label="mood_details_fragment"
         tools:layout="@layout/mood_details_fragment">
-        <argument
-            android:name="color"
-            app:argType="string"
-            android:defaultValue="-1"
-            />
-        <argument
-            android:name="mood"
-            app:argType="string"
-            android:defaultValue="-1"
-            />
-        <argument
-            android:name="moodId"
-            app:argType="string"
-            android:defaultValue="-1"
-            />
         <action
             android:id="@+id/action_moodDetailsFragment_to_listFragment2"
             app:destination="@id/listFragment2" />
@@ -76,27 +64,39 @@
             android:id="@+id/action_moodDetailsFragment_to_memeApiFragment"
             app:destination="@id/memeApiFragment" />
         <argument
+            android:name="moodId"
+            android:defaultValue="-1"
+            app:argType="string" />
+        <argument
+            android:name="color"
+            android:defaultValue="-1"
+            app:argType="string" />
+        <argument
+            android:name="mood"
+            android:defaultValue="-1"
+            app:argType="string" />
+        <argument
             android:name="meme"
-            app:argType="string"
-            android:defaultValue="-1"/>
+            android:defaultValue="-1"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.tuwaiq.finalcapstone.ui.loginFragment.LoginFragment"
         android:label="login_fragment"
-        tools:layout="@layout/login_fragment" >
-        <action
-            android:id="@+id/action_loginFragment_to_calenderFragment2"
-            app:destination="@id/calenderFragment2" />
+        tools:layout="@layout/login_fragment">
         <action
             android:id="@+id/action_loginFragment_to_registerFragment"
             app:destination="@id/registerFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_listFragment2"
+            app:destination="@id/listFragment2" />
     </fragment>
     <fragment
         android:id="@+id/registerFragment"
         android:name="com.tuwaiq.finalcapstone.ui.registerFragment.RegisterFragment"
         android:label="register_fragment"
-        tools:layout="@layout/register_fragment" >
+        tools:layout="@layout/register_fragment">
         <action
             android:id="@+id/action_registerFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
@@ -110,14 +110,14 @@
         android:id="@+id/memeApiFragment"
         android:name="com.tuwaiq.finalcapstone.ui.MemeApiFragment"
         android:label="meme_api_fragment"
-        tools:layout="@layout/meme_api_fragment" >
+        tools:layout="@layout/meme_api_fragment">
         <action
             android:id="@+id/action_memeApiFragment_to_moodDetailsFragment"
-            app:destination="@id/moodDetailsFragment" >
+            app:destination="@id/moodDetailsFragment">
             <argument
                 android:name="meme"
-                app:argType="string"
-                android:defaultValue='' />
+                android:defaultValue=''
+                app:argType="string" />
         </action>
     </fragment>
 </navigation>
