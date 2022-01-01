@@ -24,15 +24,18 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
+import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.tuwaiq.finalcapstone.MainActivity
 import com.tuwaiq.finalcapstone.R
 import com.tuwaiq.finalcapstone.model.Mood
 import com.tuwaiq.finalcapstone.utils.FirebaseUtils
+import com.vivekkaushik.datepicker.DatePickerTimeline
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import java.util.*
 import kotlin.math.exp
 
 private const val TAG = "ListFragment"
@@ -45,9 +48,13 @@ class ListFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var color: String
-    private lateinit var fab: FloatingActionButton
+    //private lateinit var fab: FloatingActionButton
     private lateinit var mapIb: ImageButton
     private lateinit var sharedPref: SharedPreferences
+    private lateinit var fab: FloatingActionButton
+    private lateinit var datePicker: DatePickerTimeline
+    private lateinit var shimmerFrameLayout: ShimmerFrameLayout
+
     private val args: ListFragmentArgs by navArgs()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,9 +69,18 @@ class ListFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.list_fragment, container, false)
         recyclerView = view.findViewById(R.id.moods_rv)
-        fab = view.findViewById(R.id.fab)
+        //fab = MainActivity().findViewById(R.id.fab)
         mapIb = view.findViewById(R.id.map_ib)
-        recyclerView.layoutManager = GridLayoutManager(context, 2)
+        datePicker = view.findViewById(R.id.datePickerTimeline)
+        shimmerFrameLayout = view.findViewById(R.id.shimmer_frame_layout)
+
+        shimmerFrameLayout.startShimmerAnimation()
+//
+//        recyclerView.visibility = View.GONE
+        //recyclerView.layoutManager = linearLayoutManager // Add your recycler view to this ZoomRecycler layout
+
+        recyclerView.layoutManager = LinearLayoutManager(context)
+        recyclerView.isNestedScrollingEnabled = false
         //swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout)
 
         lifecycleScope.launch {
@@ -80,24 +96,18 @@ class ListFragment : Fragment() {
         return view
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        //fab = requireActivity().findViewById(R.id.fab)
+       // fab.show()
+    }
     override fun onStart() {
         super.onStart()
 
-        fab.setOnClickListener {
-            //bool = if (!bool) {
-                findNavController().navigate(R.id.action_listFragment2_to_moodFragment)
-                val interpolator = OvershootInterpolator()
-                ViewCompat.animate(fab).rotation(135f).withLayer().setDuration(300)
-                    .setInterpolator(interpolator).start()
-               // true
-            }
-//            else {
-//                findNavController().navigate(R.id.action_moodFragment_to_listFragment2)
-//                val interpolator = OvershootInterpolator()
-//                ViewCompat.animate(fab).rotation(90f).withLayer().setDuration(300)
-//                    .setInterpolator(interpolator).start()
-//                false
-//            }
+        Log.d(TAG, Calendar.getInstance().toString())
+        datePicker.setInitialDate(2022, 0, 1)
+        datePicker.setActiveDate(Calendar.getInstance())
 
         mapIb.setOnClickListener{
             findNavController().navigate(R.id.action_listFragment2_to_mapViewFragment2)
@@ -106,8 +116,13 @@ class ListFragment : Fragment() {
     private suspend fun updateUI() {
 
             listViewModel.getListOfMoods().onEach {
+//                shimmerFrameLayout.visibility = View.INVISIBLE
+//                recyclerView.visibility = View.VISIBLE
                 recyclerView.adapter = MoodAdapter(it)
+                shimmerFrameLayout.stopShimmerAnimation()
+                shimmerFrameLayout.visibility = View.GONE
             }.launchIn(lifecycleScope)
+
         }
 
 
@@ -162,7 +177,7 @@ class ListFragment : Fragment() {
                         .into(noteIv)
                 }
 
-            Log.d(TAG, moods.memePic)
+           // Log.d(TAG, moods.memePic)
 
 
 
@@ -211,10 +226,12 @@ class ListFragment : Fragment() {
                         it.forEach { documentId ->
                             if (documentId.id == moods.moodId) {
 
+                                sharedPref.edit().putString("moodId", moods.color).apply()
+                                sharedPref.edit().putString("moodId", moods.mood).apply()
                                 sharedPref.edit().putString("moodId", moods.moodId).apply()
-
+                                //Log.d(TAG, "mooood: ${moods.moodId}")
                                 val action = ListFragmentDirections.actionListFragment2ToMoodDetailsFragment(moods.color, moods.mood, moods.moodId)
-                                findNavController().navigate(action)
+                                findNavController().navigate(R.id.action_listFragment2_to_moodDetailsFragment)
                             }
                         }
                     }

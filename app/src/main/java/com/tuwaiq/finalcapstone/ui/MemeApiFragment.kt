@@ -22,11 +22,13 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 private const val TAG = "MemeApiFragment"
+var CHOSE_MEME = false
 class MemeApiFragment : Fragment() {
 
     private val memeApiViewModel by lazy { ViewModelProvider(this).get(MemeApiViewModel::class.java)}
 
     private lateinit var memeRv: RecyclerView
+    private lateinit var sharedPref: SharedPreferences
     //private lateinit var sharedPref: SharedPreferences
 
     override fun onCreateView(
@@ -44,7 +46,7 @@ class MemeApiFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-       // sharedPref = activity?.getSharedPreferences("switch", Context.MODE_PRIVATE)!!
+        sharedPref = activity?.getSharedPreferences("switch", Context.MODE_PRIVATE)!!
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -77,8 +79,10 @@ class MemeApiFragment : Fragment() {
         override fun onClick(p0: View?) {
             when(p0) {
                 itemView -> {
+                    CHOSE_MEME = true
+                    sharedPref.edit().putString("memeUrl", meme.url).apply()
                     val action = MemeApiFragmentDirections.actionMemeApiFragmentToMoodDetailsFragment(meme.url)
-                    findNavController().navigate(action)
+                    findNavController().navigate(R.id.action_memeApiFragment_to_moodDetailsFragment)
                 }
             }
         }

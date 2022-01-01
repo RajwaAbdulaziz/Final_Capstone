@@ -9,9 +9,10 @@
     android:layout_margin="10sp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/con_layout"
         android:layout_width="300sp"
         android:layout_height="200sp"
-        android:background="@drawable/rect"
+        android:background="@drawable/rect3"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -36,7 +37,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="42dp"
-            android:textColor="#8046D1E3"
+            android:textColor="@color/white"
             android:text="@string/you"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toTopOf="@+id/personal_note_bounds_tv"
@@ -50,7 +51,6 @@
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="12dp"
             android:background="@drawable/rect"
-            android:backgroundTint="#C5DAE4"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 

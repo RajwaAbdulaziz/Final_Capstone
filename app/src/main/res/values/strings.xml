@@ -25,4 +25,5 @@
     <string name="private_moods">Private Moods</string>
     <string name="map_id">68eeeeecfcb51a99</string>
     <string name="chat">Chat</string>
+    <string name="moods_chart">Moods Chart</string>
 </resources>

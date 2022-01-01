@@ -30,6 +30,8 @@ import coil.load
 import com.bumptech.glide.Glide
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -39,6 +41,7 @@ import com.google.firebase.storage.ktx.storage
 import com.google.type.LatLng
 import com.tuwaiq.finalcapstone.R
 import com.tuwaiq.finalcapstone.model.Mood
+import com.tuwaiq.finalcapstone.ui.CHOSE_MEME
 import com.tuwaiq.finalcapstone.ui.listFragment.TASK
 import com.tuwaiq.finalcapstone.utils.FirebaseUtils
 import kotlinx.coroutines.flow.onEach
@@ -81,6 +84,7 @@ class MoodDetailsFragment : Fragment() {
     private lateinit var progressBar: ProgressBar
     private lateinit var picSwitch: SwitchCompat
     private lateinit var noteTextView: TextView
+    private lateinit var fab: FloatingActionButton
     private var colorRes = 0
     private lateinit var sharedPref: SharedPreferences
 
@@ -178,6 +182,7 @@ class MoodDetailsFragment : Fragment() {
         memePickerIv = view.findViewById(R.id.meme_picker_iv)
         locationBtn = view.findViewById(R.id.location_btn)
         latLangTv = view.findViewById(R.id.lat_lang_tv)
+        fab = activity?.findViewById(R.id.fab)!!
 
     }
 
@@ -185,22 +190,28 @@ class MoodDetailsFragment : Fragment() {
         super.onCreate(savedInstanceState)
 //        mood = args.mood
 //        color = args.color
-        meme = args.meme
+        //meme = args.meme
 
 
         sharedPref = activity?.getSharedPreferences("switch", Context.MODE_PRIVATE)!!
         color = sharedPref.getString("color", "").toString()
         mood = sharedPref.getString("mood", "").toString()
         moodId = sharedPref.getString("moodId", "").toString()
-
-//        Log.d(TAG, "color: $meme")
+        meme = sharedPref.getString("memeUrl", "").toString()
+        Log.d(TAG, "color: $moodId")
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
     }
 
+    override fun onStop() {
+        super.onStop()
+        fab.show()
+    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        fab.hide()
 
         when (mood) {
             "good" -> {
@@ -278,7 +289,10 @@ class MoodDetailsFragment : Fragment() {
 
         val user = FirebaseAuth.getInstance().currentUser?.uid
 
-        memePickerIv.load(meme)
+        if (CHOSE_MEME) {
+            memePickerIv.load(meme)
+            CHOSE_MEME = false
+        }
 
         memePickerIv.setOnClickListener {
             findNavController().navigate(R.id.action_moodDetailsFragment_to_memeApiFragment)
@@ -310,6 +324,10 @@ class MoodDetailsFragment : Fragment() {
 
         if (TASK == "UPDATE") {
 
+            picIv.setOnClickListener {
+                picIv.isClickable = false
+                Snackbar.make(it, "You can't edit your pic", Snackbar.LENGTH_SHORT).show()
+            }
             FirebaseUtils().firestoreDatabase.collection("Mood")
                 .document(moodId).get().addOnCompleteListener {
 
@@ -378,8 +396,9 @@ class MoodDetailsFragment : Fragment() {
                         Log.d(TAG, "urlll $picUrl")
                         lifecycleScope.launch {
                             userName = moodDetailsViewModel.currentUserName().toString()
-                            Log.d(TAG, userName)
+                            //Log.d(TAG, userName)
                         }.invokeOnCompletion {
+                            Log.d(TAG, "mood: $mood")
                             val note = uid?.let { uid ->
                                 Mood(
                                     noteEt.text.toString(),
@@ -388,6 +407,9 @@ class MoodDetailsFragment : Fragment() {
                                     mood,
                                     uid,
                                     userName,
+                                    meme,
+                                    lat,
+                                    long,
                                     moodId
                                 )
                             }
@@ -451,7 +473,7 @@ class MoodDetailsFragment : Fragment() {
 
                 val action =
                     MoodDetailsFragmentDirections.actionMoodDetailsFragmentToListFragment2(color)
-                findNavController().navigate(action)
+                findNavController().navigate(R.id.action_moodDetailsFragment_to_listFragment2)
             }
         }
     }

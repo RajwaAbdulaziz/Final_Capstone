@@ -34,6 +34,7 @@ android {
     }
 }
 
+
 dependencies {
 
     implementation 'androidx.core:core-ktx:1.7.0'
@@ -95,6 +96,17 @@ dependencies {
 
     implementation 'com.alespero:expandable-cardview:0.8'
 
+    implementation 'com.yarolegovich:discrete-scrollview:1.5.1'
 
+
+    implementation 'com.github.sparrow007:carouselrecyclerview:1.2.1'
+
+    implementation("app.futured.donut:donut:2.2.0")
+
+    implementation 'com.vivekkaushik.datepicker:datePickerTimeline:0.0.4'
+
+    implementation 'com.github.st235:expandablebottombar:1.4.0'
+
+    implementation 'com.facebook.shimmer:shimmer:0.1.0@aar'
 
 }

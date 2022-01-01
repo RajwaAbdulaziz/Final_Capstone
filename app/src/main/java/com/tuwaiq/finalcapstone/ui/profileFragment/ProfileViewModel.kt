@@ -13,4 +13,8 @@ class ProfileViewModel : ViewModel() {
     suspend fun getProfileListOfMoods(): Flow<MutableList<Mood>> {
         return repo.getProfileListOfMoods()
     }
+
+    suspend fun userName(): String? {
+        return repo.userName()
+    }
 }

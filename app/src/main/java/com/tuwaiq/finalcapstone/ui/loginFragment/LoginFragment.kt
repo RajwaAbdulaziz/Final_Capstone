@@ -61,6 +61,7 @@ class LoginFragment : Fragment() {
                 password.isEmpty() -> showToast("Enter your password")
                 else -> {
                     loginViewModel.login(email, password)
+
                     findNavController().navigate(R.id.action_loginFragment_to_listFragment2)
                 }
             }
