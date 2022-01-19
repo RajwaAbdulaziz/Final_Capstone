@@ -1,9 +1,7 @@
-package com.tuwaiq.finalcapstone.ui
+package com.tuwaiq.finalcapstone.presentation.memeApiFragment
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.tuwaiq.finalcapstone.memeApi.models.Meme
 import com.tuwaiq.finalcapstone.memeApi.repo.ApiRepo
 import kotlinx.coroutines.flow.Flow

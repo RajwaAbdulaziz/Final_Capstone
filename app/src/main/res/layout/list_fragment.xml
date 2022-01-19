@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/listFragment"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+<androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_gravity="center"
-    android:layout_marginTop="15dp"
-    tools:context=".ui.listFragment.ListFragment" >
+    android:layout_height="wrap_content"
+    tools:context=".presentation.listFragment.ListFragment" >
 
     <!--    <TextView-->
 <!--        android:id="@+id/textView2"-->
@@ -22,16 +24,11 @@
 <!--        app:layout_constraintStart_toStartOf="parent"-->
 <!--        app:layout_constraintTop_toTopOf="parent" />-->
 
-
     <com.vivekkaushik.datepicker.DatePickerTimeline
         android:id="@+id/datePickerTimeline"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -46,28 +43,63 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_marginTop="20dp">
+
+            <include layout="@layout/placeholder_list_item" />
+
+            <include layout="@layout/placeholder_list_item" />
 
             <include layout="@layout/placeholder_list_item"/>
-            <include layout="@layout/placeholder_list_item"/>
-            <include layout="@layout/placeholder_list_item"/>
-            <include layout="@layout/placeholder_list_item"/>
+
+            <include layout="@layout/placeholder_list_item" />
 
         </LinearLayout>
+
     </com.facebook.shimmer.ShimmerFrameLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
+<!--    <androidx.core.widget.NestedScrollView-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/map_ib">-->
+
+
+    <TextView
+        android:id="@+id/other_moods_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/explore_other_moods"
+        app:layout_constraintBottom_toTopOf="@id/divider3"
+        app:layout_constraintTop_toBottomOf="@id/map_ib"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:fontFamily="@font/aclonica"
+        android:textSize="16sp"
+        android:textColor="#A7D5C2"/>
+
+    <View
+        android:id="@+id/divider3"
+        android:layout_width="200dp"
+        android:layout_height="1dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        app:layout_constraintBottom_toTopOf="@id/moods_rv"
+        app:layout_constraintTop_toBottomOf="@id/other_moods_tv"
+        app:layout_constraintStart_toStartOf="parent"
+        android:background="?android:attr/listDivider" />
+
+    <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/moods_rv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingStart="20dp"
-            android:paddingTop="15dp"
-            android:paddingEnd="20dp"
+            android:padding="15dp"
+            android:layout_marginBottom="20dp"
+            android:nestedScrollingEnabled="false"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.537"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/map_ib" />
-
+            app:layout_constraintTop_toBottomOf="@+id/divider3" />
 
     <ImageButton
         android:id="@+id/map_ib"
@@ -80,6 +112,12 @@
         android:elevation="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/datePickerTimeline" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        app:layout_constraintTop_toBottomOf="@id/moods_rv"
+        app:layout_constraintStart_toStartOf="parent"/>
 
     <!--    <com.google.android.material.floatingactionbutton.FloatingActionButton-->
 <!--        android:id="@+id/fab"-->
@@ -105,3 +143,5 @@
 <!--        app:layout_constraintEnd_toEndOf="parent"-->
 <!--        app:layout_constraintStart_toStartOf="parent" />-->
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>

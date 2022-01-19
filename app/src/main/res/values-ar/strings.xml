@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Final Capstone</string>
+    <string name="register_here_tv">لا يوجد لديك حساب؟</string>
+    <string name="login">سجل الدخول</string>
+    <string name="email">الإيميل</string>
+    <string name="password">كلمة السر</string>
+    <string name="register_here">عمل حساب جديد هنا</string>
+    <string name="name">الاسم</string>
+    <string name="confirm_password">تأكيد كلمة السر</string>
+    <string name="register">التسجيل</string>
+    <string name="what_are_you_n_feeling_today">بماذا تشعر اليوم؟</string>
+    <string name="mood_reason">لماذا تشعر بهذا الشعور؟</string>
+    <string name="your_note">مذكرتك..</string>
+    <string name="calender">التاريخ</string>
+    <string name="list">القائمة</string>
+    <string name="moods_list">قائمة المودز</string>
+    <string name="map">الخريطة</string>
+    <string name="note">المذكرة</string>
+    <string name="you">أنت</string>
+    <string name="private_pic">خاص</string>
+    <string name="public_pic">عام</string>
+    <string name="profile">صفحة المستخدم</string>
+    <string name="public_moods">المودز العامة</string>
+    <string name="private_moods">المودز الخاصة</string>
+    <string name="chat">الشات</string>
+    <string name="moods_chart">احصائية المودز</string>
+    <string name="greetings" translatable="false">صباح الخير, %1$s، بماذا تشعر اليوم؟</string>
+</resources>

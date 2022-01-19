@@ -1,33 +1,17 @@
 package com.tuwaiq.finalcapstone
 
-import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
-import androidx.fragment.app.ListFragment
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.tuwaiq.finalcapstone.ui.calenderFragment.CalenderFragment
-import com.tuwaiq.finalcapstone.ui.loginFragment.LoginFragment
-import com.tuwaiq.finalcapstone.ui.mapViewFragment.MapViewFragment
-import android.view.WindowManager
 
-import android.os.Build
-import android.view.Window
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.ismaeldivita.chipnavigation.ChipNavigationBar
-import com.joaquimley.faboptions.FabOptions
 import androidx.core.view.ViewCompat
 
 import android.view.animation.OvershootInterpolator
-import androidx.core.content.ContextCompat
-import androidx.core.view.WindowCompat
-import androidx.navigation.fragment.findNavController
 import com.google.android.material.bottomappbar.BottomAppBar
-import github.com.st235.lib_expandablebottombar.ExpandableBottomBar
-import github.com.st235.lib_expandablebottombar.MenuItemDescriptor
-import github.com.st235.lib_expandablebottombar.navigation.ExpandableBottomBarNavigationUI
 
 var bool = false
 class MainActivity : AppCompatActivity() {

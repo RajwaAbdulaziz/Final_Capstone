@@ -1,13 +1,9 @@
-package com.tuwaiq.finalcapstone.ui.listFragment
+package com.tuwaiq.finalcapstone.presentation.listFragment
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.tuwaiq.finalcapstone.model.Mood
 import com.tuwaiq.finalcapstone.repo.Repo
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.launch
 
 private const val TAG = "ListViewModel"
 class ListViewModel : ViewModel() {
@@ -16,6 +12,10 @@ class ListViewModel : ViewModel() {
 
     suspend fun currentUserName(): String? {
         return repo.userName()
+    }
+
+    suspend fun getProfileListOfMoods(): Flow<MutableList<Mood>> {
+        return repo.getProfileListOfMoods()
     }
 
       suspend fun getListOfMoods(): Flow<MutableList<Mood>> {

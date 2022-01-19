@@ -3,17 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation"
-    app:startDestination="@id/listFragment2">
+    app:startDestination="@id/loginFragment">
 
     <fragment
         android:id="@+id/calenderFragment2"
         android:name="com.tuwaiq.finalcapstone.ui.calenderFragment.CalenderFragment"
         android:label="calender_fragment"
-        tools:layout="@layout/calender_fragment"/>
+        tools:layout="@layout/calender_fragment" />
 
     <fragment
         android:id="@+id/listFragment2"
-        android:name="com.tuwaiq.finalcapstone.ui.listFragment.ListFragment"
+        android:name="com.tuwaiq.finalcapstone.presentation.listFragment.ListFragment"
         android:label="list_fragment"
         tools:layout="@layout/list_fragment">
 
@@ -23,24 +23,24 @@
         <action
             android:id="@+id/action_listFragment2_to_mapViewFragment2"
             app:destination="@id/mapViewFragment2" />
+        <action
+            android:id="@+id/action_listFragment2_to_moodFragment"
+            app:destination="@id/moodFragment" />
         <argument
             android:name="colorr"
             android:defaultValue="black"
             app:argType="string" />
-        <action
-            android:id="@+id/action_listFragment2_to_moodFragment"
-            app:destination="@id/moodFragment" />
     </fragment>
 
     <fragment
         android:id="@+id/mapViewFragment2"
-        android:name="com.tuwaiq.finalcapstone.ui.mapViewFragment.MapViewFragment"
+        android:name="com.tuwaiq.finalcapstone.presentation.mapViewFragment.MapViewFragment"
         android:label="map_view_fragment"
         tools:layout="@layout/map_view_fragment" />
 
     <fragment
         android:id="@+id/moodFragment"
-        android:name="com.tuwaiq.finalcapstone.ui.moodFragment.MoodFragment"
+        android:name="com.tuwaiq.finalcapstone.presentation.moodFragment.MoodFragment"
         android:label="fragment_mood"
         tools:layout="@layout/fragment_mood">
         <action
@@ -54,7 +54,7 @@
 
     <fragment
         android:id="@+id/moodDetailsFragment"
-        android:name="com.tuwaiq.finalcapstone.ui.moodDetailsFragment.MoodDetailsFragment"
+        android:name="com.tuwaiq.finalcapstone.presentation.moodDetailsFragment.MoodDetailsFragment"
         android:label="mood_details_fragment"
         tools:layout="@layout/mood_details_fragment">
         <action
@@ -82,7 +82,7 @@
     </fragment>
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.tuwaiq.finalcapstone.ui.loginFragment.LoginFragment"
+        android:name="com.tuwaiq.finalcapstone.presentation.loginFragment.LoginFragment"
         android:label="login_fragment"
         tools:layout="@layout/login_fragment">
         <action
@@ -94,7 +94,7 @@
     </fragment>
     <fragment
         android:id="@+id/registerFragment"
-        android:name="com.tuwaiq.finalcapstone.ui.registerFragment.RegisterFragment"
+        android:name="com.tuwaiq.finalcapstone.presentation.registerFragment.RegisterFragment"
         android:label="register_fragment"
         tools:layout="@layout/register_fragment">
         <action
@@ -103,20 +103,24 @@
     </fragment>
     <fragment
         android:id="@+id/profileFragment2"
-        android:name="com.tuwaiq.finalcapstone.ui.profileFragment.ProfileFragment"
+        android:name="com.tuwaiq.finalcapstone.presentation.profileFragment.ProfileFragment"
         android:label="profile_fragment"
-        tools:layout="@layout/profile_fragment" />
+        tools:layout="@layout/profile_fragment">
+        <action
+            android:id="@+id/action_profileFragment2_to_loginFragment"
+            app:destination="@id/loginFragment" />
+    </fragment>
     <fragment
         android:id="@+id/memeApiFragment"
-        android:name="com.tuwaiq.finalcapstone.ui.MemeApiFragment"
+        android:name="com.tuwaiq.finalcapstone.presentation.memeApiFragment.MemeApiFragment"
         android:label="meme_api_fragment"
         tools:layout="@layout/meme_api_fragment">
         <action
             android:id="@+id/action_memeApiFragment_to_moodDetailsFragment"
             app:destination="@id/moodDetailsFragment">
             <argument
-                android:name="meme"
-                android:defaultValue=''
+                android:name="memeId"
+                android:defaultValue='-1'
                 app:argType="string" />
         </action>
     </fragment>

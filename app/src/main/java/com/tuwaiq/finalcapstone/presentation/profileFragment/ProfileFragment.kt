@@ -1,22 +1,23 @@
-package com.tuwaiq.finalcapstone.ui.profileFragment
+package com.tuwaiq.finalcapstone.presentation.profileFragment
 
 import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.widget.SwitchCompat
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import app.futured.donut.DonutProgressView
 import app.futured.donut.DonutSection
@@ -24,34 +25,33 @@ import com.bumptech.glide.Glide
 import com.jackandphantom.carouselrecyclerview.CarouselRecyclerview
 import com.tuwaiq.finalcapstone.R
 import com.tuwaiq.finalcapstone.model.Mood
-import com.tuwaiq.finalcapstone.ui.listFragment.ListFragment
 import com.tuwaiq.finalcapstone.utils.FirebaseUtils
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import org.w3c.dom.Text
-import com.yarolegovich.discretescrollview.InfiniteScrollAdapter
-import androidx.core.graphics.drawable.DrawableCompat
 
 
 import androidx.appcompat.content.res.AppCompatResources
-
-
+import androidx.navigation.fragment.findNavController
 
 
 private const val TAG = "ProfileFragment"
 class ProfileFragment : Fragment() {
+
 
     private val profileViewModel by lazy { ViewModelProvider(this)[ProfileViewModel::class.java] }
 
     private var mood = Mood()
 
     private lateinit var profileRv: CarouselRecyclerview
-    private lateinit var nameTv: TextView
+    private lateinit var nameTv: EditText
     private lateinit var emailTv: TextView
     private lateinit var moodsSittSwitchCompat: SwitchCompat
     private lateinit var sharedPref: SharedPreferences
     private lateinit var donutView: DonutProgressView
+    private lateinit var editBtn: ImageButton
+    private lateinit var doneEditBtn: ImageButton
+    private lateinit var logoutBtn: ImageButton
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -61,8 +61,10 @@ class ProfileFragment : Fragment() {
         profileRv = view.findViewById(R.id.profile_rv)
         nameTv = view.findViewById(R.id.personal_name_tv)
         emailTv = view.findViewById(R.id.personal_email_tv)
-        //moodsSittSwitchCompat = view.findViewById(R.id.moods_settings_switch)
         donutView = view.findViewById(R.id.donut_view)
+        editBtn = view.findViewById(R.id.edit_btn)
+        doneEditBtn = view.findViewById(R.id.done_edit_btn)
+        logoutBtn = view.findViewById(R.id.logout_btn)
         //profileRv.layoutManager = LinearLayoutManager(context)
 
         lifecycleScope.launch {
@@ -89,87 +91,119 @@ class ProfileFragment : Fragment() {
     override fun onStart() {
         super.onStart()
 
-        lifecycleScope.launch {
-            nameTv.text = profileViewModel.userName()
+        logoutBtn.setOnClickListener {
+            FirebaseUtils().auth.signOut()
+            findNavController().navigate(R.id.action_profileFragment2_to_loginFragment)
         }
+
+        nameTv.isCursorVisible = false
+        nameTv.isFocusableInTouchMode = false
+
+        lifecycleScope.launch {
+            nameTv.setText(profileViewModel.userName())
+        }
+
         emailTv.text = FirebaseUtils().auth.currentUser?.email
 
-            //moodsSittSwitchCompat.isChecked = sharedPref.getBoolean("switch_state", false)
+        editBtn.setOnClickListener {
+            editBtn.visibility = View.INVISIBLE
+            doneEditBtn.visibility = View.VISIBLE
+
+            nameTv.isCursorVisible = true
+            nameTv.isFocusableInTouchMode = true
+            nameTv.inputType = InputType.TYPE_CLASS_TEXT
+            nameTv.requestFocus()
+        }
+
+        doneEditBtn.setOnClickListener {
+            doneEditBtn.visibility = View.INVISIBLE
+            editBtn.visibility = View.VISIBLE
+            nameTv.isCursorVisible = false
+            nameTv.isFocusableInTouchMode = false
+            nameTv.inputType = InputType.TYPE_NULL
+            FirebaseUtils().firestoreDatabase.collection("Users").document(FirebaseUtils().auth.currentUser!!.uid).update("name", nameTv.text.toString())
+
+        }
+        //moodsSittSwitchCompat.isChecked = sharedPref.getBoolean("switch_state", false)
             //Log.d(TAG, "get: ${moodsSittSwitchCompat.isChecked}")
 
-        FirebaseUtils().firestoreDatabase.collection("Mood").get()
-            .addOnSuccessListener {
-                var good = 0
-                var great = 0
-                var sad = 0
-                var depressed = 0
-                var angry = 0
-                var neutral = 0
-                val set = mutableSetOf<String>()
+        FirebaseUtils().auth.currentUser?.uid?.let { id ->
+            val a = FirebaseUtils().firestoreDatabase.collection("Mood").get()
+                .addOnSuccessListener {
+                    var good = 0
+                    var great = 0
+                    var sad = 0
+                    var depressed = 0
+                    var angry = 0
+                    var neutral = 0
+                    val set = mutableSetOf<String>()
 
-                it.forEach {
-                    when(it.getString("mood")) {
-                        "good" -> {
-                            good+=1
-                            set.add("good")
-                        }
-                        "great" -> {
-                            great+=1
-                            set.add("great")
-                        }
-                        "sad" -> {
-                            sad+=1
-                            set.add("sad")
-                        }
-                        "depressed" -> {
-                            depressed+=1
-                            set.add("depressed")
-                        }
-                        "angry" -> {
-                            angry+=1
-                            set.add("angry")
-                        }
-                        "neutral" -> {
-                            neutral+=1
-                            set.add("neutral")
+                    it.forEach {
+                        if (it.getString("owner") == id) {
+                            when (it.getString("mood")) {
+                                "good" -> {
+                                    good += 1
+                                    set.add("good")
+                                }
+                                "great" -> {
+                                    great += 1
+                                    set.add("great")
+                                }
+                                "sad" -> {
+                                    sad += 1
+                                    set.add("sad")
+                                }
+                                "depressed" -> {
+                                    depressed += 1
+                                    set.add("depressed")
+                                }
+                                "angry" -> {
+                                    angry += 1
+                                    set.add("angry")
+                                }
+                                "neutral" -> {
+                                    neutral += 1
+                                    set.add("neutral")
+                                }
+                            }
                         }
                     }
+                    val section1 = DonutSection(
+                        name = "good",
+                        color = Color.parseColor("#F194D1"),
+                        amount = good.toFloat()
+                    )
+                    val section2 = DonutSection(
+                        name = "great",
+                        color = Color.parseColor("#59C57D"),
+                        amount = great.toFloat()
+                    )
+                    val section3 = DonutSection(
+                        name = "sad",
+                        color = Color.parseColor("#AFD1E1"),
+                        amount = sad.toFloat()
+                    )
+                    val section4 = DonutSection(
+                        name = "depressed",
+                        color = Color.parseColor("#4F8EC0"),
+                        amount = depressed.toFloat()
+                    )
+                    val section5 = DonutSection(
+                        name = "angry",
+                        color = Color.parseColor("#E82A28"),
+                        amount = angry.toFloat()
+                    )
+                    val section6 = DonutSection(
+                        name = "neutral",
+                        color = Color.parseColor("#C1C0C0"),
+                        amount = neutral.toFloat()
+                    )
+                    donutView.cap = set.size.toFloat()
+                    Log.d(TAG, "count: ${set.size}")
+                    donutView.submitData(listOf(section1, section2, section3, section4, section5, section6))
+                    Log.d(TAG, "great: $great - depressed: $depressed - good: $good - angry: $angry")
                 }
-                val section1 = DonutSection(
-                    name = "good",
-                    color = Color.parseColor("#F194D1"),
-                    amount = good.toFloat()
-                )
-                val section2 = DonutSection(
-                    name = "great",
-                    color = Color.parseColor("#59C57D"),
-                    amount = great.toFloat()
-                )
-                val section3 = DonutSection(
-                    name = "sad",
-                    color = Color.parseColor("#AFD1E1"),
-                    amount = sad.toFloat()
-                )
-                val section4 = DonutSection(
-                    name = "depressed",
-                    color = Color.parseColor("#4F8EC0"),
-                    amount = depressed.toFloat()
-                )
-                val section5 = DonutSection(
-                    name = "angry",
-                    color = Color.parseColor("#E82A28"),
-                    amount = angry.toFloat()
-                )
-                val section6 = DonutSection(
-                    name = "neutral",
-                    color = Color.parseColor("#C1C0C0"),
-                    amount = neutral.toFloat()
-                )
-                donutView.cap = set.size.toFloat()
-                Log.d(TAG, "count: ${set.size}")
-                donutView.submitData(listOf(section1, section2, section3, section4, section5, section6))
-                Log.d(TAG, "great: $great - depressed: $depressed - good: $good - angry: $angry")
-            }
+        }
 
 
         //Log.d(TAG, "greattt: $great")

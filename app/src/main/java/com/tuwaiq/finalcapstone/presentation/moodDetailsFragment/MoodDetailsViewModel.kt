@@ -1,11 +1,10 @@
-package com.tuwaiq.finalcapstone.ui.moodDetailsFragment
+package com.tuwaiq.finalcapstone.presentation.moodDetailsFragment
 
 import androidx.lifecycle.ViewModel
 import com.tuwaiq.finalcapstone.model.Mood
 
 import com.tuwaiq.finalcapstone.repo.Repo
 import kotlinx.coroutines.flow.Flow
-import java.io.File
 
 class MoodDetailsViewModel : ViewModel() {
 

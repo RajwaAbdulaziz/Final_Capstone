@@ -1,6 +1,7 @@
 package com.tuwaiq.finalcapstone.model
 
 import com.google.type.LatLng
+import java.util.*
 
 data class Mood(
     var note: String = "",
@@ -13,5 +14,6 @@ data class Mood(
     var lat: Double = 0.0,
     var long: Double = 0.0,
     var moodId: String = "",
-    var privatePic: String = ""
+    var privatePic: String = "",
+    var date: Date = Date()
         )

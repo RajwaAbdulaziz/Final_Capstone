@@ -1,4 +1,4 @@
-package com.tuwaiq.finalcapstone.ui.profileFragment
+package com.tuwaiq.finalcapstone.presentation.profileFragment
 
 import androidx.lifecycle.ViewModel
 import com.tuwaiq.finalcapstone.model.Mood

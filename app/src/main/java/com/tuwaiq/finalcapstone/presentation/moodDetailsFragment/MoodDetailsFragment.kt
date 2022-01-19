@@ -1,11 +1,10 @@
-package com.tuwaiq.finalcapstone.ui.moodDetailsFragment
+package com.tuwaiq.finalcapstone.presentation.moodDetailsFragment
 
 import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -27,6 +26,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import coil.load
+import com.anujkumarsharma.tooltipprogressbar.TooltipProgressBar
 import com.bumptech.glide.Glide
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -38,21 +38,21 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
-import com.google.type.LatLng
 import com.tuwaiq.finalcapstone.R
 import com.tuwaiq.finalcapstone.model.Mood
-import com.tuwaiq.finalcapstone.ui.CHOSE_MEME
-import com.tuwaiq.finalcapstone.ui.listFragment.TASK
+import com.tuwaiq.finalcapstone.presentation.memeApiFragment.CHOSE_MEME
+import com.tuwaiq.finalcapstone.presentation.listFragment.TASK
 import com.tuwaiq.finalcapstone.utils.FirebaseUtils
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.lang.Exception
+import java.text.SimpleDateFormat
 import java.util.*
 
 private const val TAG = "MoodDetailsFragment"
 private const val REQUEST_IMAGE_CAPTURE = 1
+var coord = 0.0005f
 var c = false.toString()
 class MoodDetailsFragment : Fragment() {
 
@@ -81,7 +81,7 @@ class MoodDetailsFragment : Fragment() {
     private var storageRef = Firebase.storage.reference
     private lateinit var  fileProviderURI:Uri
     private lateinit var photoFile:File
-    private lateinit var progressBar: ProgressBar
+    private lateinit var progressBar: TooltipProgressBar
     private lateinit var picSwitch: SwitchCompat
     private lateinit var noteTextView: TextView
     private lateinit var fab: FloatingActionButton
@@ -123,9 +123,15 @@ class MoodDetailsFragment : Fragment() {
                         val ref = storageRef.child("pics/$user1/${Calendar.getInstance().time}")
                         val pic = ref.putFile(uri)
                         pic.addOnProgressListener {
-                            progressBar.progressTintList = ColorStateList.valueOf(resources.getColor(colorRes))
-                            progressBar.progress = ((100.0 * it.bytesTransferred) / it.totalByteCount).toInt()
-                            Log.d(TAG, "onActivityResult: ${progressBar.progress}")
+                            val a = it.totalByteCount.toInt()
+                            //progressBar.progressFillSteps = it.bytesTransferred.toInt()
+                            for (i in 0..it.totalByteCount) {
+                                Log.d(TAG, "onActivityResult: ${i.toInt()}")
+                                progressBar.progressFillSteps = i.toInt()
+                            }
+//                            progressBar.progressTintList = ColorStateList.valueOf(resources.getColor(colorRes))
+//                            progressBar.progress = ((100.0 * it.bytesTransferred) / it.totalByteCount).toInt()
+                            //Log.d(TAG, "onActivityResult: ${((100.0 * it.bytesTransferred) / it.totalByteCount)}")
                         }
 
                         pic.continueWithTask{ task ->
@@ -190,14 +196,14 @@ class MoodDetailsFragment : Fragment() {
         super.onCreate(savedInstanceState)
 //        mood = args.mood
 //        color = args.color
-        //meme = args.meme
+        meme = args.meme
+        Log.d(TAG, "meme: ${meme}")
 
 
         sharedPref = activity?.getSharedPreferences("switch", Context.MODE_PRIVATE)!!
         color = sharedPref.getString("color", "").toString()
         mood = sharedPref.getString("mood", "").toString()
         moodId = sharedPref.getString("moodId", "").toString()
-        meme = sharedPref.getString("memeUrl", "").toString()
         Log.d(TAG, "color: $moodId")
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
@@ -289,7 +295,9 @@ class MoodDetailsFragment : Fragment() {
 
         val user = FirebaseAuth.getInstance().currentUser?.uid
 
+        Log.d(TAG, "chose: $CHOSE_MEME")
         if (CHOSE_MEME) {
+            Log.d(TAG, "meme: ${meme}")
             memePickerIv.load(meme)
             CHOSE_MEME = false
         }
@@ -323,6 +331,10 @@ class MoodDetailsFragment : Fragment() {
         }
 
         if (TASK == "UPDATE") {
+
+//            locationBtn.setOnClickListener{
+//            getCurrentLocation()
+//        }
 
             picIv.setOnClickListener {
                 picIv.isClickable = false
@@ -391,6 +403,10 @@ class MoodDetailsFragment : Fragment() {
 
                     memePickerIv.load(it.result.getString("memePic"))
 
+                    memePickerIv.setOnClickListener {
+                        findNavController().navigate(R.id.action_moodDetailsFragment_to_memeApiFragment)
+                    }
+
                     addMoodButton.setOnClickListener {
                         val uid = FirebaseAuth.getInstance().currentUser?.uid
                         Log.d(TAG, "urlll $picUrl")
@@ -440,6 +456,7 @@ class MoodDetailsFragment : Fragment() {
 
         addMoodButton.setOnClickListener {
 
+            //meme = sharedPref.getString("memeUrl", "").toString()
             //val moodId = UUID.randomUUID().toString()
             lifecycleScope.launch {
                 userName = moodDetailsViewModel.currentUserName().toString()
@@ -449,30 +466,54 @@ class MoodDetailsFragment : Fragment() {
 
                 if (user != null) {
 
-                    val note = Mood(
-                        noteEt.text.toString(),
-                        color,
-                        picUrl,
-                        mood,
-                        user,
-                        userName,
-                        meme,
-                        lat,
-                        long
-                    )
+                    val b = mutableListOf<com.google.android.gms.maps.model.LatLng>()
+                    FirebaseUtils().firestoreDatabase.collection("Mood").get().addOnSuccessListener {
+                        it.forEach {
+                            if (it.getDouble("lat")!! == 0.0 && it.getDouble("long")!! == 0.0) {
 
-                    val ref = FirebaseFirestore.getInstance().collection("Mood").document()
-                    note.moodId = ref.id
-                    note.privatePic = c
-                    ref.set(note)
+                            } else {
+                            b.add(com.google.android.gms.maps.model.LatLng(it.getDouble("lat")!!, it.getDouble("long")!!))
+                        }
+                            }
+                        Log.d(TAG, "LIST: $b")
+                        val n = com.google.android.gms.maps.model.LatLng(lat, long)
+                        Log.d(TAG, "ONE: $n")
+                        if (b.contains(n)) {
+                            Log.d(TAG, "onStart: yesss")
+                            lat+= coord
+                            long+= coord
+                            coord = coord.plus(0.0005f)
+                        }else {
 
-                    Log.d(TAG, "onStart: $note")
-                    FirebaseUtils().firestoreDatabase.collection("Users")
-                        .document(user).update("note", FieldValue.arrayUnion(note))
+                        }.also {
+                            val note = Mood(
+                                noteEt.text.toString(),
+                                color,
+                                picUrl,
+                                mood,
+                                user,
+                                userName,
+                                meme,
+                                lat,
+                                long
+                            )
+                            var spf = SimpleDateFormat("E LLL dd hh:mm:ss z yyyy")
+                            val parsedDueDate = spf.parse(Date().toString())
+                            spf = SimpleDateFormat("dd MMM yyyy")
+                            val formattedDueDate = spf.format(parsedDueDate)
+
+                            val ref = FirebaseFirestore.getInstance().collection("Mood").document()
+                            note.moodId = ref.id
+                            note.privatePic = c
+                            ref.set(note)
+
+                            Log.d(TAG, "onStart: $note")
+                            FirebaseUtils().firestoreDatabase.collection("Users")
+                                .document(user).update("note", FieldValue.arrayUnion(note))
+                        }
+                    }
+                    //Log.d(TAG, "lat: $lat")
                 }
-
-                val action =
-                    MoodDetailsFragmentDirections.actionMoodDetailsFragmentToListFragment2(color)
                 findNavController().navigate(R.id.action_moodDetailsFragment_to_listFragment2)
             }
         }

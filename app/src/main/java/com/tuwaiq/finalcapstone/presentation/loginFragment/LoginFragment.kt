@@ -1,4 +1,4 @@
-package com.tuwaiq.finalcapstone.ui.loginFragment
+package com.tuwaiq.finalcapstone.presentation.loginFragment
 
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
@@ -10,14 +10,8 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import androidx.lifecycle.get
 import androidx.navigation.fragment.findNavController
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.tuwaiq.finalcapstone.R
-import com.tuwaiq.finalcapstone.model.User
-import com.tuwaiq.finalcapstone.ui.calenderFragment.CalenderFragment
-import com.tuwaiq.finalcapstone.ui.registerFragment.RegisterFragment
 
 class LoginFragment : Fragment() {
 

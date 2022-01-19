@@ -1,12 +1,9 @@
 
 
-package com.tuwaiq.finalcapstone.ui.registerFragment
+package com.tuwaiq.finalcapstone.presentation.registerFragment
 
-import android.content.Context
-import android.content.SharedPreferences
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -15,15 +12,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.firestore.FirebaseFirestore
 import com.tuwaiq.finalcapstone.R
-import com.tuwaiq.finalcapstone.model.User
-import com.tuwaiq.finalcapstone.ui.calenderFragment.CalenderFragment
-import com.tuwaiq.finalcapstone.ui.loginFragment.LoginFragment
-import com.tuwaiq.finalcapstone.ui.moodFragment.MoodFragmentDirections
-import com.tuwaiq.finalcapstone.utils.FirebaseUtils
 
 private const val TAG = "RegisterFragment"
 class RegisterFragment : Fragment() {

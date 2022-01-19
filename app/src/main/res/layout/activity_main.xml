@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity"
-    android:background="#F1EAE1">
+    android:background="@color/white">
 
 <!--    <View-->
 <!--        android:id="@+id/view"-->
@@ -48,8 +48,9 @@
         android:id="@+id/bottom_app_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:elevation="16dp"
         android:layout_gravity="bottom"
-        android:backgroundTint="#F1EAE1"
+        android:background="@android:color/transparent"
         app:fabAlignmentMode="end">
 
         <com.google.android.material.bottomnavigation.BottomNavigationView

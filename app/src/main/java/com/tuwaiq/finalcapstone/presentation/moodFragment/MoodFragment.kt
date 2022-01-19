@@ -1,27 +1,29 @@
-package com.tuwaiq.finalcapstone.ui.moodFragment
+package com.tuwaiq.finalcapstone.presentation.moodFragment
 
 import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.tuwaiq.finalcapstone.R
+import kotlinx.coroutines.launch
 
 private const val TAG = "MoodFragment"
 private var color = ""
 private var mood = ""
 class MoodFragment : Fragment() {
 
-//    lateinit var recyclerView: RecyclerView
+    private val moodFragmentViewModel by lazy { ViewModelProvider(this).get(MoodFragmentViewModel::class.java) }
+    private lateinit var greetingsTv: TextView
     private lateinit var layout: LinearLayout
     private lateinit var goodImageBtn: ImageButton
     private lateinit var greatImageBtn: ImageButton
@@ -71,6 +73,7 @@ class MoodFragment : Fragment() {
     }
 
     private fun init(view: View) {
+        greetingsTv = view.findViewById(R.id.greetings_tv)
         layout = view.findViewById(R.id.linear_layout)
         goodImageBtn = view.findViewById(R.id.good_image_btn)
         greatImageBtn = view.findViewById(R.id.great_image_btn)
@@ -84,6 +87,11 @@ class MoodFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
+
+        lifecycleScope.launch {
+            val userName = moodFragmentViewModel.userName()
+            greetingsTv.text = resources.getString(R.string.greetings, userName)
+        }
 
        goodImageBtn.setOnClickListener {
 

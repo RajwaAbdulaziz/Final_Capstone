@@ -1,9 +1,7 @@
-package com.tuwaiq.finalcapstone.ui.registerFragment
+package com.tuwaiq.finalcapstone.presentation.registerFragment
 
 import androidx.lifecycle.ViewModel
-import com.google.firebase.auth.FirebaseAuth
 import com.tuwaiq.finalcapstone.repo.Repo
-import com.tuwaiq.finalcapstone.utils.FirebaseUtils
 
 class RegisterViewModel : ViewModel() {
 

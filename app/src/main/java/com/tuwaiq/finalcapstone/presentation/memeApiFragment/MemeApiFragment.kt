@@ -1,4 +1,4 @@
-package com.tuwaiq.finalcapstone.ui
+package com.tuwaiq.finalcapstone.presentation.memeApiFragment
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -80,9 +80,10 @@ class MemeApiFragment : Fragment() {
             when(p0) {
                 itemView -> {
                     CHOSE_MEME = true
-                    sharedPref.edit().putString("memeUrl", meme.url).apply()
-                    val action = MemeApiFragmentDirections.actionMemeApiFragmentToMoodDetailsFragment(meme.url)
-                    findNavController().navigate(R.id.action_memeApiFragment_to_moodDetailsFragment)
+                   // sharedPref.edit().putString("memeUrl", meme.url).apply()
+                    Log.d(TAG, "meme: ${meme.url}")
+                    val action = MemeApiFragmentDirections.actionMemeApiFragmentToMoodDetailsFragment("", "", "", "", meme.url)
+                    findNavController().navigate(action)
                 }
             }
         }

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Final Capstone</string>
+    <string name="register_here_tv">Nu ai un cont?</string>
+    <string name="login">Autentificare</string>
+    <string name="email">E-mail</string>
+    <string name="password">Parola</string>
+    <string name="register_here"><u> Înregistrați-vă aici</u></string>
+    <string name="name">Nume</string>
+    <string name="confirm_password">Confirmă parola</string>
+    <string name="register">Inregistreaza-te</string>
+    <string name="what_are_you_n_feeling_today">Ce ești tu</string>
+    <string name="greetings">Bună dimineața, %1$s</string>
+    <string name="calender">Calendar</string>
+    <string name="your_note">nota ta..</string>
+    <string name="mood_reason">De ce te simți așa</string>
+    <string name="list">Listă</string>
+    <string name="map">Hartă</string>
+    <string name="moods_list">Lista stărilor de spirit</string>
+    <string name="note">Notă:</string>
+    <string name="you">(tu)</string>
+    <string name="private_pic">Privat</string>
+    <string name="public_pic">Public</string>
+    <string name="profile">Profil</string>
+    <string name="public_moods">Dispoziții publice</string>
+    <string name="private_moods">Dispoziții private</string>
+    <string name="chat">conversație</string>
+    <string name="moods_chart">Graficul stărilor de spirit</string>
+</resources>

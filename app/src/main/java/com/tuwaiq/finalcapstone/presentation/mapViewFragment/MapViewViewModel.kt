@@ -1,4 +1,4 @@
-package com.tuwaiq.finalcapstone.ui.mapViewFragment
+package com.tuwaiq.finalcapstone.presentation.mapViewFragment
 
 import androidx.lifecycle.ViewModel
 
