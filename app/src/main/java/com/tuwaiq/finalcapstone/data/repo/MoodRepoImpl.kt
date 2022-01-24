@@ -12,6 +12,7 @@ import com.tuwaiq.finalcapstone.domain.model.Mood
 import com.tuwaiq.finalcapstone.domain.repo.MoodRepo
 import com.tuwaiq.finalcapstone.presentation.moodDetailsFragment.c
 import com.tuwaiq.finalcapstone.utils.FirebaseUtils
+import com.tuwaiq.finalcapstone.utils.FormatDate
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -90,9 +91,10 @@ class MoodRepoImpl: MoodRepo {
         return flow {
             val userMoods = FirebaseUtils().fireStoreDatabase.collection("Mood").whereEqualTo("owner", FirebaseUtils().auth.currentUser?.uid)
 
+            val formatDate = FormatDate()
             userMoods.get().await().forEach{
-                val firstDate = formatDate(it.getDate("date")!!)
-                val secondDate = formatDate(Date())
+                val firstDate = formatDate(it.getDate("date")!!, "E LLL dd z yyyy")
+                val secondDate = formatDate(Date(), "E LLL dd z yyyy")
 
                 if (firstDate == secondDate) {
                     Log.d(TAG, "yesss")
@@ -102,12 +104,5 @@ class MoodRepoImpl: MoodRepo {
                 }
             }
         }.flowOn(Dispatchers.Main)
-    }
-
-    private fun formatDate(date: Date): String {
-        var spf = SimpleDateFormat("E LLL dd hh:mm:ss z yyyy")
-        val parsed = spf.parse(date.toString())
-        spf = SimpleDateFormat("E LLL dd z yyyy")
-        return spf.format(parsed)
     }
 }

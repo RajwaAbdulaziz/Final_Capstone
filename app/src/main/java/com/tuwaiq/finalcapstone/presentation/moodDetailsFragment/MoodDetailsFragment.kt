@@ -192,16 +192,6 @@ class MoodDetailsFragment : Fragment() {
     }
 
     private fun init(view: View) {
-        //layout = view.findViewById(R.id.constraint_layout2)
-        moodIv = view.findViewById(R.id.selected_mood_iv)
-        noteEt = view.findViewById(R.id.note_et)
-        addMoodButton = view.findViewById(R.id.add_mood)
-        takePicBtn = view.findViewById(R.id.take_pic_btn)
-        picIv = view.findViewById(R.id.pic_image_view)
-        picSwitch = view.findViewById(R.id.pic_switch)
-        memePickerIv = view.findViewById(R.id.meme_picker_iv)
-        locationBtn = view.findViewById(R.id.location_btn)
-        latLangTv = view.findViewById(R.id.lat_lang_tv)
         fab = activity?.findViewById(R.id.fab)!!
 
     }
@@ -250,6 +240,7 @@ class MoodDetailsFragment : Fragment() {
                 binding.selectedMoodIv.setImageResource(R.drawable.angry)
             }
             "neutral" -> {
+
                 binding.selectedMoodIv.setImageResource(R.drawable.neutral)
             }
 //            "wtf" -> {
