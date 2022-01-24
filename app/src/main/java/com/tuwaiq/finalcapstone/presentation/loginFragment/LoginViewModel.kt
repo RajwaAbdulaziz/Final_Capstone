@@ -1,17 +1,21 @@
 package com.tuwaiq.finalcapstone.presentation.loginFragment
 
 import androidx.lifecycle.ViewModel
-import com.tuwaiq.finalcapstone.repo.Repo
+import com.tuwaiq.finalcapstone.data.repo.Repo
+import com.tuwaiq.finalcapstone.domain.use_cases.LoginUseCase
 import com.tuwaiq.finalcapstone.utils.FirebaseUtils
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class LoginViewModel : ViewModel() {
+@HiltViewModel
+class LoginViewModel @Inject constructor(private val loginUseCase: LoginUseCase) : ViewModel() {
 
     private var repo = Repo.getInstance()
-
 
     var currentUser = FirebaseUtils().auth.currentUser
 
      fun login(email: String, password: String) {
-        repo.login(email, password)
+         loginUseCase(email, password)
+        //repo.login(email, password)
     }
 }

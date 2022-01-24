@@ -5,5 +5,5 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class FirebaseUtils {
     val auth = FirebaseAuth.getInstance()
-    val firestoreDatabase = FirebaseFirestore.getInstance()
+    val fireStoreDatabase = FirebaseFirestore.getInstance()
 }

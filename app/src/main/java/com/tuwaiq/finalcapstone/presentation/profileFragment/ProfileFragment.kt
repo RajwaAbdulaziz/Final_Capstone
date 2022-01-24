@@ -24,7 +24,7 @@ import app.futured.donut.DonutSection
 import com.bumptech.glide.Glide
 import com.jackandphantom.carouselrecyclerview.CarouselRecyclerview
 import com.tuwaiq.finalcapstone.R
-import com.tuwaiq.finalcapstone.model.Mood
+import com.tuwaiq.finalcapstone.domain.model.Mood
 import com.tuwaiq.finalcapstone.utils.FirebaseUtils
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -32,21 +32,26 @@ import kotlinx.coroutines.launch
 
 
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.tuwaiq.finalcapstone.databinding.PersonalMoodsListItemBinding
+import com.tuwaiq.finalcapstone.databinding.ProfileFragmentBinding
+import dagger.hilt.android.AndroidEntryPoint
 
 private const val TAG = "ProfileFragment"
+@AndroidEntryPoint
 class ProfileFragment : Fragment() {
 
 
-    private val profileViewModel by lazy { ViewModelProvider(this)[ProfileViewModel::class.java] }
+    private lateinit var binding: ProfileFragmentBinding
+    private val profileViewModel by viewModels<ProfileViewModel>()
 
     private var mood = Mood()
 
     private lateinit var profileRv: CarouselRecyclerview
     private lateinit var nameTv: EditText
     private lateinit var emailTv: TextView
-    private lateinit var moodsSittSwitchCompat: SwitchCompat
     private lateinit var sharedPref: SharedPreferences
     private lateinit var donutView: DonutProgressView
     private lateinit var editBtn: ImageButton
@@ -56,21 +61,24 @@ class ProfileFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.profile_fragment, container, false)
-        profileRv = view.findViewById(R.id.profile_rv)
-        nameTv = view.findViewById(R.id.personal_name_tv)
-        emailTv = view.findViewById(R.id.personal_email_tv)
-        donutView = view.findViewById(R.id.donut_view)
-        editBtn = view.findViewById(R.id.edit_btn)
-        doneEditBtn = view.findViewById(R.id.done_edit_btn)
-        logoutBtn = view.findViewById(R.id.logout_btn)
-        //profileRv.layoutManager = LinearLayoutManager(context)
+    ): View {
+        //val view = inflater.inflate(R.layout.profile_fragment, container, false)
+        binding = ProfileFragmentBinding.inflate(inflater, container, false)
+
+        //profileRv = view.findViewById(R.id.profile_rv)
+//        nameTv = view.findViewById(R.id.personal_name_tv)
+//        emailTv = view.findViewById(R.id.personal_email_tv)
+//        donutView = view.findViewById(R.id.donut_view)
+//        editBtn = view.findViewById(R.id.edit_btn)
+//        doneEditBtn = view.findViewById(R.id.done_edit_btn)
+//        logoutBtn = view.findViewById(R.id.logout_btn)
+
+        //binding.profileRv.layoutManager = LinearLayoutManager(context)
 
         lifecycleScope.launch {
             updateUI()
         }
-        return view
+        return binding.root
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,57 +86,47 @@ class ProfileFragment : Fragment() {
 
         sharedPref = activity?.getSharedPreferences("switch", Context.MODE_PRIVATE)!!
     }
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-//        moodsSittSwitchCompat.setOnCheckedChangeListener { compatSwitch, b ->
-//            Log.d(TAG, b.toString())
-//            val a = sharedPref.edit()?.putBoolean("switch_state", b)?.apply()
-//            Log.d(TAG, "put: $a")
-//            }
-        }
 
     override fun onStart() {
         super.onStart()
 
-        logoutBtn.setOnClickListener {
+        binding.logoutBtn.setOnClickListener {
             FirebaseUtils().auth.signOut()
             findNavController().navigate(R.id.action_profileFragment2_to_loginFragment)
         }
 
-        nameTv.isCursorVisible = false
-        nameTv.isFocusableInTouchMode = false
+        binding.personalNameTv.isCursorVisible = false
+        binding.personalNameTv.isFocusableInTouchMode = false
 
         lifecycleScope.launch {
-            nameTv.setText(profileViewModel.userName())
+            binding.personalNameTv.setText(profileViewModel.userName())
         }
 
-        emailTv.text = FirebaseUtils().auth.currentUser?.email
+        binding.personalEmailTv.text = FirebaseUtils().auth.currentUser?.email
 
-        editBtn.setOnClickListener {
-            editBtn.visibility = View.INVISIBLE
-            doneEditBtn.visibility = View.VISIBLE
+        binding.editBtn.setOnClickListener {
+            binding.editBtn.visibility = View.INVISIBLE
+            binding.doneEditBtn.visibility = View.VISIBLE
 
-            nameTv.isCursorVisible = true
-            nameTv.isFocusableInTouchMode = true
-            nameTv.inputType = InputType.TYPE_CLASS_TEXT
-            nameTv.requestFocus()
+            binding.personalNameTv.isCursorVisible = true
+            binding.personalNameTv.isFocusableInTouchMode = true
+            binding.personalNameTv.inputType = InputType.TYPE_CLASS_TEXT
+            binding.personalNameTv.requestFocus()
         }
 
-        doneEditBtn.setOnClickListener {
-            doneEditBtn.visibility = View.INVISIBLE
-            editBtn.visibility = View.VISIBLE
-            nameTv.isCursorVisible = false
-            nameTv.isFocusableInTouchMode = false
-            nameTv.inputType = InputType.TYPE_NULL
-            FirebaseUtils().firestoreDatabase.collection("Users").document(FirebaseUtils().auth.currentUser!!.uid).update("name", nameTv.text.toString())
-
+        binding.doneEditBtn.setOnClickListener {
+            binding.doneEditBtn.visibility = View.INVISIBLE
+            binding.editBtn.visibility = View.VISIBLE
+            binding.personalNameTv.isCursorVisible = false
+            binding.personalNameTv.isFocusableInTouchMode = false
+            binding.personalNameTv.inputType = InputType.TYPE_NULL
+            profileViewModel.updateUsername(binding.personalNameTv.text.toString())
         }
         //moodsSittSwitchCompat.isChecked = sharedPref.getBoolean("switch_state", false)
             //Log.d(TAG, "get: ${moodsSittSwitchCompat.isChecked}")
 
         FirebaseUtils().auth.currentUser?.uid?.let { id ->
-            val a = FirebaseUtils().firestoreDatabase.collection("Mood").get()
+            FirebaseUtils().fireStoreDatabase.collection("Mood").get()
                 .addOnSuccessListener {
                     var good = 0
                     var great = 0
@@ -198,9 +196,9 @@ class ProfileFragment : Fragment() {
                         color = Color.parseColor("#C1C0C0"),
                         amount = neutral.toFloat()
                     )
-                    donutView.cap = set.size.toFloat()
+                    binding.donutView.cap = set.size.toFloat()
                     Log.d(TAG, "count: ${set.size}")
-                    donutView.submitData(listOf(section1, section2, section3, section4, section5, section6))
+                    binding.donutView.submitData(listOf(section1, section2, section3, section4, section5, section6))
                     Log.d(TAG, "great: $great - depressed: $depressed - good: $good - angry: $angry")
                 }
         }
@@ -212,95 +210,55 @@ class ProfileFragment : Fragment() {
 
     private suspend fun updateUI() {
         profileViewModel.getProfileListOfMoods().onEach {
-            profileRv.adapter = ProfileAdapter(it)
+            binding.profileRv.adapter = ProfileAdapter(it)
         }.launchIn(lifecycleScope)
     }
 
-    inner class ProfileViewHolder(view: View): RecyclerView.ViewHolder(view){
+    inner class ProfileViewHolder(private val binding: PersonalMoodsListItemBinding): RecyclerView.ViewHolder(binding.root){
 
         private lateinit var mood: Mood
-        private var profileNoteBoundsTv: TextView = itemView.findViewById(R.id.personal_note_bounds_tv)
-        private var profileNoteTv: TextView = itemView.findViewById(R.id.personal_note_tv)
-        private var profileNoteIv: ImageView = itemView.findViewById(R.id.personal_pic_iv)
-        private var profileMoodIv: ImageView = itemView.findViewById(R.id.personal_chosen_mood_iv)
-        private val conLayout: ConstraintLayout = itemView.findViewById(R.id.con_layout)
-        //private var deleteMood: ImageButton = itemView.findViewById(R.id.personal_delete_mood)
 
         fun bind(mood: Mood) {
             this.mood = mood
 
-            profileNoteTv.text = mood.note
-
-            val unwrappedDrawable = AppCompatResources.getDrawable(
-                context!!, com.tuwaiq.finalcapstone.R.drawable.rect
-            )
+            binding.personalNoteTv.text = mood.note
 
             Log.d(TAG, mood.mood)
-//            when(mood.color) {
-//                "pink" -> {
-//                    val wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable!!)
-//                    DrawableCompat.setTint(wrappedDrawable, resources.getColor((com.tuwaiq.finalcapstone.R.color.dark_pink)))
-//                }
-//                "green" -> {
-//                    val wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable!!)
-//                    DrawableCompat.setTint(wrappedDrawable, resources.getColor((com.tuwaiq.finalcapstone.R.color.dark_green)))
-//                }
-//                "blue" -> {
-//                    val wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable!!)
-//                    DrawableCompat.setTint(wrappedDrawable, resources.getColor((com.tuwaiq.finalcapstone.R.color.dark_blue)))
-//                }
-//                "dark_blue" -> {
-//                    val wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable!!)
-//                    DrawableCompat.setTint(wrappedDrawable, resources.getColor((com.tuwaiq.finalcapstone.R.color.darkest_blue)))
-//                }
-//                "light_red" -> {
-//                    val wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable!!)
-//                    DrawableCompat.setTint(wrappedDrawable, resources.getColor((com.tuwaiq.finalcapstone.R.color.red)))
-//                }
-//                "light_gray" -> {
-//                    val wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable!!)
-//                    DrawableCompat.setTint(wrappedDrawable, resources.getColor((com.tuwaiq.finalcapstone.R.color.gray)))
-//                }
-//                else -> {
-//
-//                }
-//            }
 
             if(mood.pic != "") {
                 Glide.with(requireContext())
                     .load(mood.pic)
-                    .into(profileNoteIv)
+                    .into(binding.personalPicIv)
             } else {
-                profileNoteIv.visibility = View.GONE
-                val n = profileNoteTv.layoutParams
+                binding.personalPicIv.visibility = View.GONE
+                val n = binding.personalNoteTv.layoutParams
                 n.width = 660
-                val b = profileNoteBoundsTv.layoutParams
+                val b = binding.personalNoteBoundsTv.layoutParams
                 b.width = 720
             }
 
-
             when (mood.mood) {
-                "good" -> profileMoodIv.setImageResource(R.drawable.good)
-                "great" -> profileMoodIv.setImageResource(R.drawable.great)
-                "sad" -> profileMoodIv.setImageResource(R.drawable.sad)
-                "depressed" -> profileMoodIv.setImageResource(R.drawable.depressed)
-                "angry" -> profileMoodIv.setImageResource(R.drawable.angry)
-                "neutral" -> profileMoodIv.setImageResource(R.drawable.neutral)
+                "good" -> binding.personalChosenMoodIv.setImageResource(R.drawable.good)
+                "great" -> binding.personalChosenMoodIv.setImageResource(R.drawable.great)
+                "sad" -> binding.personalChosenMoodIv.setImageResource(R.drawable.sad)
+                "depressed" -> binding.personalChosenMoodIv.setImageResource(R.drawable.depressed)
+                "angry" -> binding.personalChosenMoodIv.setImageResource(R.drawable.angry)
+                "neutral" -> binding.personalChosenMoodIv.setImageResource(R.drawable.neutral)
             }
 
             when (mood.color) {
-                "pink" -> profileNoteTv.setTextColor(resources.getColor(R.color.dark_pink))
-                "green" -> profileNoteTv.setTextColor(resources.getColor(R.color.dark_green))
-                "orange" -> profileNoteTv.setTextColor(resources.getColor(R.color.dark_orange))
-                "purple" -> profileNoteTv.setTextColor(resources.getColor(R.color.dark_purple))
+                "pink" -> binding.personalNoteTv.setTextColor(resources.getColor(R.color.dark_pink))
+                "green" -> binding.personalNoteTv.setTextColor(resources.getColor(R.color.dark_green))
+                "orange" -> binding.personalNoteTv.setTextColor(resources.getColor(R.color.dark_orange))
+                "purple" -> binding.personalNoteTv.setTextColor(resources.getColor(R.color.dark_purple))
             }
         }
     }
 
     inner class ProfileAdapter(private var moods: List<Mood>): RecyclerView.Adapter<ProfileViewHolder>(){
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProfileViewHolder {
-            val view = layoutInflater.inflate(R.layout.personal_moods_list_item, parent, false)
-            return ProfileViewHolder(view)
+            val binding = PersonalMoodsListItemBinding.inflate(layoutInflater,parent, false)
+            return ProfileViewHolder(binding)
         }
 
         override fun onBindViewHolder(holder: ProfileViewHolder, position: Int) {

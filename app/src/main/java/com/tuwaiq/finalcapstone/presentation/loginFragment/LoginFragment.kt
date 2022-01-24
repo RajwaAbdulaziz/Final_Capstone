@@ -10,25 +10,31 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.tuwaiq.finalcapstone.R
+import com.tuwaiq.finalcapstone.databinding.LoginFragmentBinding
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class LoginFragment : Fragment() {
 
+    private lateinit var binding: LoginFragmentBinding
     private lateinit var loginBtn: Button
     private lateinit var registerTv: TextView
     private lateinit var emailEt: EditText
     private lateinit var passwordEt: EditText
 
-    private val loginViewModel by lazy { ViewModelProvider(this)[LoginViewModel::class.java] }
+    private val loginViewModel by viewModels<LoginViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.login_fragment, container, false)
-        init(view)
-        return view
+        //val view = inflater.inflate(R.layout.login_fragment, container, false)
+        binding = LoginFragmentBinding.inflate(inflater, container, false)
+        //init(view)
+        return binding.root
     }
 
     private fun init(view: View) {
@@ -45,10 +51,10 @@ class LoginFragment : Fragment() {
             findNavController().navigate(R.id.action_loginFragment_to_listFragment2)
         }
 
-        loginBtn.setOnClickListener {
+        binding.loginBtn.setOnClickListener {
 
-            val email = emailEt.text.toString()
-            val password = passwordEt.text.toString()
+            val email = binding.loginEmailEt.text.toString()
+            val password = binding.loginPasswordEt.text.toString()
 
             when{
                 email.isEmpty() -> showToast("Enter your email")
@@ -61,7 +67,7 @@ class LoginFragment : Fragment() {
             }
         }
 
-        registerTv.setOnClickListener {
+        binding.loginToRegisterTv.setOnClickListener {
             findNavController().navigate(R.id.action_loginFragment_to_registerFragment)
             }
         }

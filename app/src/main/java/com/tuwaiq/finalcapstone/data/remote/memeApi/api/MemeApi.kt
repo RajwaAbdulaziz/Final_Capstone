@@ -1,7 +1,7 @@
-package com.tuwaiq.finalcapstone.memeApi.api
+package com.tuwaiq.finalcapstone.data.remote.memeApi.api
 
 
-import com.tuwaiq.finalcapstone.memeApi.models.ApiResponse
+import com.tuwaiq.finalcapstone.data.remote.memeApi.models.ApiResponse
 import retrofit2.Response
 import retrofit2.http.GET
 

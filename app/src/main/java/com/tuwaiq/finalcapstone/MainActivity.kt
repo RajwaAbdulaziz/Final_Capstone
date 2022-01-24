@@ -12,8 +12,10 @@ import androidx.core.view.ViewCompat
 
 import android.view.animation.OvershootInterpolator
 import com.google.android.material.bottomappbar.BottomAppBar
+import dagger.hilt.android.AndroidEntryPoint
 
 var bool = false
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var bottomNav: BottomNavigationView

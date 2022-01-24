@@ -1,8 +1,8 @@
-package com.tuwaiq.finalcapstone.memeApi.repo
+package com.tuwaiq.finalcapstone.data.remote.memeApi.repo
 
 import android.util.Log
-import com.tuwaiq.finalcapstone.memeApi.api.MemeApi
-import com.tuwaiq.finalcapstone.memeApi.models.Meme
+import com.tuwaiq.finalcapstone.data.remote.memeApi.api.MemeApi
+import com.tuwaiq.finalcapstone.data.remote.memeApi.models.Meme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

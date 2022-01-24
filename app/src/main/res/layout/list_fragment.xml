@@ -36,7 +36,7 @@
         android:id="@+id/shimmer_frame_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/map_ib"
+        app:layout_constraintTop_toBottomOf="@id/map_card_view"
         app:layout_constraintStart_toStartOf="parent"
         app:duration="1200">
 
@@ -71,7 +71,7 @@
         android:layout_height="wrap_content"
         android:text="@string/explore_other_moods"
         app:layout_constraintBottom_toTopOf="@id/divider3"
-        app:layout_constraintTop_toBottomOf="@id/map_ib"
+        app:layout_constraintTop_toBottomOf="@id/map_card_view"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
@@ -101,17 +101,38 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/divider3" />
 
-    <ImageButton
-        android:id="@+id/map_ib"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/map_card_view"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        android:background="@drawable/ic_iconmonstr_globe_thin"
-        android:backgroundTint="#E09168"
-        android:elevation="16dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="5dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/datePickerTimeline" />
+        app:layout_constraintTop_toBottomOf="@+id/datePickerTimeline">
+
+        <ImageButton
+            android:id="@+id/map_ib"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:background="@drawable/ic_iconmonstr_globe_thin"
+            android:backgroundTint="#E09168" />
+
+    </androidx.cardview.widget.CardView>
+
+<!--    <ImageButton-->
+<!--        android:id="@+id/map_ib"-->
+<!--        android:layout_width="35dp"-->
+<!--        android:layout_height="35dp"-->
+<!--        android:layout_marginTop="8dp"-->
+<!--        android:layout_marginEnd="16dp"-->
+<!--        android:background="@drawable/ic_iconmonstr_globe_thin"-->
+<!--        android:backgroundTint="#E09168"-->
+<!--        android:elevation="16dp"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/datePickerTimeline" />-->
 
     <TextView
         android:layout_width="wrap_content"

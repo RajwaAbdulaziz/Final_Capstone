@@ -9,7 +9,7 @@
     <string name="confirm_password">Confirm Password</string>
     <string name="register">Register</string>
     <string name="what_are_you_n_feeling_today">What are you \n\t\t feeling today?</string>
-    <string name="greetings" translatable="false">Good Morning, %1$s \n\n\t\t\t\tWhat are you feeling today?</string>
+    <string name="greetings">%1$s, %2$s \n\n\t\t\t\tWhat are you feeling today?</string>
     <string name="mood_reason">Why are you feeling like this</string>
     <string name="your_note">\t your note..</string>
     <string name="calender">Calender</string>

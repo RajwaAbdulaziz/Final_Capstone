@@ -1,6 +1,4 @@
-package com.tuwaiq.finalcapstone.model
-
-import java.util.*
+package com.tuwaiq.finalcapstone.domain.model
 
 data class User(
     var name: String = "",

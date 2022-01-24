@@ -11,13 +11,19 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.tuwaiq.finalcapstone.R
+import com.tuwaiq.finalcapstone.databinding.RegisterFragmentBinding
+import dagger.hilt.android.AndroidEntryPoint
+
 
 private const val TAG = "RegisterFragment"
+@AndroidEntryPoint
 class RegisterFragment : Fragment() {
 
-    private val registerViewModel by lazy { ViewModelProvider(this)[RegisterViewModel::class.java] }
+    private lateinit var binding: RegisterFragmentBinding
+    private val registerViewModel by viewModels<RegisterViewModel>()
 
     private lateinit var nameEt: EditText
     private lateinit var emailEt: EditText
@@ -30,9 +36,10 @@ class RegisterFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.register_fragment, container, false)
-        init(view)
-        return view
+        //val view = inflater.inflate(R.layout.register_fragment, container, false)
+        binding = RegisterFragmentBinding.inflate(inflater, container, false)
+        //init(view)
+        return binding.root
     }
 
     private fun init(view: View) {
@@ -54,11 +61,11 @@ class RegisterFragment : Fragment() {
 //            //findNavController().navigate(R.id.action_registerFragment_to_loginFragment)
 //        }
 
-        registerBtn.setOnClickListener {
-            val name = nameEt.text.toString()
-            val email = emailEt.text.toString()
-            val pass = passwordEt.text.toString()
-            val confPass = confirmPasswordEt.text.toString()
+        binding.registerBtn.setOnClickListener {
+            val name = binding.registerNameEt.text.toString()
+            val email = binding.registerEmailEt.text.toString()
+            val pass = binding.registerPasswordEt.text.toString()
+            val confPass = binding.registerConfPassEt.text.toString()
 
             when{
                 name.isEmpty() -> showToast("Please enter a name")

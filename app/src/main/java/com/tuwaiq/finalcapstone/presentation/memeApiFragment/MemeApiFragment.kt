@@ -10,37 +10,43 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.tuwaiq.finalcapstone.R
-import com.tuwaiq.finalcapstone.memeApi.models.Meme
+import com.tuwaiq.finalcapstone.data.remote.memeApi.models.Meme
+import com.tuwaiq.finalcapstone.databinding.MemeApiFragmentBinding
+import com.tuwaiq.finalcapstone.databinding.MemeApiListItemBinding
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 private const val TAG = "MemeApiFragment"
 var CHOSE_MEME = false
+@AndroidEntryPoint
 class MemeApiFragment : Fragment() {
 
-    private val memeApiViewModel by lazy { ViewModelProvider(this).get(MemeApiViewModel::class.java)}
+    private val memeApiViewModel by viewModels<MemeApiViewModel>()
 
+    private lateinit var binding: MemeApiFragmentBinding
     private lateinit var memeRv: RecyclerView
     private lateinit var sharedPref: SharedPreferences
-    //private lateinit var sharedPref: SharedPreferences
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.meme_api_fragment, container, false)
+        binding = MemeApiFragmentBinding.inflate(inflater, container, false)
         memeRv = view.findViewById(R.id.memes_rv)
-        memeRv.layoutManager = GridLayoutManager(context, 2)
+        binding.memesRv.layoutManager = GridLayoutManager(context, 2)
 
 
-        return view
+        return binding.root
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,10 +68,9 @@ class MemeApiFragment : Fragment() {
         }.launchIn(lifecycleScope)
     }
 
-    inner class MemeViewHolder(view: View): RecyclerView.ViewHolder(view), View.OnClickListener {
+    inner class MemeViewHolder(private val binding: MemeApiListItemBinding): RecyclerView.ViewHolder(binding.root), View.OnClickListener {
 
         private lateinit var meme: Meme
-        private val memeIv: ImageView = itemView.findViewById(R.id.meme_iv)
 
         init {
             itemView.setOnClickListener(this)
@@ -73,14 +78,13 @@ class MemeApiFragment : Fragment() {
 
         fun bind(meme: Meme) {
             this.meme = meme
-            memeIv.load(meme.url)
+            binding.memeIv.load(meme.url)
         }
 
         override fun onClick(p0: View?) {
             when(p0) {
                 itemView -> {
                     CHOSE_MEME = true
-                   // sharedPref.edit().putString("memeUrl", meme.url).apply()
                     Log.d(TAG, "meme: ${meme.url}")
                     val action = MemeApiFragmentDirections.actionMemeApiFragmentToMoodDetailsFragment("", "", "", "", meme.url)
                     findNavController().navigate(action)
@@ -91,8 +95,8 @@ class MemeApiFragment : Fragment() {
 
     inner class MemeAdapter(private val memes: List<Meme>): RecyclerView.Adapter<MemeViewHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MemeViewHolder {
-            val view = layoutInflater.inflate(R.layout.meme_api_list_item, parent, false)
-            return MemeViewHolder(view)
+            val binding = MemeApiListItemBinding.inflate(layoutInflater, parent, false)
+            return MemeViewHolder(binding)
         }
 
         override fun onBindViewHolder(holder: MemeViewHolder, position: Int) {

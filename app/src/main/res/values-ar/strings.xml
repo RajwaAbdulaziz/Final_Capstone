@@ -25,5 +25,5 @@
     <string name="private_moods">المودز الخاصة</string>
     <string name="chat">الشات</string>
     <string name="moods_chart">احصائية المودز</string>
-    <string name="greetings" translatable="false">صباح الخير, %1$s، بماذا تشعر اليوم؟</string>
+    <string name="greetings" translatable="false">%1$s ،%2$s\n\n\t\t\t\t ما هو شعورك اليوم؟</string>
 </resources>

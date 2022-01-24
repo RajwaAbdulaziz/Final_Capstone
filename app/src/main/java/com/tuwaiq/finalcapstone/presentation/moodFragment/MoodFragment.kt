@@ -5,24 +5,31 @@ import android.animation.ObjectAnimator
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.tuwaiq.finalcapstone.R
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
+import java.time.LocalTime
+import kotlin.time.TimeSource
 
 private const val TAG = "MoodFragment"
 private var color = ""
 private var mood = ""
+@AndroidEntryPoint
 class MoodFragment : Fragment() {
 
-    private val moodFragmentViewModel by lazy { ViewModelProvider(this).get(MoodFragmentViewModel::class.java) }
+    private val moodFragmentViewModel by viewModels<MoodFragmentViewModel>()
     private lateinit var greetingsTv: TextView
     private lateinit var layout: LinearLayout
     private lateinit var goodImageBtn: ImageButton
@@ -88,9 +95,17 @@ class MoodFragment : Fragment() {
     override fun onStart() {
         super.onStart()
 
+        layout.setBackgroundColor(resources.getColor(R.color.white))
+
         lifecycleScope.launch {
             val userName = moodFragmentViewModel.userName()
-            greetingsTv.text = resources.getString(R.string.greetings, userName)
+            Log.d(TAG, "time: ${LocalTime.now()}")
+            val greeting = when {
+                LocalTime.now().isAfter(LocalTime.MIDNIGHT) && LocalTime.now().isBefore(LocalTime.NOON) -> "Good Morning"
+                LocalTime.now().isAfter(LocalTime.NOON) && LocalTime.now().isBefore(LocalTime.MIDNIGHT) -> "Good Evening"
+                else -> ""
+            }
+            greetingsTv.text = resources.getString(R.string.greetings, greeting, userName)
         }
 
        goodImageBtn.setOnClickListener {

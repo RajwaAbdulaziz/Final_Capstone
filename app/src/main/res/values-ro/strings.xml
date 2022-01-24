@@ -10,7 +10,7 @@
     <string name="confirm_password">Confirmă parola</string>
     <string name="register">Inregistreaza-te</string>
     <string name="what_are_you_n_feeling_today">Ce ești tu</string>
-    <string name="greetings">Bună dimineața, %1$s</string>
+    <string name="greetings">%1$s, %2$s \n\n\t\t\t\tCe simțiți astăzi?</string>
     <string name="calender">Calendar</string>
     <string name="your_note">nota ta..</string>
     <string name="mood_reason">De ce te simți așa</string>

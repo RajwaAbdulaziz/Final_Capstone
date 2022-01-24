@@ -1,10 +1,12 @@
 package com.tuwaiq.finalcapstone.presentation.moodDetailsFragment
 
 import android.Manifest
+import android.R.attr
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -16,6 +18,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.SwitchCompat
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
@@ -39,23 +42,31 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.tuwaiq.finalcapstone.R
-import com.tuwaiq.finalcapstone.model.Mood
+import com.tuwaiq.finalcapstone.databinding.MoodDetailsFragmentBinding
+import com.tuwaiq.finalcapstone.domain.model.Mood
 import com.tuwaiq.finalcapstone.presentation.memeApiFragment.CHOSE_MEME
 import com.tuwaiq.finalcapstone.presentation.listFragment.TASK
 import com.tuwaiq.finalcapstone.utils.FirebaseUtils
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
+import android.R.attr.endColor
+import antonkozyriatskyi.circularprogressindicator.CircularProgressIndicator
+
 
 private const val TAG = "MoodDetailsFragment"
 private const val REQUEST_IMAGE_CAPTURE = 1
 var coord = 0.0005f
 var c = false.toString()
+
+@AndroidEntryPoint
 class MoodDetailsFragment : Fragment() {
 
+    private lateinit var binding: MoodDetailsFragmentBinding
     private val args: MoodDetailsFragmentArgs by navArgs()
 
     private val moodDetailsViewModel by lazy { ViewModelProvider(this).get(MoodDetailsViewModel::class.java) }
@@ -92,13 +103,21 @@ class MoodDetailsFragment : Fragment() {
 
     private var tempUri: Uri? = null
 
+    private val requestPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+            }
+            }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.mood_details_fragment, container, false)
+        binding = MoodDetailsFragmentBinding.inflate(inflater, container, false)
         init(view)
-        return view
+        return binding.root
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -111,7 +130,9 @@ class MoodDetailsFragment : Fragment() {
             Log.e("formOnResult","is the photo file here ${photoFile.exists()}")
 
                 val bitmapData = BitmapFactory.decodeFile(photoFile.absolutePath)
-                picIv.setImageBitmap(bitmapData)
+                binding.picImageView.setImageBitmap(bitmapData)
+                binding.circularProgress.visibility = View.VISIBLE
+
 
             tempUri = context?.let {
                 getImageUri(it.applicationContext, bitmapData)
@@ -123,15 +144,9 @@ class MoodDetailsFragment : Fragment() {
                         val ref = storageRef.child("pics/$user1/${Calendar.getInstance().time}")
                         val pic = ref.putFile(uri)
                         pic.addOnProgressListener {
-                            val a = it.totalByteCount.toInt()
-                            //progressBar.progressFillSteps = it.bytesTransferred.toInt()
-                            for (i in 0..it.totalByteCount) {
-                                Log.d(TAG, "onActivityResult: ${i.toInt()}")
-                                progressBar.progressFillSteps = i.toInt()
-                            }
-//                            progressBar.progressTintList = ColorStateList.valueOf(resources.getColor(colorRes))
-//                            progressBar.progress = ((100.0 * it.bytesTransferred) / it.totalByteCount).toInt()
-                            //Log.d(TAG, "onActivityResult: ${((100.0 * it.bytesTransferred) / it.totalByteCount)}")
+                            binding.circularProgress.setProgress(it.bytesTransferred.toDouble(), it.totalByteCount.toDouble())
+                            val gradientType: Int = CircularProgressIndicator.LINEAR_GRADIENT
+                            binding.circularProgress.setGradient(gradientType, resources.getColor(colorRes))
                         }
 
                         pic.continueWithTask{ task ->
@@ -177,13 +192,12 @@ class MoodDetailsFragment : Fragment() {
     }
 
     private fun init(view: View) {
-        layout = view.findViewById(R.id.constraint_layout2)
+        //layout = view.findViewById(R.id.constraint_layout2)
         moodIv = view.findViewById(R.id.selected_mood_iv)
         noteEt = view.findViewById(R.id.note_et)
         addMoodButton = view.findViewById(R.id.add_mood)
         takePicBtn = view.findViewById(R.id.take_pic_btn)
         picIv = view.findViewById(R.id.pic_image_view)
-        progressBar = view.findViewById(R.id.progress_bar)
         picSwitch = view.findViewById(R.id.pic_switch)
         memePickerIv = view.findViewById(R.id.meme_picker_iv)
         locationBtn = view.findViewById(R.id.location_btn)
@@ -221,22 +235,22 @@ class MoodDetailsFragment : Fragment() {
 
         when (mood) {
             "good" -> {
-                moodIv.setImageResource(R.drawable.good)
+                binding.selectedMoodIv.setImageResource(R.drawable.good)
             }
             "great" -> {
-                moodIv.setImageResource(R.drawable.great)
+                binding.selectedMoodIv.setImageResource(R.drawable.great)
             }
             "sad" -> {
-                moodIv.setImageResource(R.drawable.sad)
+                binding.selectedMoodIv.setImageResource(R.drawable.sad)
             }
             "depressed" -> {
-                moodIv.setImageResource(R.drawable.depressed)
+                binding.selectedMoodIv.setImageResource(R.drawable.depressed)
             }
             "angry" -> {
-                moodIv.setImageResource(R.drawable.angry)
+                binding.selectedMoodIv.setImageResource(R.drawable.angry)
             }
             "neutral" -> {
-                moodIv.setImageResource(R.drawable.neutral)
+                binding.selectedMoodIv.setImageResource(R.drawable.neutral)
             }
 //            "wtf" -> {
 //                moodIv.setImageResource(R.drawable.wtf)
@@ -248,38 +262,38 @@ class MoodDetailsFragment : Fragment() {
 
         when (color) {
             "pink" -> {
-                noteEt.setTextColor(resources.getColor(R.color.dark_pink))
-                noteEt.setHintTextColor(resources.getColor(R.color.dark_pink))
+                binding.noteEt.setTextColor(resources.getColor(R.color.dark_pink))
+                binding.noteEt.setHintTextColor(resources.getColor(R.color.dark_pink))
                 colorRes = R.color.dark_pink
             }
             "green" -> {
-                noteEt.setTextColor(resources.getColor(R.color.dark_green))
-                noteEt.setHintTextColor(resources.getColor(R.color.dark_green))
+                binding.noteEt.setTextColor(resources.getColor(R.color.dark_green))
+                binding.noteEt.setHintTextColor(resources.getColor(R.color.dark_green))
                 colorRes = R.color.green
             }
             "blue" -> {
-                noteEt.setTextColor(resources.getColor(R.color.dark_blue))
-                noteEt.setHintTextColor(resources.getColor(R.color.dark_blue))
+                binding.noteEt.setTextColor(resources.getColor(R.color.dark_blue))
+                binding.noteEt.setHintTextColor(resources.getColor(R.color.dark_blue))
                 colorRes = R.color.blue
             }
             "dark_blue" -> {
-                noteEt.setTextColor(resources.getColor(R.color.darkest_blue))
-                noteEt.setHintTextColor(resources.getColor(R.color.darkest_blue))
+                binding.noteEt.setTextColor(resources.getColor(R.color.darkest_blue))
+                binding.noteEt.setHintTextColor(resources.getColor(R.color.darkest_blue))
                 colorRes = R.color.dark_blue
             }
             "light_red" -> {
-                noteEt.setTextColor(resources.getColor(R.color.red))
-                noteEt.setHintTextColor(resources.getColor(R.color.red))
+                binding.noteEt.setTextColor(resources.getColor(R.color.red))
+                binding.noteEt.setHintTextColor(resources.getColor(R.color.red))
                 colorRes = R.color.red
             }
             "light_gray" -> {
-                noteEt.setTextColor(resources.getColor(R.color.gray))
-                noteEt.setHintTextColor(resources.getColor(R.color.gray))
+                binding.noteEt.setTextColor(resources.getColor(R.color.gray))
+                binding.noteEt.setHintTextColor(resources.getColor(R.color.gray))
                 colorRes = R.color.gray
             }
             else -> {
-                noteEt.setTextColor(resources.getColor(R.color.black))
-                noteEt.setHintTextColor(resources.getColor(R.color.black))
+                binding.noteEt.setTextColor(resources.getColor(R.color.black))
+                binding.noteEt.setHintTextColor(resources.getColor(R.color.black))
                 colorRes = R.color.black
             }
         }
@@ -298,14 +312,14 @@ class MoodDetailsFragment : Fragment() {
         Log.d(TAG, "chose: $CHOSE_MEME")
         if (CHOSE_MEME) {
             Log.d(TAG, "meme: ${meme}")
-            memePickerIv.load(meme)
+            binding.memePickerIv.load(meme)
             CHOSE_MEME = false
         }
 
-        memePickerIv.setOnClickListener {
+        binding.memePickerIv.setOnClickListener {
             findNavController().navigate(R.id.action_moodDetailsFragment_to_memeApiFragment)
         }
-        picIv.setOnClickListener {
+        binding.picImageView.setOnClickListener {
             if (PackageManager.PERMISSION_GRANTED == context?.let {
                     ContextCompat.checkSelfPermission(it, android.Manifest.permission.CAMERA)
                 }) {
@@ -323,10 +337,15 @@ class MoodDetailsFragment : Fragment() {
 
                     Log.d(TAG, "url: $picUrl")
                 }
+            }else {
+                    // You can directly ask for the permission.
+                    // The registered ActivityResultCallback gets the result of this request.
+                    requestPermissionLauncher.launch(
+                        Manifest.permission.CAMERA)
             }
         }
 
-        locationBtn.setOnClickListener{
+        binding.locationBtn.setOnClickListener{
             getCurrentLocation()
         }
 
@@ -336,88 +355,88 @@ class MoodDetailsFragment : Fragment() {
 //            getCurrentLocation()
 //        }
 
-            picIv.setOnClickListener {
-                picIv.isClickable = false
+            binding.circularProgress.visibility = View.INVISIBLE
+
+            binding.picImageView.setOnClickListener {
+                binding.picImageView.isClickable = false
                 Snackbar.make(it, "You can't edit your pic", Snackbar.LENGTH_SHORT).show()
             }
-            FirebaseUtils().firestoreDatabase.collection("Mood")
+            FirebaseUtils().fireStoreDatabase.collection("Mood")
                 .document(moodId).get().addOnCompleteListener {
 
                     when (it.result.getString("mood")) {
-                        "good" -> moodIv.setImageResource(R.drawable.good)
-                        "great" -> moodIv.setImageResource(R.drawable.great)
-                        "sad" -> moodIv.setImageResource(R.drawable.sad)
-                        "depressed" -> moodIv.setImageResource(R.drawable.depressed)
-                        "angry" -> moodIv.setImageResource(R.drawable.angry)
-                        "neutral" -> moodIv.setImageResource(R.drawable.neutral)
-                        else -> moodIv.setImageBitmap(null)
+                        "good" -> binding.selectedMoodIv.setImageResource(R.drawable.good)
+                        "great" -> binding.selectedMoodIv.setImageResource(R.drawable.great)
+                        "sad" -> binding.selectedMoodIv.setImageResource(R.drawable.sad)
+                        "depressed" -> binding.selectedMoodIv.setImageResource(R.drawable.depressed)
+                        "angry" -> binding.selectedMoodIv.setImageResource(R.drawable.angry)
+                        "neutral" -> binding.selectedMoodIv.setImageResource(R.drawable.neutral)
+                        else -> binding.selectedMoodIv.setImageBitmap(null)
                     }
 
                     when (it.result.getString("color")) {
                             "pink" -> {
-                                noteEt.setTextColor(resources.getColor(R.color.dark_pink))
-                                noteEt.setHintTextColor(resources.getColor(R.color.dark_pink))
+                                binding.noteEt.setTextColor(resources.getColor(R.color.dark_pink))
+                                binding.noteEt.setHintTextColor(resources.getColor(R.color.dark_pink))
                                 colorRes = R.color.dark_pink
                             }
                             "green" -> {
-                                noteEt.setTextColor(resources.getColor(R.color.dark_green))
-                                noteEt.setHintTextColor(resources.getColor(R.color.dark_green))
+                                binding.noteEt.setTextColor(resources.getColor(R.color.dark_green))
+                                binding.noteEt.setHintTextColor(resources.getColor(R.color.dark_green))
                                 colorRes = R.color.green
                             }
                             "blue" -> {
-                                noteEt.setTextColor(resources.getColor(R.color.dark_blue))
-                                noteEt.setHintTextColor(resources.getColor(R.color.dark_blue))
+                                binding.noteEt.setTextColor(resources.getColor(R.color.dark_blue))
+                                binding.noteEt.setHintTextColor(resources.getColor(R.color.dark_blue))
                                 colorRes = R.color.blue
                             }
                             "dark_blue" -> {
-                                noteEt.setTextColor(resources.getColor(R.color.darkest_blue))
-                                noteEt.setHintTextColor(resources.getColor(R.color.darkest_blue))
+                                binding.noteEt.setTextColor(resources.getColor(R.color.darkest_blue))
+                                binding.noteEt.setHintTextColor(resources.getColor(R.color.darkest_blue))
                                 colorRes = R.color.dark_blue
                             }
                             "light_red" -> {
-                                noteEt.setTextColor(resources.getColor(R.color.red))
-                                noteEt.setHintTextColor(resources.getColor(R.color.red))
+                                binding.noteEt.setTextColor(resources.getColor(R.color.red))
+                                binding.noteEt.setHintTextColor(resources.getColor(R.color.red))
                                 colorRes = R.color.red
                             }
                             "light_gray" -> {
-                                noteEt.setTextColor(resources.getColor(R.color.gray))
-                                noteEt.setHintTextColor(resources.getColor(R.color.gray))
+                                binding.noteEt.setTextColor(resources.getColor(R.color.gray))
+                                binding.noteEt.setHintTextColor(resources.getColor(R.color.gray))
                                 colorRes = R.color.gray
                             }
                             else -> {
-                                noteEt.setTextColor(resources.getColor(R.color.black))
-                                noteEt.setHintTextColor(resources.getColor(R.color.black))
+                                binding.noteEt.setTextColor(resources.getColor(R.color.black))
+                                binding.noteEt.setHintTextColor(resources.getColor(R.color.black))
                                 colorRes = R.color.black
                             }
                     }
 
-                    noteEt.setText(it.result.getString("note"))
+                    binding.noteEt.setText(it.result.getString("note"))
 
                     Glide.with(requireContext())
                         .load(it.result.getString("pic"))
-                        .into(picIv)
+                        .into(binding.picImageView)
 
                     if (it.result.getString("pic") != null) {
                     picUrl = it.result.getString("pic")!!
                     }
 
-                    memePickerIv.load(it.result.getString("memePic"))
+                    binding.memePickerIv.load(it.result.getString("memePic"))
 
-                    memePickerIv.setOnClickListener {
+                    binding.memePickerIv.setOnClickListener {
                         findNavController().navigate(R.id.action_moodDetailsFragment_to_memeApiFragment)
                     }
 
-                    addMoodButton.setOnClickListener {
+                    binding.addMood.setOnClickListener {
                         val uid = FirebaseAuth.getInstance().currentUser?.uid
-                        Log.d(TAG, "urlll $picUrl")
                         lifecycleScope.launch {
                             userName = moodDetailsViewModel.currentUserName().toString()
-                            //Log.d(TAG, userName)
                         }.invokeOnCompletion {
                             Log.d(TAG, "mood: $mood")
                             val note = uid?.let { uid ->
                                 Mood(
-                                    noteEt.text.toString(),
+                                    binding.noteEt.text.toString(),
                                     color,
                                     picUrl,
                                     mood,
@@ -429,19 +448,13 @@ class MoodDetailsFragment : Fragment() {
                                     moodId
                                 )
                             }
-                            Log.d(TAG, note.toString())
-                            FirebaseUtils().firestoreDatabase.collection("Users")
+                            FirebaseUtils().fireStoreDatabase.collection("Users")
                                 .document(uid!!).update("note", FieldValue.arrayUnion(note))
 
                             if (note != null) {
-                                FirebaseUtils().firestoreDatabase.collection("Mood")
+                                FirebaseUtils().fireStoreDatabase.collection("Mood")
                                     .document(moodId).set(note)
                             }
-
-                            val action =
-                                MoodDetailsFragmentDirections.actionMoodDetailsFragmentToListFragment2(
-                                    color
-                                )
                             findNavController().navigate(R.id.action_moodDetailsFragment_to_listFragment2)
                         }
                     }
@@ -449,15 +462,12 @@ class MoodDetailsFragment : Fragment() {
             TASK = ""
         }
 
-        picSwitch.setOnCheckedChangeListener { compoundButton, b ->
+        binding.picSwitch.setOnCheckedChangeListener { compoundButton, b ->
             c = b.toString()
             Log.d(TAG, c)
         }
 
-        addMoodButton.setOnClickListener {
-
-            //meme = sharedPref.getString("memeUrl", "").toString()
-            //val moodId = UUID.randomUUID().toString()
+        binding.addMood.setOnClickListener {
             lifecycleScope.launch {
                 userName = moodDetailsViewModel.currentUserName().toString()
                 Log.d(TAG, userName)
@@ -467,7 +477,7 @@ class MoodDetailsFragment : Fragment() {
                 if (user != null) {
 
                     val b = mutableListOf<com.google.android.gms.maps.model.LatLng>()
-                    FirebaseUtils().firestoreDatabase.collection("Mood").get().addOnSuccessListener {
+                    FirebaseUtils().fireStoreDatabase.collection("Mood").get().addOnSuccessListener {
                         it.forEach {
                             if (it.getDouble("lat")!! == 0.0 && it.getDouble("long")!! == 0.0) {
 
@@ -487,7 +497,7 @@ class MoodDetailsFragment : Fragment() {
 
                         }.also {
                             val note = Mood(
-                                noteEt.text.toString(),
+                                binding.noteEt.text.toString(),
                                 color,
                                 picUrl,
                                 mood,
@@ -502,17 +512,16 @@ class MoodDetailsFragment : Fragment() {
                             spf = SimpleDateFormat("dd MMM yyyy")
                             val formattedDueDate = spf.format(parsedDueDate)
 
-                            val ref = FirebaseFirestore.getInstance().collection("Mood").document()
-                            note.moodId = ref.id
-                            note.privatePic = c
-                            ref.set(note)
+                            moodDetailsViewModel.addMood(note)
+//                            val ref = FirebaseFirestore.getInstance().collection("Mood").document()
+//                            note.moodId = ref.id
+//                            note.privatePic = c
+//                            ref.set(note)
 
                             Log.d(TAG, "onStart: $note")
-                            FirebaseUtils().firestoreDatabase.collection("Users")
-                                .document(user).update("note", FieldValue.arrayUnion(note))
+                            moodDetailsViewModel.updateUserMood(note)
                         }
                     }
-                    //Log.d(TAG, "lat: $lat")
                 }
                 findNavController().navigate(R.id.action_moodDetailsFragment_to_listFragment2)
             }
@@ -523,24 +532,26 @@ class MoodDetailsFragment : Fragment() {
         if (ActivityCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+            ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
+            ) == PackageManager.PERMISSION_GRANTED
         ) {
 
+            fusedLocationClient.lastLocation.addOnSuccessListener {
+                binding.latLangTv.text = "${it.latitude}  ${it.longitude}"
+                lat = it.latitude
+                long = it.longitude
+            }
             // here to request the missing permissions, and then overriding
             //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
             //                                          int[] grantResults)
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
             return
-        }
-
-        fusedLocationClient.lastLocation.addOnSuccessListener {
-            latLangTv.text = "${it.latitude}  ${it.longitude}"
-            lat = it.latitude
-            long = it.longitude
+        } else {
+            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            requestPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
         }
     }
 }

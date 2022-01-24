@@ -1,6 +1,5 @@
-package com.tuwaiq.finalcapstone.model
+package com.tuwaiq.finalcapstone.domain.model
 
-import com.google.type.LatLng
 import java.util.*
 
 data class Mood(

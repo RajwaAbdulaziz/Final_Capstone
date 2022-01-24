@@ -4,65 +4,56 @@ import android.animation.LayoutTransition
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.transition.AutoTransition
 import android.transition.TransitionManager
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.OvershootInterpolator
-import android.widget.*
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import androidx.annotation.RequiresApi
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequest
+import androidx.work.WorkManager
 import coil.load
 import com.bumptech.glide.Glide
-import com.facebook.shimmer.ShimmerFrameLayout
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.tuwaiq.finalcapstone.MyCallback
 import com.tuwaiq.finalcapstone.R
-import com.tuwaiq.finalcapstone.model.Mood
+import com.tuwaiq.finalcapstone.databinding.ListFragmentBinding
+import com.tuwaiq.finalcapstone.databinding.MoodsListItemBinding
+import com.tuwaiq.finalcapstone.domain.model.Mood
 import com.tuwaiq.finalcapstone.utils.FirebaseUtils
-import com.vivekkaushik.datepicker.DatePickerTimeline
+import com.tuwaiq.finalcapstone.utils.NotifyWork
 import com.vivekkaushik.datepicker.OnDateSelectedListener
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 private const val TAG = "ListFragment"
 var TASK = ""
 var bool = false
-var bool1 = false
+private const val WORKER_ID = "Workerr"
+@AndroidEntryPoint
 class ListFragment : Fragment() {
 
-    private val listViewModel by lazy { ViewModelProvider(this).get(ListViewModel::class.java) }
-
-    private val calendar = Calendar.getInstance()
-    private var currentMonth = 0
-
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var color: String
-
-    //private lateinit var fab: FloatingActionButton
-    private lateinit var mapIb: ImageButton
+    private lateinit var binding: ListFragmentBinding
+    private val listViewModel by viewModels<ListViewModel>()
     private lateinit var sharedPref: SharedPreferences
-    private lateinit var fab: FloatingActionButton
-
-    private lateinit var datePicker: DatePickerTimeline
-    private lateinit var shimmerFrameLayout: ShimmerFrameLayout
-
-    private val args: ListFragmentArgs by navArgs()
+    private lateinit var recyclerView: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,50 +62,35 @@ class ListFragment : Fragment() {
 
     }
 
-
         override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
-        ): View? {
-            val view = inflater.inflate(R.layout.list_fragment, container, false)
-            recyclerView = view.findViewById(R.id.moods_rv)
-            //fab = MainActivity().findViewById(R.id.fab)
-            mapIb = view.findViewById(R.id.map_ib)
-            datePicker = view.findViewById(R.id.datePickerTimeline)
-            shimmerFrameLayout = view.findViewById(R.id.shimmer_frame_layout)
-
-            shimmerFrameLayout.startShimmerAnimation()
-//
-//        recyclerView.visibility = View.GONE
-            //recyclerView.layoutManager = linearLayoutManager // Add your recycler view to this ZoomRecycler layout
-
+        ): View {
+            binding = ListFragmentBinding.inflate(inflater, container, false)
+            binding.shimmerFrameLayout.startShimmerAnimation()
+            recyclerView = binding.moodsRv
             recyclerView.layoutManager = LinearLayoutManager(context)
-            //swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout)
-
 
             lifecycleScope.launch {
-                Log.d(TAG, "HERE")
-                updateUI3()
+                updateUI(-1)
             }
-
-//        swipeRefreshLayout.setOnRefreshListener {
-//            lifecycleScope.launch {
-//                updateUI(mutableListOf(Mood()))
-//            }
-//            swipeRefreshLayout.isRefreshing = false
-//        }
-            return view
-        }
-
-        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-            super.onViewCreated(view, savedInstanceState)
-
-            //fab = requireActivity().findViewById(R.id.fab)
-            // fab.show()
+            return binding.root
         }
 
         override fun onStart() {
             super.onStart()
+
+            val workRequest = PeriodicWorkRequest.Builder(
+                NotifyWork::class.java,15, TimeUnit.MINUTES)
+                .build()
+
+            Log.d(TAG, "work: $workRequest")
+
+            WorkManager.getInstance(requireContext())
+                .enqueueUniquePeriodicWork(WORKER_ID,
+                    ExistingPeriodicWorkPolicy.KEEP,
+                    workRequest
+                )
 
             val current = LocalDateTime.now()
 
@@ -124,17 +100,17 @@ class ListFragment : Fragment() {
             val year = current.format(formatter).toInt()
             val month = current.format(formatter2).toInt()
             val day = current.format(formatter3).toInt()
-            Log.d(TAG, "daaay: ${year}")
-            datePicker.setInitialDate(year, month.minus(1), day.minus(3))
+
+            binding.datePickerTimeline.setInitialDate(year, month.minus(1), day.minus(3))
             val m = GregorianCalendar.getInstance()
             m.time = Date()
             val n = Calendar.getInstance().coerceAtMost(m)
-            datePicker.setActiveDate(n)
+            binding.datePickerTimeline.setActiveDate(n)
 
-            datePicker.setOnDateSelectedListener(object : OnDateSelectedListener {
+            binding.datePickerTimeline.setOnDateSelectedListener(object : OnDateSelectedListener {
                 override fun onDateSelected(year: Int, month: Int, day: Int, dayOfWeek: Int) {
                     lifecycleScope.launch {
-                    updateUI2(year, month, day)
+                    updateUI(day)
                 }
 
                 }
@@ -152,252 +128,179 @@ class ListFragment : Fragment() {
 
             })
 
-//        datePicker.setOnDateSelectedListener(object: OnDateSelectedListener{
-//            override fun onDateSelected(year: Int, month: Int, day: Int, dayOfWeek: Int) {
-//                //Log.d(TAG, "day: $day")
-//
-//                lifecycleScope.launch {
-//                    updateUI2(year, month, day)
-//                }
-//
-//                }
-//            override fun onDisabledDateSelected(
-//                year: Int,
-//                month: Int,
-//                day: Int,
-//                dayOfWeek: Int,
-//                isDisabled: Boolean
-//            ) {
-//            }
-//
-//                    )
-//
-//        })
-
-            mapIb.setOnClickListener {
+            binding.mapIb.setOnClickListener {
                 findNavController().navigate(R.id.action_listFragment2_to_mapViewFragment2)
             }
         }
 
-    private suspend fun updateUI3() {
+    private fun formatDate(date: Date): String {
+        var spf = SimpleDateFormat("E LLL dd hh:mm:ss z yyyy")
+        val parsed = spf.parse(date.toString())
+        spf = SimpleDateFormat("d")
+        return spf.format(parsed)
+    }
 
-
-        listViewModel.getListOfMoods().onEach {
-//                shimmerFrameLayout.visibility = View.INVISIBLE
-//                recyclerView.visibility = View.VISIBLE
-
-            val m = it.filter { mood ->
-                mood.date.day == Date().day
+    private suspend fun updateUI(day: Int) {
+        listViewModel.getListOfMoods(-1, object : MyCallback{
+            override fun onCallback(list: List<Mood>) {
+                val a = list.filter {mood ->
+                    val b = formatDate(Date())
+                    val c = formatDate(mood.date)
+                    if (day == -1) {
+                        b == c
+                    } else {
+                        c == day.toString()
+                    }
+                }
+                binding.moodsRv.adapter = MoodAdapter(a)
             }
 
-            Log.d(TAG, "LIST: $m")
-            recyclerView.adapter = MoodAdapter(m)
+        })
+            //binding.moodsRv.adapter = MoodAdapter(listViewModel.getListOfMoods(-1))
 
-            recyclerView.requestLayout()
-            shimmerFrameLayout.stopShimmerAnimation()
-            shimmerFrameLayout.visibility = View.GONE
-        }.launchIn(lifecycleScope)
+            binding.shimmerFrameLayout.stopShimmerAnimation()
+            binding.shimmerFrameLayout.visibility = View.GONE
+//            binding.moodsRv.adapter!!.notifyDataSetChanged()
     }
 
     private suspend fun updateUI2(year: Int, month: Int, day: Int) {
 
-        listViewModel.getListOfMoods().onEach {
+        listViewModel.getListOfMoods(day, object : MyCallback{
+            override fun onCallback(list: List<Mood>) {
+                binding.moodsRv.adapter = MoodAdapter(list)
+            }
 
-            var formatted = ""
+        })
+            //binding.moodsRv.adapter = MoodAdapter(listViewModel.getListOfMoods(day))
 
-            var s = mutableListOf<Mood>()
-
-                s = it.filter {
-                    var spf = SimpleDateFormat("E LLL dd hh:mm:ss z yyyy")
-                    val parsed = spf.parse(it.date.toString())
-                    spf = SimpleDateFormat("d")
-                    formatted = spf.format(parsed)
-                    formatted == day.toString()
-                } as MutableList<Mood>
-
-            Log.d(TAG, formatted)
-            //Log.d(TAG, "LISTTTT: $s")
-            recyclerView.adapter = MoodAdapter(s)
-
-            //Log.d(TAG, "LIST: $m")
-
-            shimmerFrameLayout.stopShimmerAnimation()
-            shimmerFrameLayout.visibility = View.GONE
-            recyclerView.adapter!!.notifyDataSetChanged()
-        }.launchIn(lifecycleScope)
+            binding.shimmerFrameLayout.stopShimmerAnimation()
+            binding.shimmerFrameLayout.visibility = View.GONE
+            binding.moodsRv.adapter!!.notifyDataSetChanged()
     }
 
-
-//        listViewModel.getListOfMoods().asLiveData().observe(viewLifecycleOwner, androidx.lifecycle.Observer {
-//            recyclerView.adapter = MoodAdapter(it)
-//        })
-
-
-
-    inner class MoodViewHolder(view: View): RecyclerView.ViewHolder(view), View.OnClickListener,
+    inner class MoodViewHolder(private val binding: MoodsListItemBinding): RecyclerView.ViewHolder(binding.root), View.OnClickListener,
         AdapterView.OnItemSelectedListener {
 
         private lateinit var moods: Mood
-        private val nameTv: TextView = itemView.findViewById(R.id.name_Tv)
-        private val ownerTv: TextView = itemView.findViewById(R.id.owner_tv)
-        private val noteBoundsTv: TextView = itemView.findViewById(R.id.note_bounds_tv)
-        private val noteTv: TextView = itemView.findViewById(R.id.note_tv)
-        private val noteIv: ImageView = itemView.findViewById(R.id.pic_iv)
-        private val moodIv: ImageView = itemView.findViewById(R.id.chosen_mood_iv)
-        //private val deleteMood: ImageButton = itemView.findViewById(R.id.delete_mood)
-        private val memePicIv: ImageView = itemView.findViewById(R.id.meme_pic_iv)
-        private val expandIb: ImageButton = itemView.findViewById(R.id.expand_ib)
-        private val layout: ConstraintLayout = itemView.findViewById(R.id.constraint_layout_3)
-        private val spinner: Spinner = itemView.findViewById(R.id.spinner)
-
-        private val ref = FirebaseUtils().firestoreDatabase.collection("Mood")
 
         init {
 
             itemView.setOnClickListener(this)
-            //deleteMood.setOnClickListener(this)
-            if (FirebaseUtils().auth.uid == FirebaseUtils().auth.currentUser?.uid) {
-                spinner.visibility = View.VISIBLE
-            }
-            spinner.onItemSelectedListener = this
-            expandIb.setOnClickListener(this)
 
-            val delete = arrayOf("", "Delete")
-
-        val aa = context?.let {
-            ArrayAdapter(it, android.R.layout.simple_spinner_item, delete) }
-        aa?.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinner.adapter = aa
-
+            binding.expandIb.setOnClickListener(this)
         }
-
 
         @RequiresApi(Build.VERSION_CODES.Q)
         fun bind(moods: Mood) {
             this.moods = moods
 
-                nameTv.text = moods.ownerName
-
-                noteTv.text = moods.note
-
             if (moods.owner == FirebaseUtils().auth.currentUser?.uid) {
-                ownerTv.visibility = View.VISIBLE
-                ownerTv.text = getString(R.string.you)
+                binding.ownerTv.visibility = View.VISIBLE
+                binding.spinner.visibility = View.VISIBLE
+            }
+            else {
+                binding.ownerTv.visibility = View.INVISIBLE
             }
 
-            if (moods.note != "" || moods.pic != "" || moods.memePic != "-1") {
+            binding.spinner.onItemSelectedListener = this
 
-                if (moods.owner == FirebaseUtils().auth.currentUser?.uid) {
-                    Log.d(TAG, "true")
-                    expandIb.visibility = View.VISIBLE
-                    expandIb.setOnClickListener(this)
+            val delete = arrayOf("", "Delete")
+
+            val aa = context?.let {
+                ArrayAdapter(it, android.R.layout.simple_spinner_item, delete) }
+            aa?.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            binding.spinner.adapter = aa
+                binding.nameTv.text = moods.ownerName
+
+                binding.noteTv.text = moods.note
+
+            if (moods.note != "" || (moods.pic != "" && moods.privatePic != "true") || moods.memePic != "-1") {
+                    binding.expandIb.visibility = View.VISIBLE
+                    binding.expandIb.setOnClickListener(this)
                 }
-            }
 
                 if (moods.privatePic == "false") {
 
                     Glide.with(requireContext())
                         .load(moods.pic)
-                        .into(noteIv)
+                        .into(binding.picIv)
                 }
 
-            noteIv.load(moods.pic)
-
-           // Log.d(TAG, moods.memePic)
-
-//                if (moods.privatePic == "true" || (moods.pic == "" && moods.memePic == "-1" && moods.note == "")) {
-//                    noteIv.visibility = View.GONE
-//                    expandIb.visibility = View.GONE
-////                    val n = noteTv.layoutParams
-////                    n.width = 660
-////                    val b = noteBoundsTv.layoutParams
-////                    b.width = 720
-//                }
+            binding.memePicIv.load(moods.memePic)
 
                 when (moods.mood) {
-                    "good" -> moodIv.setImageResource(R.drawable.good)
-                    "great" -> moodIv.setImageResource(R.drawable.great)
-                    "sad" -> moodIv.setImageResource(R.drawable.sad)
-                    "depressed" -> moodIv.setImageResource(R.drawable.depressed)
-                    "angry" -> moodIv.setImageResource(R.drawable.angry)
-                    "neutral" -> moodIv.setImageResource(R.drawable.neutral)
+                    "good" -> binding.chosenMoodIv.setImageResource(R.drawable.good)
+                    "great" -> binding.chosenMoodIv.setImageResource(R.drawable.great)
+                    "sad" -> binding.chosenMoodIv.setImageResource(R.drawable.sad)
+                    "depressed" -> binding.chosenMoodIv.setImageResource(R.drawable.depressed)
+                    "angry" -> binding.chosenMoodIv.setImageResource(R.drawable.angry)
+                    "neutral" -> binding.chosenMoodIv.setImageResource(R.drawable.neutral)
                 }
 
                 when (moods.color) {
-                    "pink" -> noteTv.setTextColor(resources.getColor(R.color.dark_pink))
-                    "green" -> noteTv.setTextColor(resources.getColor(R.color.dark_green))
-                    "blue" -> noteTv.setTextColor(resources.getColor(R.color.dark_blue))
-                    "dark_blue" -> noteTv.setTextColor(resources.getColor(R.color.darkest_blue))
-                    "light_red" -> noteTv.setTextColor(resources.getColor(R.color.red))
-                    "light_gray" -> noteTv.setTextColor(resources.getColor(R.color.gray))
-                    else -> noteTv.setTextColor(resources.getColor(R.color.black))
+                    "pink" -> binding.noteTv.setTextColor(resources.getColor(R.color.dark_pink))
+                    "green" -> binding.noteTv.setTextColor(resources.getColor(R.color.dark_green))
+                    "blue" -> binding.noteTv.setTextColor(resources.getColor(R.color.dark_blue))
+                    "dark_blue" -> binding.noteTv.setTextColor(resources.getColor(R.color.darkest_blue))
+                    "light_red" -> binding.noteTv.setTextColor(resources.getColor(R.color.red))
+                    "light_gray" -> binding.noteTv.setTextColor(resources.getColor(R.color.gray))
+                    else -> binding.noteTv.setTextColor(resources.getColor(R.color.black))
                 }
             }
 
         override fun onClick(p0: View?) {
 
             when (p0) {
-//                deleteMood -> {
-//                    ref.document(moods.moodId).delete()
-//                    lifecycleScope.launch {
-//                        updateUI()
-//                    }
-//                }
-
                 itemView -> {
                     TASK = "UPDATE"
-                    ref.get().addOnSuccessListener {
-                        it.forEach { documentId ->
-                            if (documentId.id == moods.moodId) {
-
-                                sharedPref.edit().putString("moodId", moods.color).apply()
-                                sharedPref.edit().putString("moodId", moods.mood).apply()
+                    lifecycleScope.launch {
+                        listViewModel.getDocumentId().forEach {
+                            Log.d(TAG, "id: $it")
+                            if (it == moods.moodId) {
+                                sharedPref.edit().putString("moodColor", moods.color).apply()
+                                sharedPref.edit().putString("mood", moods.mood).apply()
                                 sharedPref.edit().putString("moodId", moods.moodId).apply()
-                                //Log.d(TAG, "mooood: ${moods.moodId}")
-                                val action = ListFragmentDirections.actionListFragment2ToMoodDetailsFragment(moods.color, moods.mood, moods.moodId)
                                 findNavController().navigate(R.id.action_listFragment2_to_moodDetailsFragment)
                             }
                         }
                     }
                 }
-                expandIb -> {
-                    if (!bool1) {
-                        layout.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
-                        TransitionManager.beginDelayedTransition(layout, AutoTransition())
-                        if(noteTv.text != null) {
-                            noteBoundsTv.visibility = View.VISIBLE
-                            noteTv.visibility = View.VISIBLE
+                binding.expandIb -> {
+                    if (!bool) {
+                        binding.constraintLayout3.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
+                        TransitionManager.beginDelayedTransition(binding.constraintLayout3, AutoTransition())
+
+                        when {
+                            moods.note != "" -> {
+                                binding.noteBorderCardView.visibility = View.VISIBLE
+                            }
+                            moods.pic != "" && moods.privatePic != "true" -> binding.picIv.visibility = View.VISIBLE
+
+                            moods.memePic != "-1" -> binding.memePicIv.visibility = View.VISIBLE
+
+                            moods.note != "" && (moods.pic != "" || moods.memePic != "-1") -> {
+                                Log.d(TAG, "YESSS")
+                                binding.noteBorderCardView.visibility = View.VISIBLE
+                                binding.picIv.visibility = View.VISIBLE
+                                binding.memePicIv.visibility = View.VISIBLE
+                            }
                         }
-                        if (moods.memePic.isNotEmpty()) {
-                            memePicIv.visibility = View.VISIBLE
-                        }
-                        if (moods.pic.isNotEmpty()) {
-                            noteIv.visibility = View.VISIBLE
-                        }
-//                        val l = layout.layoutParams
-//                        l.height = 910
-//                        l.width = 900
-//                        memePicIv.load(moods.memePic)
-//                        if (moods.privatePic != "true") {
-//                            noteIv.load(moods.pic)
-//                        }
 
                         val interpolator = OvershootInterpolator()
-                        ViewCompat.animate(expandIb).rotation(180f).withLayer().setDuration(300)
+                        ViewCompat.animate(binding.expandIb).rotation(180f).withLayer().setDuration(300)
                             .setInterpolator(interpolator).start()
-                        bool1 = true
-                    } else if (bool1){
-                        noteBoundsTv.visibility = View.GONE
-                        noteTv.visibility = View.GONE
-                        memePicIv.visibility = View.GONE
-                        noteIv.visibility = View.GONE
-//                        val l = layout.layoutParams
-//                        l.height = 410
-//                        l.width = 900
+                        bool = true
+
+                    } else if (bool){
+                        binding.noteBorderCardView.visibility = View.GONE
+                        binding.noteTv.visibility = View.GONE
+                        binding.memePicIv.visibility = View.GONE
+                        binding.picIv.visibility = View.GONE
+
                         val interpolator = OvershootInterpolator()
-                        ViewCompat.animate(expandIb).rotation(360f).withLayer().setDuration(300)
+                        ViewCompat.animate(binding.expandIb).rotation(360f).withLayer().setDuration(300)
                             .setInterpolator(interpolator).start()
-                        bool1 = false
+                        bool = false
                     }
                     recyclerView.requestLayout()
                 }
@@ -407,9 +310,9 @@ class ListFragment : Fragment() {
         override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
             when(p2) {
                 1 -> {
-                    ref.document(moods.moodId).delete()
+                    listViewModel.deleteMood(moods.moodId)
                     lifecycleScope.launch {
-                        updateUI3()
+                        updateUI(-1)
                     }
                 }
             }
@@ -421,18 +324,14 @@ class ListFragment : Fragment() {
 
     inner class MoodAdapter(private var moods: List<Mood>): RecyclerView.Adapter<MoodViewHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MoodViewHolder{
-            val view = layoutInflater.inflate(R.layout.moods_list_item, parent, false)
-            return MoodViewHolder(view)
+            val binding = MoodsListItemBinding.inflate(layoutInflater,parent, false)
+            return MoodViewHolder(binding)
         }
 
         @RequiresApi(Build.VERSION_CODES.Q)
         override fun onBindViewHolder(holder: MoodViewHolder, position: Int) {
             val mood = moods[position]
-//            val sharedPref = activity?.getSharedPreferences("switch", Context.MODE_PRIVATE)
-//            val moodsSettings = sharedPref?.getBoolean("switch_state", false)
-//            if (!moodsSettings!!) {
                 holder.bind(mood)
-//            }
         }
 
         override fun getItemCount(): Int = moods.size
