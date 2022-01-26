@@ -2,9 +2,11 @@ package com.tuwaiq.finalcapstone.di
 
 import com.tuwaiq.finalcapstone.data.remote.memeApi.repo.ApiRepo
 import com.tuwaiq.finalcapstone.data.repo.AuthRepoImpl
+import com.tuwaiq.finalcapstone.data.repo.ChatRepoImpl
 import com.tuwaiq.finalcapstone.data.repo.MoodRepoImpl
 import com.tuwaiq.finalcapstone.data.repo.UserRepoImpl
 import com.tuwaiq.finalcapstone.domain.repo.AuthRepo
+import com.tuwaiq.finalcapstone.domain.repo.ChatRepo
 import com.tuwaiq.finalcapstone.domain.repo.MoodRepo
 import com.tuwaiq.finalcapstone.domain.repo.UserRepo
 import dagger.Module
@@ -29,7 +31,7 @@ object AppModule {
     @Provides
     fun provideUserRepo(): UserRepo = UserRepoImpl()
 
-//    @Singleton
-//    @Provides
-//    fun provideMeme() = ApiRepo()
+    @Singleton
+    @Provides
+    fun provideChatRepo(): ChatRepo = ChatRepoImpl()
 }

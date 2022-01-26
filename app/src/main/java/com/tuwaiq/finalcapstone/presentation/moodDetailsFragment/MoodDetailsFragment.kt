@@ -1,12 +1,10 @@
 package com.tuwaiq.finalcapstone.presentation.moodDetailsFragment
 
 import android.Manifest
-import android.R.attr
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -37,7 +35,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.FirebaseFirestore
 
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
@@ -54,7 +51,10 @@ import java.io.File
 import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
-import android.R.attr.endColor
+import android.animation.AnimatorSet
+import android.animation.ArgbEvaluator
+import android.animation.ObjectAnimator
+import android.view.animation.AnticipateInterpolator
 import antonkozyriatskyi.circularprogressindicator.CircularProgressIndicator
 
 
@@ -214,6 +214,103 @@ class MoodDetailsFragment : Fragment() {
 
     }
 
+    private fun startAnimation() {
+        val sunYStart = sunView.top.toFloat()
+        val sunYEnd = skyView.height.toFloat()
+
+        cloudView.visibility = View.GONE
+        cloudView2.visibility = View.GONE
+
+        val heightAnimator = ObjectAnimator
+            .ofFloat(sunView, "y", sunYStart, sunYEnd)
+            .setDuration(1100)
+
+        heightAnimator.interpolator = AnticipateInterpolator()
+
+        val sunsetSkyAnimator = ObjectAnimator
+            .ofInt(skyView, "backgroundColor", blueSkyColor, sunsetSkyColor)
+            .setDuration(1000)
+
+        sunsetSkyAnimator.setEvaluator(ArgbEvaluator())
+
+        val nightSkyAnimator = ObjectAnimator
+            .ofInt(skyView, "backgroundColor", sunsetSkyColor, nightSkyColor)
+            .setDuration(1000)
+
+        nightSkyAnimator.setEvaluator(ArgbEvaluator())
+
+
+        val animatorSet = AnimatorSet()
+
+        animatorSet.play(heightAnimator)
+            .with(sunsetSkyAnimator)
+            .before(nightSkyAnimator)
+
+        animatorSet.start()
+
+    }
+
+    var tx: Float = event.getX()
+    var ty: Float = event.getY()
+    tx = event.getX();
+    ty = event.getY();
+
+    //       findViewById(R.id.character).setX(tx-45);
+    //      findViewById(R.id.character).setY(ty-134);
+
+    ObjectAnimator animX = ObjectAnimator.ofFloat(splash, "x", tx-45);
+    ObjectAnimator animY = ObjectAnimator.ofFloat(splash, "y", ty-134);
+    AnimatorSet animSetXY = new AnimatorSet();
+    animSetXY.playTogether(animX, animY);
+    animSetXY.start();
+
+    private fun endAnimation() {
+        val moodYStart = sunView.top.toFloat()
+        val moodYEnd = skyView.height.toFloat()
+
+        val heightAnimator = ObjectAnimator
+            .ofFloat(sunView, "y", moodYEnd, moodYStart)
+            .setDuration(1000)
+
+        val sunsetSkyAnimator = ObjectAnimator
+            .ofInt(skyView, "backgroundColor", nightSkyColor, sunsetSkyColor)
+            .setDuration(1000)
+
+        sunsetSkyAnimator.setEvaluator(ArgbEvaluator())
+
+        val blueSkyAnimator = ObjectAnimator
+            .ofInt(skyView, "backgroundColor", sunsetSkyColor, blueSkyColor)
+            .setDuration(1000)
+
+        blueSkyAnimator.setEvaluator(ArgbEvaluator())
+
+        val cloudXStart = cloudView.left.toFloat()
+        val cloudXEnd = skyView.width.toFloat() * -1
+        val cloud2XStart = cloudView2.left.toFloat()
+        val cloud2XEnd = skyView.width.toFloat()
+
+        cloudView.visibility = View.VISIBLE
+        cloudView2.visibility = View.VISIBLE
+
+        val cloudHeightAnimator = ObjectAnimator
+            .ofFloat(cloudView, "x", cloudXEnd, cloudXStart)
+            .setDuration(1100)
+
+        val cloud2HeightAnimator = ObjectAnimator
+            .ofFloat(cloudView2, "x", cloud2XEnd, cloud2XStart)
+            .setDuration(1200)
+
+        val animatorSet = AnimatorSet()
+
+        animatorSet.play(heightAnimator)
+            .with(sunsetSkyAnimator)
+            .with(cloudHeightAnimator)
+            .with(cloud2HeightAnimator)
+            .before(blueSkyAnimator)
+
+        animatorSet.start()
+    }
+
     override fun onStop() {
         super.onStop()
         fab.show()
@@ -225,6 +322,7 @@ class MoodDetailsFragment : Fragment() {
 
         when (mood) {
             "good" -> {
+                startAnimation()
                 binding.selectedMoodIv.setImageResource(R.drawable.good)
             }
             "great" -> {

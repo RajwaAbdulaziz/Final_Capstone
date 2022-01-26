@@ -28,4 +28,5 @@
     <string name="moods_chart">Moods Chart</string>
     <string name="explore_other_moods">Explore other moods</string>
     <string name="my_moods">My moods</string>
+    <string name="input">Input</string>
 </resources>

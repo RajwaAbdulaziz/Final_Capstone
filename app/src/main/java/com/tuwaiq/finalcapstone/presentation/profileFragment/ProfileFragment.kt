@@ -102,7 +102,7 @@ class ProfileFragment : Fragment() {
             binding.personalNameTv.setText(profileViewModel.userName())
         }
 
-        binding.personalEmailTv.text = FirebaseUtils().auth.currentUser?.email
+        binding.personalEmailTv.setText(FirebaseUtils().auth.currentUser?.email)
 
         binding.editBtn.setOnClickListener {
             binding.editBtn.visibility = View.INVISIBLE
@@ -221,36 +221,39 @@ class ProfileFragment : Fragment() {
         fun bind(mood: Mood) {
             this.mood = mood
 
-            binding.personalNoteTv.text = mood.note
-
-            Log.d(TAG, mood.mood)
-
-            if(mood.pic != "") {
-                Glide.with(requireContext())
-                    .load(mood.pic)
-                    .into(binding.personalPicIv)
-            } else {
-                binding.personalPicIv.visibility = View.GONE
-                val n = binding.personalNoteTv.layoutParams
-                n.width = 660
-                val b = binding.personalNoteBoundsTv.layoutParams
-                b.width = 720
+            if (mood.note == "" && mood.pic == "" && mood.memePic == "-1") {
+                binding.psNoteBorderCardView.visibility = View.GONE
+                binding.psPicIv.visibility = View.GONE
+                binding.memePicIv.visibility = View.GONE
+                binding.psChosenMoodIv.translationY = 200f
             }
 
+            binding.psNoteTv.text = mood.note
+
+            Glide.with(requireContext())
+                .load(mood.pic)
+                .into(binding.psPicIv)
+
+            Glide.with(requireContext())
+                .load(mood.memePic)
+                .into(binding.memePicIv)
+
             when (mood.mood) {
-                "good" -> binding.personalChosenMoodIv.setImageResource(R.drawable.good)
-                "great" -> binding.personalChosenMoodIv.setImageResource(R.drawable.great)
-                "sad" -> binding.personalChosenMoodIv.setImageResource(R.drawable.sad)
-                "depressed" -> binding.personalChosenMoodIv.setImageResource(R.drawable.depressed)
-                "angry" -> binding.personalChosenMoodIv.setImageResource(R.drawable.angry)
-                "neutral" -> binding.personalChosenMoodIv.setImageResource(R.drawable.neutral)
+                "good" -> binding.psChosenMoodIv.setImageResource(R.drawable.good)
+                "great" -> binding.psChosenMoodIv.setImageResource(R.drawable.great)
+                "sad" -> binding.psChosenMoodIv.setImageResource(R.drawable.sad)
+                "depressed" -> binding.psChosenMoodIv.setImageResource(R.drawable.depressed)
+                "angry" -> binding.psChosenMoodIv.setImageResource(R.drawable.angry)
+                "neutral" -> binding.psChosenMoodIv.setImageResource(R.drawable.neutral)
             }
 
             when (mood.color) {
-                "pink" -> binding.personalNoteTv.setTextColor(resources.getColor(R.color.dark_pink))
-                "green" -> binding.personalNoteTv.setTextColor(resources.getColor(R.color.dark_green))
-                "orange" -> binding.personalNoteTv.setTextColor(resources.getColor(R.color.dark_orange))
-                "purple" -> binding.personalNoteTv.setTextColor(resources.getColor(R.color.dark_purple))
+                "pink" -> binding.psNoteTv.setTextColor(resources.getColor(R.color.dark_pink))
+                "green" -> binding.psNoteTv.setTextColor(resources.getColor(R.color.dark_green))
+                "blue" -> binding.psNoteTv.setTextColor(resources.getColor(R.color.dark_blue))
+                "dark_blue" -> binding.psNoteTv.setTextColor(resources.getColor(R.color.darkest_blue))
+                "light_red" -> binding.psNoteTv.setTextColor(resources.getColor(R.color.red))
+                "light_gray" -> binding.psNoteTv.setTextColor(resources.getColor(R.color.grey))
             }
         }
     }

@@ -123,7 +123,7 @@
         app:cardElevation="3dp"
         app:cardCornerRadius="20dp"
         app:strokeWidth="2dp"
-        app:strokeColor="@color/brown"
+        app:strokeColor="@color/orange"
         app:layout_constraintTop_toBottomOf="@id/note_card_view"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">
@@ -151,7 +151,7 @@
         app:cardElevation="3dp"
         app:cardCornerRadius="20dp"
         app:strokeWidth="2dp"
-        app:strokeColor="@color/brown"
+        app:strokeColor="@color/orange"
         app:layout_constraintTop_toBottomOf="@id/note_card_view"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">
@@ -190,7 +190,7 @@
         android:layout_height="200dp"
         android:layout_marginTop="64dp"
         app:cardCornerRadius="20dp"
-        app:strokeColor="@color/brown"
+        app:strokeColor="@color/orange"
         app:strokeWidth="2dp"
         app:cardElevation="3dp"
         app:layout_constraintEnd_toEndOf="parent"

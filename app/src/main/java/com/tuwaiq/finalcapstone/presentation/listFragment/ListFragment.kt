@@ -142,7 +142,7 @@ class ListFragment : Fragment() {
 
     private suspend fun updateUI(day: Int) {
         listViewModel.getListOfMoods(-1, object : MyCallback{
-            override fun onCallback(list: List<Mood>) {
+            override fun onMoodCallback(list: List<Mood>) {
                 val a = list.filter {mood ->
                     val b = formatDate(Date())
                     val c = formatDate(mood.date)
@@ -166,7 +166,7 @@ class ListFragment : Fragment() {
     private suspend fun updateUI2(year: Int, month: Int, day: Int) {
 
         listViewModel.getListOfMoods(day, object : MyCallback{
-            override fun onCallback(list: List<Mood>) {
+            override fun onMoodCallback(list: List<Mood>) {
                 binding.moodsRv.adapter = MoodAdapter(list)
             }
 

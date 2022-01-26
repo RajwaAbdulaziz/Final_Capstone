@@ -96,7 +96,7 @@
                 app:cardCornerRadius="20dp"
                 android:visibility="gone"
                 app:strokeWidth="2dp"
-                app:strokeColor="@color/brown"
+                app:strokeColor="@color/orange"
                 app:layout_constraintTop_toBottomOf="@id/chosen_mood_iv"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent">

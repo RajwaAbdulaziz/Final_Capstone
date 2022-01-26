@@ -1,11 +1,8 @@
 package com.tuwaiq.finalcapstone.data.repo
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.liveData
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
-import com.google.firebase.firestore.FirebaseFirestore
 import com.tuwaiq.finalcapstone.MyCallback
 import com.tuwaiq.finalcapstone.domain.model.Location
 import com.tuwaiq.finalcapstone.domain.model.Mood
@@ -13,16 +10,12 @@ import com.tuwaiq.finalcapstone.domain.repo.MoodRepo
 import com.tuwaiq.finalcapstone.presentation.moodDetailsFragment.c
 import com.tuwaiq.finalcapstone.utils.FirebaseUtils
 import com.tuwaiq.finalcapstone.utils.FormatDate
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.tasks.await
-import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.coroutines.coroutineContext
 
 private const val TAG = "MoodRepoImpl"
 class MoodRepoImpl: MoodRepo {
@@ -31,10 +24,10 @@ class MoodRepoImpl: MoodRepo {
             var m: MutableList<Mood> = mutableListOf()
           //  return flow {
 
-                val a = FirebaseUtils().fireStoreDatabase.collection("Mood").addSnapshotListener { value, error ->
+                FirebaseUtils().fireStoreDatabase.collection("Mood").addSnapshotListener { value, error ->
                     if (value?.isEmpty == false) {
                             m = value.toObjects(Mood::class.java)
-                        myCallback.onCallback(m)
+                        myCallback.onMoodCallback(m)
 
                     }
                 }
