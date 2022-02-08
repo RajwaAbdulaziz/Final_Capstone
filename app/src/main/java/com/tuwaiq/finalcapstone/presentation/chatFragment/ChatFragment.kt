@@ -1,6 +1,8 @@
 package com.tuwaiq.finalcapstone.presentation.chatFragment
 
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -11,6 +13,7 @@ import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -19,14 +22,19 @@ import com.tuwaiq.finalcapstone.R
 import com.tuwaiq.finalcapstone.databinding.ChatFragmentBinding
 import com.tuwaiq.finalcapstone.databinding.ChatMessageItemBinding
 import com.tuwaiq.finalcapstone.domain.model.Chat
+import com.tuwaiq.finalcapstone.domain.model.Mood
 import com.tuwaiq.finalcapstone.presentation.loginFragment.LoginFragment
+import com.tuwaiq.finalcapstone.presentation.moodFragment.MoodFragment
 import com.tuwaiq.finalcapstone.utils.FirebaseUtils
 import com.tuwaiq.finalcapstone.utils.FormatDate
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.time.LocalTime
+import java.util.*
 
 private const val TAG = "ChatFragment"
+private var done = false
 @AndroidEntryPoint
 class ChatFragment : Fragment() {
 
@@ -59,6 +67,12 @@ class ChatFragment : Fragment() {
             startActivity(intent)
         } else {
             displayChatMessages()
+            if (!done) {
+                lifecycleScope.launch {
+                    checkMoods()
+                }
+                done = true
+            }
         }
 
         binding.fab2.setOnClickListener {
@@ -72,6 +86,67 @@ class ChatFragment : Fragment() {
             binding.input.hideKeyboard()
             binding.input.text.clear()
         }
+
+//        object : MyCallback {
+//            override fun onMoodCallback(list: List<Mood>) {
+//                //super.onMoodCallback(list)
+//
+//                Log.d(TAG, "moodsss: $list")
+//                val formatDate = FormatDate()
+//                var ifExists = false
+//
+//                val userList = list.filter {
+//                    it.owner == FirebaseUtils().auth.currentUser?.uid
+//                }
+//
+//                userList.forEach {
+//                    val chatDate = formatDate(it.date, "d")
+//                    val currentDate = formatDate(Date(), "d")
+//                    Log.d(TAG, "first: $chatDate")
+//                    Log.d(TAG, "second: $currentDate")
+//                    if (chatDate == currentDate) {
+//                        ifExists = true
+//                    }
+//                }
+//
+//                Log.d(TAG, "if: $ifExists")
+//                if (!ifExists) {
+//
+//                }
+//            }
+//        }
+    }
+
+    private suspend fun checkMoods() {
+        val formatDate = FormatDate()
+        viewModel.getMoodsList(1, object : MyCallback {
+            override fun onMoodCallback(list: List<Mood>) {
+                val userList = list.filter {
+                    formatDate(it.date, "d") == formatDate(Date(), "d")
+                }
+                if (userList.isEmpty()) {
+                    showDialog()
+                }
+                Log.d(TAG, "hi: $list")
+            }
+        })
+    }
+
+    private fun showDialog() {
+        AlertDialog.Builder(context)
+            .setMessage("You didn't log in a mood today, would you like to log it in or continue with your latest one?")
+            .setPositiveButton(
+                "Log it in",
+                DialogInterface.OnClickListener { dialogInterface, i ->
+                    findNavController().navigate(R.id.action_chatFragment_to_moodFragment)
+                })
+            .setNegativeButton(
+                "Continue",
+                DialogInterface.OnClickListener { dialogInterface, i ->
+                    dialogInterface.dismiss()
+                })
+            .create()
+            .show()
     }
 
     private fun View.hideKeyboard() {
@@ -90,7 +165,6 @@ class ChatFragment : Fragment() {
             override fun onChatCallback(list: List<Chat>) {
                 binding.listOfMessages.adapter = ChatAdapter(list)
             }
-
         })
     }
 
@@ -113,6 +187,7 @@ class ChatFragment : Fragment() {
             lifecycleScope.launch {
                 FirebaseUtils().fireStoreDatabase.collection("Mood")
                     .whereEqualTo("owner", FirebaseUtils().auth.currentUser?.uid)
+                    .orderBy("date")
                     .addSnapshotListener { value, error ->
                         value?.forEach {
                             m = it.getString("mood").toString()
@@ -130,16 +205,15 @@ class ChatFragment : Fragment() {
                         }
                     }
 
-                var color = 0
-
-                when (chat.mood) {
-                    "good" -> color = resources.getColor(R.color.pink)
-                    "great" -> color = resources.getColor(R.color.dark_green)
-                    "sad" -> color = resources.getColor(R.color.blue)
-                    "depressed" -> color = resources.getColor(R.color.dark_blue)
-                    "angry" -> color = resources.getColor(R.color.red)
-                    "neutral" -> color = resources.getColor(R.color.grey)
-                }
+            val color: Int = when (chat.mood) {
+                "good" -> resources.getColor(R.color.dark_pink)
+                "great" -> resources.getColor(R.color.dark_green)
+                "sad" -> resources.getColor(R.color.dark_blue)
+                "depressed" -> resources.getColor(R.color.darkest_blue)
+                "angry" -> resources.getColor(R.color.red)
+                "neutral" -> resources.getColor(R.color.grey)
+                else -> resources.getColor(R.color.black)
+            }
                 binding.messageUser.setTextColor(color)
         }
     }
@@ -152,6 +226,7 @@ class ChatFragment : Fragment() {
             }
 
             override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
+
                 val chat = chats[position]
                 holder.bind(chat)
             }

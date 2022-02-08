@@ -1,11 +1,10 @@
 package com.tuwaiq.finalcapstone.presentation.profileFragment
 
 import androidx.lifecycle.ViewModel
+import com.tuwaiq.finalcapstone.MyCallback
 import com.tuwaiq.finalcapstone.domain.model.Mood
 import com.tuwaiq.finalcapstone.data.repo.Repo
-import com.tuwaiq.finalcapstone.domain.use_cases.CurrentUserUseCase
-import com.tuwaiq.finalcapstone.domain.use_cases.GetProfileMoodsListUseCase
-import com.tuwaiq.finalcapstone.domain.use_cases.UpdateUsernameUseCase
+import com.tuwaiq.finalcapstone.domain.use_cases.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -14,7 +13,9 @@ import javax.inject.Inject
 class ProfileViewModel @Inject constructor(
     private val currentUserUseCase: CurrentUserUseCase,
     private val getProfileMoodsListUseCase: GetProfileMoodsListUseCase,
-    private val updateUsernameUseCase: UpdateUsernameUseCase)
+    private val updateUsernameUseCase: UpdateUsernameUseCase,
+    private val updateMoodsVUseCase: UpdateMoodsVUseCase,
+    private val checkMoodsVUseCase: CheckMoodsVUseCase)
     : ViewModel() {
 
     private val repo = Repo.getInstance()
@@ -23,11 +24,19 @@ class ProfileViewModel @Inject constructor(
         return getProfileMoodsListUseCase()
     }
 
-    suspend fun userName(): String? {
-        return currentUserUseCase()
+    fun userName(myCallback: MyCallback) {
+        return currentUserUseCase(myCallback)
     }
 
     fun updateUsername(newName: String) {
         updateUsernameUseCase(newName)
+    }
+
+    fun updateMoodsV(moodsV: String) {
+        updateMoodsVUseCase(moodsV)
+    }
+
+    suspend fun checkMoodsV(): String? {
+        return checkMoodsVUseCase()
     }
 }

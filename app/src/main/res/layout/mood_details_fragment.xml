@@ -86,8 +86,8 @@
         android:id="@+id/lat_lang_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginBottom="112dp"
+        android:textSize="12sp"
+        android:layout_marginBottom="105dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/location_card_view" />
 
@@ -171,18 +171,20 @@
 
     </com.google.android.material.card.MaterialCardView>
 
-    <androidx.appcompat.widget.SwitchCompat
+    <com.google.android.material.switchmaterial.SwitchMaterial
         android:id="@+id/pic_switch"
-        android:layout_width="52dp"
-        android:layout_height="31dp"
-        android:layout_marginStart="88dp"
-        android:layout_marginTop="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="52dp"
+        android:layout_marginBottom="12dp"
+        android:textColor="@color/black"
         android:textOff="@string/public_pic"
         android:textOn="@string/private_pic"
         app:layout_constraintBottom_toTopOf="@id/pic_card_view"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/note_card_view"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.0"
+        app:showText="true" />
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/note_card_view"

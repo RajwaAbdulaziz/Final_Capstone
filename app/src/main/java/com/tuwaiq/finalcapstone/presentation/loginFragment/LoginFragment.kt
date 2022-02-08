@@ -1,6 +1,5 @@
 package com.tuwaiq.finalcapstone.presentation.loginFragment
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -12,6 +11,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.google.android.gms.tasks.Task
+import com.google.firebase.auth.AuthResult
+import com.tuwaiq.finalcapstone.MyCallback
 import com.tuwaiq.finalcapstone.R
 import com.tuwaiq.finalcapstone.databinding.LoginFragmentBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -60,9 +62,17 @@ class LoginFragment : Fragment() {
                 email.isEmpty() -> showToast("Enter your email")
                 password.isEmpty() -> showToast("Enter your password")
                 else -> {
-                    loginViewModel.login(email, password)
+                    loginViewModel.login(email, password, object : MyCallback{
+                        override fun authResult(authResult: Task<AuthResult>) {
+                            super.authResult(authResult)
 
-                    findNavController().navigate(R.id.action_loginFragment_to_listFragment2)
+                            if (authResult.isSuccessful) {
+                                findNavController().navigate(R.id.action_loginFragment_to_listFragment2)
+                            } else {
+                                Toast.makeText(context, "Wrong info", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    })
                 }
             }
         }

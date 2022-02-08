@@ -128,7 +128,7 @@ class MapViewFragment : Fragment(), OnMapReadyCallback {
                                     LatLng(
                                         it.latLng.latitude,
                                         it.latLng.longitude,
-                                    ), 18.0f
+                                    ), 16.0f
                                 )
                             )
                         }

@@ -6,12 +6,6 @@
     app:startDestination="@id/loginFragment">
 
     <fragment
-        android:id="@+id/calenderFragment2"
-        android:name="com.tuwaiq.finalcapstone.ui.calenderFragment.CalenderFragment"
-        android:label="calender_fragment"
-        tools:layout="@layout/calender_fragment" />
-
-    <fragment
         android:id="@+id/listFragment2"
         android:name="com.tuwaiq.finalcapstone.presentation.listFragment.ListFragment"
         android:label="list_fragment"
@@ -108,7 +102,9 @@
         tools:layout="@layout/profile_fragment">
         <action
             android:id="@+id/action_profileFragment2_to_loginFragment"
-            app:destination="@id/loginFragment" />
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/navigation"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/memeApiFragment"
@@ -127,5 +123,9 @@
     <fragment
         android:id="@+id/chatFragment"
         android:name="com.tuwaiq.finalcapstone.presentation.chatFragment.ChatFragment"
-        android:label="ChatFragment" />
+        android:label="ChatFragment" >
+        <action
+            android:id="@+id/action_chatFragment_to_moodFragment"
+            app:destination="@id/moodFragment" />
+    </fragment>
 </navigation>

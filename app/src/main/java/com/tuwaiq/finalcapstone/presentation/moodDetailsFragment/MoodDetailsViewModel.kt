@@ -3,6 +3,7 @@ package com.tuwaiq.finalcapstone.presentation.moodDetailsFragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
+import com.tuwaiq.finalcapstone.MyCallback
 import com.tuwaiq.finalcapstone.domain.model.Mood
 
 import com.tuwaiq.finalcapstone.data.repo.Repo
@@ -18,10 +19,9 @@ class MoodDetailsViewModel @Inject constructor(private val currentUserUseCase: C
                                                private val addMoodUseCase: AddMoodUseCase,
                                                 private val updateUserMoodUseCase: UpdateUserMoodUseCase): ViewModel() {
 
-    private val repo = Repo.getInstance()
 
-     suspend fun currentUserName(): String? {
-        return currentUserUseCase()
+    fun currentUserName(myCallback: MyCallback) {
+        return currentUserUseCase(myCallback)
     }
 
     fun addMood(note: Mood) {

@@ -1,6 +1,7 @@
 package com.tuwaiq.finalcapstone.presentation.loginFragment
 
 import androidx.lifecycle.ViewModel
+import com.tuwaiq.finalcapstone.MyCallback
 import com.tuwaiq.finalcapstone.data.repo.Repo
 import com.tuwaiq.finalcapstone.domain.use_cases.LoginUseCase
 import com.tuwaiq.finalcapstone.utils.FirebaseUtils
@@ -14,8 +15,8 @@ class LoginViewModel @Inject constructor(private val loginUseCase: LoginUseCase)
 
     var currentUser = FirebaseUtils().auth.currentUser
 
-     fun login(email: String, password: String) {
-         loginUseCase(email, password)
+     fun login(email: String, password: String, myCallback: MyCallback) {
+         loginUseCase(email, password, myCallback)
         //repo.login(email, password)
     }
 }

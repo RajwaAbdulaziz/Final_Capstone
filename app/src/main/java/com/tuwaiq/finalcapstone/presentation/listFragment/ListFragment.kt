@@ -33,6 +33,7 @@ import com.tuwaiq.finalcapstone.databinding.ListFragmentBinding
 import com.tuwaiq.finalcapstone.databinding.MoodsListItemBinding
 import com.tuwaiq.finalcapstone.domain.model.Mood
 import com.tuwaiq.finalcapstone.utils.FirebaseUtils
+import com.tuwaiq.finalcapstone.utils.FormatDate
 import com.tuwaiq.finalcapstone.utils.NotifyWork
 import com.vivekkaushik.datepicker.OnDateSelectedListener
 import dagger.hilt.android.AndroidEntryPoint
@@ -101,11 +102,22 @@ class ListFragment : Fragment() {
             val month = current.format(formatter2).toInt()
             val day = current.format(formatter3).toInt()
 
-            binding.datePickerTimeline.setInitialDate(year, month.minus(1), day.minus(3))
             val m = GregorianCalendar.getInstance()
             m.time = Date()
             val n = Calendar.getInstance().coerceAtMost(m)
             binding.datePickerTimeline.setActiveDate(n)
+
+            binding.datePickerTimeline.setInitialDate(year, month.minus(1), day.minus(3))
+//            val r = 1675086278000
+//            val a = Date().rangeTo(Date(r))
+//            val b = a.start.time
+//            val c = a.endInclusive.time
+//            val dateList = arrayOf<Date>()
+//            for(n in b..c) {
+//                dateList.fill(Date(n))
+//            }
+//            Log.d(TAG, "dates: $dateList")
+            //binding.datePickerTimeline.deactivateDates(dateList)
 
             binding.datePickerTimeline.setOnDateSelectedListener(object : OnDateSelectedListener {
                 override fun onDateSelected(year: Int, month: Int, day: Int, dayOfWeek: Int) {
@@ -133,19 +145,22 @@ class ListFragment : Fragment() {
             }
         }
 
-    private fun formatDate(date: Date): String {
-        var spf = SimpleDateFormat("E LLL dd hh:mm:ss z yyyy")
-        val parsed = spf.parse(date.toString())
-        spf = SimpleDateFormat("d")
-        return spf.format(parsed)
-    }
-
     private suspend fun updateUI(day: Int) {
+        val moodsV = listViewModel.checkMoodsV()
+        var newList = listOf<Mood>()
+        val formatDate = FormatDate()
         listViewModel.getListOfMoods(-1, object : MyCallback{
             override fun onMoodCallback(list: List<Mood>) {
-                val a = list.filter {mood ->
-                    val b = formatDate(Date())
-                    val c = formatDate(mood.date)
+                newList = if (moodsV == true.toString()) {
+                    list.filterNot {
+                        it.owner == FirebaseUtils().auth.currentUser?.uid
+                    }
+                } else {
+                    list
+                }
+                val a = newList.filter {mood ->
+                    val b = formatDate(Date(), "d")
+                    val c = formatDate(mood.date, "d")
                     if (day == -1) {
                         b == c
                     } else {
@@ -155,27 +170,14 @@ class ListFragment : Fragment() {
                 binding.moodsRv.adapter = MoodAdapter(a)
             }
 
-        })
-            //binding.moodsRv.adapter = MoodAdapter(listViewModel.getListOfMoods(-1))
-
-            binding.shimmerFrameLayout.stopShimmerAnimation()
-            binding.shimmerFrameLayout.visibility = View.GONE
-//            binding.moodsRv.adapter!!.notifyDataSetChanged()
-    }
-
-    private suspend fun updateUI2(year: Int, month: Int, day: Int) {
-
-        listViewModel.getListOfMoods(day, object : MyCallback{
-            override fun onMoodCallback(list: List<Mood>) {
-                binding.moodsRv.adapter = MoodAdapter(list)
+            override fun username(name: String) {
+                super.username(name)
             }
 
         })
-            //binding.moodsRv.adapter = MoodAdapter(listViewModel.getListOfMoods(day))
 
             binding.shimmerFrameLayout.stopShimmerAnimation()
             binding.shimmerFrameLayout.visibility = View.GONE
-            binding.moodsRv.adapter!!.notifyDataSetChanged()
     }
 
     inner class MoodViewHolder(private val binding: MoodsListItemBinding): RecyclerView.ViewHolder(binding.root), View.OnClickListener,
@@ -184,9 +186,6 @@ class ListFragment : Fragment() {
         private lateinit var moods: Mood
 
         init {
-
-            itemView.setOnClickListener(this)
-
             binding.expandIb.setOnClickListener(this)
         }
 
@@ -194,12 +193,13 @@ class ListFragment : Fragment() {
         fun bind(moods: Mood) {
             this.moods = moods
 
-            if (moods.owner == FirebaseUtils().auth.currentUser?.uid) {
-                binding.ownerTv.visibility = View.VISIBLE
-                binding.spinner.visibility = View.VISIBLE
-            }
-            else {
-                binding.ownerTv.visibility = View.INVISIBLE
+            when(moods.owner) {
+                FirebaseUtils().auth.currentUser?.uid -> {
+                    binding.spinner.visibility = View.VISIBLE
+                    binding.ownerTv.visibility = View.VISIBLE
+                    itemView.setOnClickListener(this)
+                }
+                else -> binding.ownerTv.visibility = View.INVISIBLE
             }
 
             binding.spinner.onItemSelectedListener = this
@@ -210,7 +210,19 @@ class ListFragment : Fragment() {
                 ArrayAdapter(it, android.R.layout.simple_spinner_item, delete) }
             aa?.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             binding.spinner.adapter = aa
+
+            //binding.nameTv.text = moods.ownerName
+
+           // if (moods.owner == FirebaseUtils().auth.currentUser?.uid) {
+//                listViewModel.currentUsername(object : MyCallback {
+//                    override fun username(name: String) {
+//                        super.username(name)
+//                        binding.nameTv.text = name
+//                    }
+//                })
+            //}else {
                 binding.nameTv.text = moods.ownerName
+            //}
 
                 binding.noteTv.text = moods.note
 
@@ -226,7 +238,9 @@ class ListFragment : Fragment() {
                         .into(binding.picIv)
                 }
 
-            binding.memePicIv.load(moods.memePic)
+            Glide.with(requireContext())
+                .load(moods.memePic)
+                .into(binding.memePicIv)
 
                 when (moods.mood) {
                     "good" -> binding.chosenMoodIv.setImageResource(R.drawable.good)
@@ -311,9 +325,9 @@ class ListFragment : Fragment() {
             when(p2) {
                 1 -> {
                     listViewModel.deleteMood(moods.moodId)
-                    lifecycleScope.launch {
-                        updateUI(-1)
-                    }
+//                    lifecycleScope.launch {
+//                        updateUI(-1)
+//                    }
                 }
             }
         }

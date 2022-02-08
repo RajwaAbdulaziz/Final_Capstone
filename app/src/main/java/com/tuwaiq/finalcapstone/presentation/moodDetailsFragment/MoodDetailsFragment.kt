@@ -54,15 +54,20 @@ import java.util.*
 import android.animation.AnimatorSet
 import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.view.animation.AnticipateInterpolator
 import antonkozyriatskyi.circularprogressindicator.CircularProgressIndicator
+import com.tuwaiq.finalcapstone.MyCallback
 
 
 private const val TAG = "MoodDetailsFragment"
 private const val REQUEST_IMAGE_CAPTURE = 1
 var coord = 0.0005f
 var c = false.toString()
-
+var progress = 0.0
+var progressComplete = 0.0
+var hasPic = false
 @AndroidEntryPoint
 class MoodDetailsFragment : Fragment() {
 
@@ -72,15 +77,6 @@ class MoodDetailsFragment : Fragment() {
     private val moodDetailsViewModel by lazy { ViewModelProvider(this).get(MoodDetailsViewModel::class.java) }
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private lateinit var layout: ConstraintLayout
-    private lateinit var moodIv: ImageView
-    private lateinit var picIv: ImageView
-    private lateinit var noteEt: EditText
-    private lateinit var addMoodButton: ImageButton
-    private lateinit var takePicBtn: ImageButton
-    private lateinit var memePickerIv: ImageView
-    private lateinit var locationBtn: ImageButton
-    private lateinit var latLangTv: TextView
     private var lat = 0.0
     private var long = 0.0
     private  var picUrl: String = ""
@@ -88,16 +84,15 @@ class MoodDetailsFragment : Fragment() {
     private lateinit var mood: String
     private lateinit var moodId: String
     private lateinit var meme: String
-    private lateinit var userName: String
     private var storageRef = Firebase.storage.reference
     private lateinit var  fileProviderURI:Uri
     private lateinit var photoFile:File
-    private lateinit var progressBar: TooltipProgressBar
-    private lateinit var picSwitch: SwitchCompat
-    private lateinit var noteTextView: TextView
     private lateinit var fab: FloatingActionButton
     private var colorRes = 0
     private lateinit var sharedPref: SharedPreferences
+
+    private var userName = ""
+    private var username = ""
 
     private val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
 
@@ -113,10 +108,9 @@ class MoodDetailsFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.mood_details_fragment, container, false)
+    ): View {
         binding = MoodDetailsFragmentBinding.inflate(inflater, container, false)
-        init(view)
+        init()
         return binding.root
     }
 
@@ -145,6 +139,10 @@ class MoodDetailsFragment : Fragment() {
                         val pic = ref.putFile(uri)
                         pic.addOnProgressListener {
                             binding.circularProgress.setProgress(it.bytesTransferred.toDouble(), it.totalByteCount.toDouble())
+                            hasPic = true
+                            progress = it.bytesTransferred.toDouble()
+                            progressComplete = it.totalByteCount.toDouble()
+                            Log.d(TAG, "progressss: ${it.bytesTransferred.toDouble()}")
                             val gradientType: Int = CircularProgressIndicator.LINEAR_GRADIENT
                             binding.circularProgress.setGradient(gradientType, resources.getColor(colorRes))
                         }
@@ -191,7 +189,7 @@ class MoodDetailsFragment : Fragment() {
         return Uri.parse(path)
     }
 
-    private fun init(view: View) {
+    private fun init() {
         fab = activity?.findViewById(R.id.fab)!!
 
     }
@@ -214,103 +212,6 @@ class MoodDetailsFragment : Fragment() {
 
     }
 
-    private fun startAnimation() {
-        val sunYStart = sunView.top.toFloat()
-        val sunYEnd = skyView.height.toFloat()
-
-        cloudView.visibility = View.GONE
-        cloudView2.visibility = View.GONE
-
-        val heightAnimator = ObjectAnimator
-            .ofFloat(sunView, "y", sunYStart, sunYEnd)
-            .setDuration(1100)
-
-        heightAnimator.interpolator = AnticipateInterpolator()
-
-        val sunsetSkyAnimator = ObjectAnimator
-            .ofInt(skyView, "backgroundColor", blueSkyColor, sunsetSkyColor)
-            .setDuration(1000)
-
-        sunsetSkyAnimator.setEvaluator(ArgbEvaluator())
-
-        val nightSkyAnimator = ObjectAnimator
-            .ofInt(skyView, "backgroundColor", sunsetSkyColor, nightSkyColor)
-            .setDuration(1000)
-
-        nightSkyAnimator.setEvaluator(ArgbEvaluator())
-
-
-        val animatorSet = AnimatorSet()
-
-        animatorSet.play(heightAnimator)
-            .with(sunsetSkyAnimator)
-            .before(nightSkyAnimator)
-
-        animatorSet.start()
-
-    }
-
-    var tx: Float = event.getX()
-    var ty: Float = event.getY()
-    tx = event.getX();
-    ty = event.getY();
-
-    //       findViewById(R.id.character).setX(tx-45);
-    //      findViewById(R.id.character).setY(ty-134);
-
-    ObjectAnimator animX = ObjectAnimator.ofFloat(splash, "x", tx-45);
-    ObjectAnimator animY = ObjectAnimator.ofFloat(splash, "y", ty-134);
-    AnimatorSet animSetXY = new AnimatorSet();
-    animSetXY.playTogether(animX, animY);
-    animSetXY.start();
-
-    private fun endAnimation() {
-        val moodYStart = sunView.top.toFloat()
-        val moodYEnd = skyView.height.toFloat()
-
-        val heightAnimator = ObjectAnimator
-            .ofFloat(sunView, "y", moodYEnd, moodYStart)
-            .setDuration(1000)
-
-        val sunsetSkyAnimator = ObjectAnimator
-            .ofInt(skyView, "backgroundColor", nightSkyColor, sunsetSkyColor)
-            .setDuration(1000)
-
-        sunsetSkyAnimator.setEvaluator(ArgbEvaluator())
-
-        val blueSkyAnimator = ObjectAnimator
-            .ofInt(skyView, "backgroundColor", sunsetSkyColor, blueSkyColor)
-            .setDuration(1000)
-
-        blueSkyAnimator.setEvaluator(ArgbEvaluator())
-
-        val cloudXStart = cloudView.left.toFloat()
-        val cloudXEnd = skyView.width.toFloat() * -1
-        val cloud2XStart = cloudView2.left.toFloat()
-        val cloud2XEnd = skyView.width.toFloat()
-
-        cloudView.visibility = View.VISIBLE
-        cloudView2.visibility = View.VISIBLE
-
-        val cloudHeightAnimator = ObjectAnimator
-            .ofFloat(cloudView, "x", cloudXEnd, cloudXStart)
-            .setDuration(1100)
-
-        val cloud2HeightAnimator = ObjectAnimator
-            .ofFloat(cloudView2, "x", cloud2XEnd, cloud2XStart)
-            .setDuration(1200)
-
-        val animatorSet = AnimatorSet()
-
-        animatorSet.play(heightAnimator)
-            .with(sunsetSkyAnimator)
-            .with(cloudHeightAnimator)
-            .with(cloud2HeightAnimator)
-            .before(blueSkyAnimator)
-
-        animatorSet.start()
-    }
-
     override fun onStop() {
         super.onStop()
         fab.show()
@@ -322,7 +223,6 @@ class MoodDetailsFragment : Fragment() {
 
         when (mood) {
             "good" -> {
-                startAnimation()
                 binding.selectedMoodIv.setImageResource(R.drawable.good)
             }
             "great" -> {
@@ -426,15 +326,16 @@ class MoodDetailsFragment : Fragment() {
 
                     Log.d(TAG, "url: $picUrl")
                 }
-            }else {
-                    // You can directly ask for the permission.
-                    // The registered ActivityResultCallback gets the result of this request.
-                    requestPermissionLauncher.launch(
-                        Manifest.permission.CAMERA)
+            } else {
+                // You can directly ask for the permission.
+                // The registered ActivityResultCallback gets the result of this request.
+                requestPermissionLauncher.launch(
+                    Manifest.permission.CAMERA
+                )
             }
         }
 
-        binding.locationBtn.setOnClickListener{
+        binding.locationBtn.setOnClickListener {
             getCurrentLocation()
         }
 
@@ -464,41 +365,41 @@ class MoodDetailsFragment : Fragment() {
                     }
 
                     when (it.result.getString("color")) {
-                            "pink" -> {
-                                binding.noteEt.setTextColor(resources.getColor(R.color.dark_pink))
-                                binding.noteEt.setHintTextColor(resources.getColor(R.color.dark_pink))
-                                colorRes = R.color.dark_pink
-                            }
-                            "green" -> {
-                                binding.noteEt.setTextColor(resources.getColor(R.color.dark_green))
-                                binding.noteEt.setHintTextColor(resources.getColor(R.color.dark_green))
-                                colorRes = R.color.green
-                            }
-                            "blue" -> {
-                                binding.noteEt.setTextColor(resources.getColor(R.color.dark_blue))
-                                binding.noteEt.setHintTextColor(resources.getColor(R.color.dark_blue))
-                                colorRes = R.color.blue
-                            }
-                            "dark_blue" -> {
-                                binding.noteEt.setTextColor(resources.getColor(R.color.darkest_blue))
-                                binding.noteEt.setHintTextColor(resources.getColor(R.color.darkest_blue))
-                                colorRes = R.color.dark_blue
-                            }
-                            "light_red" -> {
-                                binding.noteEt.setTextColor(resources.getColor(R.color.red))
-                                binding.noteEt.setHintTextColor(resources.getColor(R.color.red))
-                                colorRes = R.color.red
-                            }
-                            "light_gray" -> {
-                                binding.noteEt.setTextColor(resources.getColor(R.color.gray))
-                                binding.noteEt.setHintTextColor(resources.getColor(R.color.gray))
-                                colorRes = R.color.gray
-                            }
-                            else -> {
-                                binding.noteEt.setTextColor(resources.getColor(R.color.black))
-                                binding.noteEt.setHintTextColor(resources.getColor(R.color.black))
-                                colorRes = R.color.black
-                            }
+                        "pink" -> {
+                            binding.noteEt.setTextColor(resources.getColor(R.color.dark_pink))
+                            binding.noteEt.setHintTextColor(resources.getColor(R.color.dark_pink))
+                            colorRes = R.color.dark_pink
+                        }
+                        "green" -> {
+                            binding.noteEt.setTextColor(resources.getColor(R.color.dark_green))
+                            binding.noteEt.setHintTextColor(resources.getColor(R.color.dark_green))
+                            colorRes = R.color.green
+                        }
+                        "blue" -> {
+                            binding.noteEt.setTextColor(resources.getColor(R.color.dark_blue))
+                            binding.noteEt.setHintTextColor(resources.getColor(R.color.dark_blue))
+                            colorRes = R.color.blue
+                        }
+                        "dark_blue" -> {
+                            binding.noteEt.setTextColor(resources.getColor(R.color.darkest_blue))
+                            binding.noteEt.setHintTextColor(resources.getColor(R.color.darkest_blue))
+                            colorRes = R.color.dark_blue
+                        }
+                        "light_red" -> {
+                            binding.noteEt.setTextColor(resources.getColor(R.color.red))
+                            binding.noteEt.setHintTextColor(resources.getColor(R.color.red))
+                            colorRes = R.color.red
+                        }
+                        "light_gray" -> {
+                            binding.noteEt.setTextColor(resources.getColor(R.color.gray))
+                            binding.noteEt.setHintTextColor(resources.getColor(R.color.gray))
+                            colorRes = R.color.gray
+                        }
+                        else -> {
+                            binding.noteEt.setTextColor(resources.getColor(R.color.black))
+                            binding.noteEt.setHintTextColor(resources.getColor(R.color.black))
+                            colorRes = R.color.black
+                        }
                     }
 
                     binding.noteEt.setText(it.result.getString("note"))
@@ -508,7 +409,7 @@ class MoodDetailsFragment : Fragment() {
                         .into(binding.picImageView)
 
                     if (it.result.getString("pic") != null) {
-                    picUrl = it.result.getString("pic")!!
+                        picUrl = it.result.getString("pic")!!
                     }
 
                     binding.memePickerIv.load(it.result.getString("memePic"))
@@ -519,102 +420,136 @@ class MoodDetailsFragment : Fragment() {
 
                     binding.addMood.setOnClickListener {
                         val uid = FirebaseAuth.getInstance().currentUser?.uid
-                        lifecycleScope.launch {
-                            userName = moodDetailsViewModel.currentUserName().toString()
-                        }.invokeOnCompletion {
-                            Log.d(TAG, "mood: $mood")
-                            val note = uid?.let { uid ->
-                                Mood(
-                                    binding.noteEt.text.toString(),
-                                    color,
-                                    picUrl,
-                                    mood,
-                                    uid,
-                                    userName,
-                                    meme,
-                                    lat,
-                                    long,
-                                    moodId
-                                )
-                            }
-                            FirebaseUtils().fireStoreDatabase.collection("Users")
-                                .document(uid!!).update("note", FieldValue.arrayUnion(note))
 
-                            if (note != null) {
-                                FirebaseUtils().fireStoreDatabase.collection("Mood")
-                                    .document(moodId).set(note)
+                        moodDetailsViewModel.currentUserName(object : MyCallback {
+                            override fun username(name: String) {
+                                super.username(name)
+
+                                userName = name
                             }
-                            findNavController().navigate(R.id.action_moodDetailsFragment_to_listFragment2)
+
+                        }).toString()
+
+                        Log.d(TAG, "mood: $mood")
+                        val note = uid?.let { uid ->
+                            Mood(
+                                binding.noteEt.text.toString(),
+                                color,
+                                picUrl,
+                                mood,
+                                uid,
+                                userName,
+                                meme,
+                                lat,
+                                long,
+                                moodId
+                            )
                         }
+                        FirebaseUtils().fireStoreDatabase.collection("Users")
+                            .document(uid!!).update("note", FieldValue.arrayUnion(note))
+
+                        if (note != null) {
+                            FirebaseUtils().fireStoreDatabase.collection("Mood")
+                                .document(moodId).set(note)
+                        }
+                        findNavController().navigate(R.id.action_moodDetailsFragment_to_listFragment2)
+
                     }
                 }
             TASK = ""
         }
 
         binding.picSwitch.setOnCheckedChangeListener { compoundButton, b ->
+//            if (b) {
+//                compoundButton.setText(R.string.private_pic)
+//            } else {
+//                compoundButton.setText(R.string.public_pic)
+//            }
             c = b.toString()
             Log.d(TAG, c)
         }
 
         binding.addMood.setOnClickListener {
-            lifecycleScope.launch {
-                userName = moodDetailsViewModel.currentUserName().toString()
-                Log.d(TAG, userName)
+
+            moodDetailsViewModel.currentUserName(object : MyCallback {
+                override fun username(name: String) {
+                    super.username(name)
+
+                    username = name
+                }
+            })
+                //Log.d(TAG, userName)
                 Log.d(TAG, lat.toString())
-            }.invokeOnCompletion {
 
                 if (user != null) {
 
                     val b = mutableListOf<com.google.android.gms.maps.model.LatLng>()
-                    FirebaseUtils().fireStoreDatabase.collection("Mood").get().addOnSuccessListener {
-                        it.forEach {
-                            if (it.getDouble("lat")!! == 0.0 && it.getDouble("long")!! == 0.0) {
+                    FirebaseUtils().fireStoreDatabase.collection("Mood").get()
+                        .addOnSuccessListener {
+                            it.forEach {
+                                if (it.getDouble("lat")!! == 0.0 && it.getDouble("long")!! == 0.0) {
 
-                            } else {
-                            b.add(com.google.android.gms.maps.model.LatLng(it.getDouble("lat")!!, it.getDouble("long")!!))
-                        }
+                                } else {
+                                    b.add(
+                                        com.google.android.gms.maps.model.LatLng(
+                                            it.getDouble("lat")!!,
+                                            it.getDouble("long")!!
+                                        )
+                                    )
+                                }
                             }
-                        Log.d(TAG, "LIST: $b")
-                        val n = com.google.android.gms.maps.model.LatLng(lat, long)
-                        Log.d(TAG, "ONE: $n")
-                        if (b.contains(n)) {
-                            Log.d(TAG, "onStart: yesss")
-                            lat+= coord
-                            long+= coord
-                            coord = coord.plus(0.0005f)
-                        }else {
+                            Log.d(TAG, "LIST: $b")
+                            val n = com.google.android.gms.maps.model.LatLng(lat, long)
+                            Log.d(TAG, "ONE: $n")
+                            if (b.contains(n)) {
+                                Log.d(TAG, "onStart: yesss")
+                                lat += coord
+                                long += coord
+                                coord = coord.plus(0.0005f)
+                            } else {
 
-                        }.also {
-                            val note = Mood(
-                                binding.noteEt.text.toString(),
-                                color,
-                                picUrl,
-                                mood,
-                                user,
-                                userName,
-                                meme,
-                                lat,
-                                long
-                            )
-                            var spf = SimpleDateFormat("E LLL dd hh:mm:ss z yyyy")
-                            val parsedDueDate = spf.parse(Date().toString())
-                            spf = SimpleDateFormat("dd MMM yyyy")
-                            val formattedDueDate = spf.format(parsedDueDate)
-
-                            moodDetailsViewModel.addMood(note)
-//                            val ref = FirebaseFirestore.getInstance().collection("Mood").document()
-//                            note.moodId = ref.id
-//                            note.privatePic = c
-//                            ref.set(note)
-
-                            Log.d(TAG, "onStart: $note")
-                            moodDetailsViewModel.updateUserMood(note)
+                            }.also {
+                                if (hasPic && progress != progressComplete) {
+                                    AlertDialog.Builder(context)
+                                        .setMessage("Your image isn't uploaded yet")
+                                        .setNegativeButton(
+                                            "That's fine",
+                                            DialogInterface.OnClickListener { dialogInterface, i ->
+                                                saveMood(user)
+                                                findNavController().navigate(R.id.action_moodDetailsFragment_to_listFragment2)
+                                            })
+                                        .setPositiveButton(
+                                            "Wait",
+                                            DialogInterface.OnClickListener { dialogInterface, i ->
+                                                dialogInterface.dismiss()
+                                            })
+                                        .create()
+                                        .show()
+                                } else {
+                                    saveMood(user)
+                                    findNavController().navigate(R.id.action_moodDetailsFragment_to_listFragment2)
+                                }
+                            }
                         }
-                    }
                 }
-                findNavController().navigate(R.id.action_moodDetailsFragment_to_listFragment2)
-            }
+            Log.d(TAG, "progress: ${progress}")
         }
+    }
+
+    private fun saveMood(user: String?) {
+        val note = Mood(
+            binding.noteEt.text.toString(),
+            color,
+            picUrl,
+            mood,
+            user,
+            username,
+            meme,
+            lat,
+            long
+        )
+        moodDetailsViewModel.addMood(note)
+        moodDetailsViewModel.updateUserMood(note)
     }
 
     private fun getCurrentLocation() {

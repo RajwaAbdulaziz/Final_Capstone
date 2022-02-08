@@ -40,7 +40,7 @@
         <entry key="app/src/main/res/layout/mycustomview.xml" value="0.16354166666666667" />
         <entry key="app/src/main/res/layout/personal_moods_list_item.xml" value="0.45" />
         <entry key="app/src/main/res/layout/placeholder_list_item.xml" value="0.25" />
-        <entry key="app/src/main/res/layout/profile_fragment.xml" value="0.375" />
+        <entry key="app/src/main/res/layout/profile_fragment.xml" value="0.5" />
         <entry key="app/src/main/res/layout/register_fragment.xml" value="0.25" />
         <entry key="app/src/main/res/layout/selected_calendar_item.xml" value="0.1" />
         <entry key="app/src/main/res/menu/nav_menu.xml" value="0.335" />

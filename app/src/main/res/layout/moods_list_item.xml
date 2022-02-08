@@ -71,7 +71,7 @@
                 android:textColor="#E09168"
                 android:textSize="10dp"
                 android:text="@string/you"
-                android:visibility="invisible"
+
                 app:layout_constraintBottom_toTopOf="@+id/chosen_mood_iv"
                 app:layout_constraintEnd_toStartOf="@id/spinner"
                 app:layout_constraintHorizontal_bias="1.0"

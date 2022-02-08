@@ -26,7 +26,9 @@
     <string name="map_id" translatable="false">68eeeeecfcb51a99</string>
     <string name="chat">Chat</string>
     <string name="moods_chart">Moods Chart</string>
-    <string name="explore_other_moods">Explore other moods</string>
-    <string name="my_moods">My moods</string>
-    <string name="input">Input</string>
+    <string name="explore_other_moods" translatable="false">Explore other moods</string>
+    <string name="my_moods" translatable="false">My moods</string>
+    <string name="input" translatable="false">Input</string>
+    <string name="show_my_moods" translatable="false">Show My Moods</string>
+    <string name="hide_my_moods" translatable="false">Hide My Moods</string>
 </resources>

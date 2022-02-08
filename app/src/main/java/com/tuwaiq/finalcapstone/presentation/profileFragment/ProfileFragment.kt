@@ -35,8 +35,10 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.tuwaiq.finalcapstone.MyCallback
 import com.tuwaiq.finalcapstone.databinding.PersonalMoodsListItemBinding
 import com.tuwaiq.finalcapstone.databinding.ProfileFragmentBinding
+import com.tuwaiq.finalcapstone.utils.FormatDate
 import dagger.hilt.android.AndroidEntryPoint
 
 private const val TAG = "ProfileFragment"
@@ -90,6 +92,8 @@ class ProfileFragment : Fragment() {
     override fun onStart() {
         super.onStart()
 
+        Log.d(TAG, "id: ${FirebaseUtils().auth.currentUser?.uid}")
+        Log.d(TAG, "email: ${FirebaseUtils().auth.currentUser?.email}")
         binding.logoutBtn.setOnClickListener {
             FirebaseUtils().auth.signOut()
             findNavController().navigate(R.id.action_profileFragment2_to_loginFragment)
@@ -98,10 +102,17 @@ class ProfileFragment : Fragment() {
         binding.personalNameTv.isCursorVisible = false
         binding.personalNameTv.isFocusableInTouchMode = false
 
-        lifecycleScope.launch {
-            binding.personalNameTv.setText(profileViewModel.userName())
-        }
+//        lifecycleScope.launch {
+//            binding.personalNameTv.setText(profileViewModel.userName())
+//        }
 
+        profileViewModel.userName(object : MyCallback {
+            override fun username(name: String) {
+                super.username(name)
+
+                binding.personalNameTv.setText(name)
+            }
+        })
         binding.personalEmailTv.setText(FirebaseUtils().auth.currentUser?.email)
 
         binding.editBtn.setOnClickListener {
@@ -121,6 +132,20 @@ class ProfileFragment : Fragment() {
             binding.personalNameTv.isFocusableInTouchMode = false
             binding.personalNameTv.inputType = InputType.TYPE_NULL
             profileViewModel.updateUsername(binding.personalNameTv.text.toString())
+        }
+
+        lifecycleScope.launch {
+            binding.moodsVSwitch.isChecked = profileViewModel.checkMoodsV().toBoolean()
+        }
+
+        binding.moodsVSwitch.setOnCheckedChangeListener { compoundButton, b ->
+            if (b) {
+                binding.moodsVisibilityTv.setText(R.string.hide_my_moods)
+            } else {
+                binding.moodsVisibilityTv.setText(R.string.show_my_moods)
+            }
+
+            profileViewModel.updateMoodsV(b.toString())
         }
         //moodsSittSwitchCompat.isChecked = sharedPref.getBoolean("switch_state", false)
             //Log.d(TAG, "get: ${moodsSittSwitchCompat.isChecked}")
@@ -228,6 +253,8 @@ class ProfileFragment : Fragment() {
                 binding.psChosenMoodIv.translationY = 200f
             }
 
+            val formatDate = FormatDate()
+            binding.dateTv.text = formatDate(mood.date, "LLL, dd, yyyy")
             binding.psNoteTv.text = mood.note
 
             Glide.with(requireContext())

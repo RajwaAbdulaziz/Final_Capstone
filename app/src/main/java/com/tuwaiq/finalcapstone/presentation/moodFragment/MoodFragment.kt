@@ -16,7 +16,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.tuwaiq.finalcapstone.MyCallback
 import com.tuwaiq.finalcapstone.R
+import com.tuwaiq.finalcapstone.databinding.FragmentMoodBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -29,6 +31,7 @@ private var mood = ""
 @AndroidEntryPoint
 class MoodFragment : Fragment() {
 
+    private lateinit var binding: FragmentMoodBinding
     private val moodFragmentViewModel by viewModels<MoodFragmentViewModel>()
     private lateinit var greetingsTv: TextView
     private lateinit var layout: LinearLayout
@@ -41,7 +44,7 @@ class MoodFragment : Fragment() {
     private lateinit var chosenMoodImageView: ImageView
     private lateinit var nextArrow: ImageButton
     private lateinit var sharedPref: SharedPreferences
-
+    private var userName = ""
 
 
     private val pink: Int by lazy {
@@ -69,8 +72,9 @@ class MoodFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_mood, container, false)
+        binding = FragmentMoodBinding.inflate(inflater, container, false)
         init(view)
-        return view
+        return binding.root
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -95,20 +99,48 @@ class MoodFragment : Fragment() {
     override fun onStart() {
         super.onStart()
 
-        layout.setBackgroundColor(resources.getColor(R.color.white))
+        binding.linearLayout.setBackgroundColor(resources.getColor(R.color.white))
 
-        lifecycleScope.launch {
-            val userName = moodFragmentViewModel.userName()
-            Log.d(TAG, "time: ${LocalTime.now()}")
-            val greeting = when {
-                LocalTime.now().isAfter(LocalTime.MIDNIGHT) && LocalTime.now().isBefore(LocalTime.NOON) -> "Good Morning"
-                LocalTime.now().isAfter(LocalTime.NOON) && LocalTime.now().isBefore(LocalTime.MIDNIGHT) -> "Good Evening"
-                else -> ""
-            }
-            greetingsTv.text = resources.getString(R.string.greetings, greeting, userName)
-        }
 
-       goodImageBtn.setOnClickListener {
+            moodFragmentViewModel.userName(object : MyCallback{
+                override fun username(name: String) {
+                    super.username(name)
+
+                    Log.d(TAG, "time: ${LocalTime.now()}")
+                    val greeting = when {
+                        LocalTime.now().isAfter(LocalTime.MIDNIGHT) && LocalTime.now()
+                            .isBefore(LocalTime.NOON) -> "Good Morning"
+                        LocalTime.now().isAfter(LocalTime.NOON) && LocalTime.now()
+                            .isBefore(LocalTime.MIDNIGHT) -> "Good Evening"
+                        else -> "Good Afternoon"
+                    }
+                    Log.d(TAG, "n: ${LocalTime.NOON}")
+                    Log.d(TAG, "m: ${LocalTime.MIDNIGHT}")
+                    Log.d(TAG, "g: $greeting")
+                    binding.greetingsTv.text =
+                        resources.getString(R.string.greetings, greeting, name)
+                }})
+
+        val imageX = chosenMoodImageView.x
+        Log.d(TAG, "v: $imageX")
+        val imageY = chosenMoodImageView.y
+       binding.goodImageBtn.setOnClickListener {
+
+//           //binding.firstLayout.translationZ = 90f
+//           binding.firstLayout.bringToFront()
+//           //binding.linearLayout.invalidate()
+//           binding.firstLayout.invalidate()
+//           binding.secondLayout.invalidate()
+//           binding.thirdLayout.invalidate()
+//           ObjectAnimator.ofFloat(binding.goodLayout, "x", 350f).apply {
+//               duration = 1000
+//               start()
+//           }
+//
+//           ObjectAnimator.ofFloat(binding.goodLayout, "y", 200f).apply {
+//               duration = 1000
+//               start()
+//           }
 
             when (color) {
                 "green" -> {
@@ -127,17 +159,17 @@ class MoodFragment : Fragment() {
                     moodColorAnimation(lightGray, pink)
                 }
                 else -> {
-                    layout.setBackgroundColor(resources.getColor(R.color.pink))
+                    binding.linearLayout.setBackgroundColor(resources.getColor(R.color.pink))
                 }
             }
 
-           chosenMoodImageView.setImageResource(R.drawable.good)
+           binding.chosenMoodImageBtn.setImageResource(R.drawable.good)
 
             color = "pink"
             mood = "good"
         }
 
-        greatImageBtn.setOnClickListener {
+        binding.greatImageBtn.setOnClickListener {
 
             when (color) {
                 "pink" -> {
@@ -156,17 +188,17 @@ class MoodFragment : Fragment() {
                     moodColorAnimation(lightGray, green)
                 }
                 else -> {
-                    layout.setBackgroundColor(resources.getColor(R.color.green))
+                    binding.linearLayout.setBackgroundColor(resources.getColor(R.color.green))
                 }
             }
 
-            chosenMoodImageView.setImageResource(R.drawable.great)
+            binding.chosenMoodImageBtn.setImageResource(R.drawable.great)
 
             color = "green"
             mood = "great"
         }
 
-        sadImageBtn.setOnClickListener {
+        binding.sadImageBtn.setOnClickListener {
 
             when (color) {
                 "green" -> {
@@ -185,17 +217,17 @@ class MoodFragment : Fragment() {
                     moodColorAnimation(lightGray, blue)
                 }
                 else -> {
-                    layout.setBackgroundColor(resources.getColor(R.color.blue))
+                    binding.linearLayout.setBackgroundColor(resources.getColor(R.color.blue))
                 }
             }
 
-            chosenMoodImageView.setImageResource(R.drawable.sad)
+            binding.chosenMoodImageBtn.setImageResource(R.drawable.sad)
 
             color = "blue"
             mood = "sad"
         }
 
-        depressedImageBtn.setOnClickListener {
+        binding.depressedImageBtn.setOnClickListener {
 
             when (color) {
                 "green" -> {
@@ -214,18 +246,22 @@ class MoodFragment : Fragment() {
                     moodColorAnimation(lightGray, darkBlue)
                 }
                 else -> {
-                    layout.setBackgroundColor(resources.getColor(R.color.dark_blue))
+                    binding.linearLayout.setBackgroundColor(resources.getColor(R.color.dark_blue))
                 }
             }
 
-            chosenMoodImageView.setImageResource(R.drawable.depressed)
+            binding.chosenMoodImageBtn.setImageResource(R.drawable.depressed)
 
             color = "dark_blue"
             mood = "depressed"
         }
 
-        angryImageBtn.setOnClickListener {
+        binding.angryImageBtn.setOnClickListener {
 
+//            ObjectAnimator.ofFloat(binding.angryLayout, "x", 350f).apply {
+//                duration = 800
+//                start()
+//            }
             when (color) {
                 "green" -> {
                     moodColorAnimation(green, lightRed)
@@ -243,17 +279,18 @@ class MoodFragment : Fragment() {
                     moodColorAnimation(lightGray, lightRed)
                 }
                 else -> {
-                    layout.setBackgroundColor(resources.getColor(R.color.light_red))
+                    binding.linearLayout.setBackgroundColor(resources.getColor(R.color.light_red))
                 }
             }
 
+            //binding.chosenMoodImageBtn.visibility = View.GONE
             chosenMoodImageView.setImageResource(R.drawable.angry)
 
             color = "light_red"
             mood = "angry"
         }
 
-        neutralImageButton.setOnClickListener {
+        binding.neutralImageBtn.setOnClickListener {
 
             when (color) {
                 "green" -> {
@@ -272,11 +309,11 @@ class MoodFragment : Fragment() {
                     moodColorAnimation(pink, lightGray)
                 }
                 else -> {
-                    layout.setBackgroundColor(resources.getColor(R.color.light_gray))
+                    binding.linearLayout.setBackgroundColor(resources.getColor(R.color.light_gray))
                 }
             }
 
-            chosenMoodImageView.setImageResource(R.drawable.neutral)
+            binding.chosenMoodImageBtn.setImageResource(R.drawable.neutral)
 
             color = "light_gray"
             mood = "neutral"
@@ -346,7 +383,7 @@ class MoodFragment : Fragment() {
 
 
 
-        nextArrow.setOnClickListener {
+        binding.nextArrow.setOnClickListener {
             sharedPref.edit().putString("color", color).apply()
             sharedPref.edit().putString("mood", mood).apply()
             findNavController().navigate(R.id.action_moodFragment_to_moodDetailsFragment)
@@ -355,7 +392,7 @@ class MoodFragment : Fragment() {
 
     private fun moodColorAnimation(startColor: Int, endColor: Int) {
         val moodColorAnimator = ObjectAnimator
-            .ofInt(layout, "backgroundColor", startColor, endColor)
+            .ofInt(binding.linearLayout, "backgroundColor", startColor, endColor)
             .setDuration(1000)
         moodColorAnimator.setEvaluator(ArgbEvaluator())
         moodColorAnimator.start()

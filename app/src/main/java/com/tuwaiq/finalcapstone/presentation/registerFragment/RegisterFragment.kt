@@ -13,6 +13,9 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.google.android.gms.tasks.Task
+import com.google.firebase.auth.AuthResult
+import com.tuwaiq.finalcapstone.MyCallback
 import com.tuwaiq.finalcapstone.R
 import com.tuwaiq.finalcapstone.databinding.RegisterFragmentBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -73,8 +76,17 @@ class RegisterFragment : Fragment() {
                 pass.isEmpty() -> showToast("Please enter a password")
                 confPass != pass -> showToast("Please enter a matching password")
                 else -> {
-                    registerViewModel.register(name, email, pass)
-                    findNavController().navigate(R.id.action_registerFragment_to_loginFragment)
+                    registerViewModel.register(name, email, pass, object : MyCallback{
+                        override fun authResult(authResult: Task<AuthResult>) {
+                            super.authResult(authResult)
+
+                            if (authResult.isSuccessful) {
+                                findNavController().navigate(R.id.action_registerFragment_to_loginFragment)
+                            } else {
+                                Toast.makeText(context, "something happened", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    })
                 }
             }
         }
