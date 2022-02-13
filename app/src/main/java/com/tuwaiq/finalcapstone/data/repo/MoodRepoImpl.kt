@@ -21,8 +21,7 @@ private const val TAG = "MoodRepoImpl"
 class MoodRepoImpl: MoodRepo {
 
     override suspend fun getListOfMoods(myCallback: MyCallback) {
-            var m: MutableList<Mood> = mutableListOf()
-          //  return flow {
+            var m: MutableList<Mood>
 
                 FirebaseUtils().fireStoreDatabase.collection("Mood").addSnapshotListener { value, error ->
                     if (value?.isEmpty == false) {

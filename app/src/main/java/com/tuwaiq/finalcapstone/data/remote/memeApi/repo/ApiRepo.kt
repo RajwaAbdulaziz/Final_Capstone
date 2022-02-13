@@ -37,6 +37,7 @@ class ApiRepo {
             if (response.isSuccessful) {
                 Log.d(TAG, response.raw().toString())
                 response.body()?.data?.memes?.let {
+                    Log.e(TAG, "meme: $it")
                     emit(it)
                 }
             } else {

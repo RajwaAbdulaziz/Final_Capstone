@@ -5,5 +5,5 @@ import javax.inject.Inject
 
 class UpdateUsernameUseCase @Inject constructor(private val userRepo: UserRepo) {
 
-    operator fun invoke(newName: String) = userRepo.updateUsername(newName)
+    suspend operator fun invoke(newName: String) = userRepo.updateUsername(newName)
 }

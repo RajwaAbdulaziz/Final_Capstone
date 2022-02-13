@@ -134,14 +134,14 @@ class ChatFragment : Fragment() {
 
     private fun showDialog() {
         AlertDialog.Builder(context)
-            .setMessage("You didn't log in a mood today, would you like to log it in or continue with your latest one?")
+            .setMessage(R.string.no_mood)
             .setPositiveButton(
-                "Log it in",
+                R.string.log_it,
                 DialogInterface.OnClickListener { dialogInterface, i ->
                     findNavController().navigate(R.id.action_chatFragment_to_moodFragment)
                 })
             .setNegativeButton(
-                "Continue",
+                R.string.continue_,
                 DialogInterface.OnClickListener { dialogInterface, i ->
                     dialogInterface.dismiss()
                 })

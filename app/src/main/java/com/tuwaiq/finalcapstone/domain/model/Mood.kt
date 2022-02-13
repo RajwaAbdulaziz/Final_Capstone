@@ -12,6 +12,7 @@ data class Mood(
     var memePic: String = "",
     var lat: Double = 0.0,
     var long: Double = 0.0,
+    var current: String = "(You)",
     var moodId: String = "",
     var privatePic: String = "",
     var date: Date = Date()

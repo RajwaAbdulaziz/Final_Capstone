@@ -71,10 +71,10 @@ class RegisterFragment : Fragment() {
             val confPass = binding.registerConfPassEt.text.toString()
 
             when{
-                name.isEmpty() -> showToast("Please enter a name")
-                email.isEmpty() -> showToast("Please enter an email")
-                pass.isEmpty() -> showToast("Please enter a password")
-                confPass != pass -> showToast("Please enter a matching password")
+                name.isEmpty() -> showToast(resources.getString(R.string.plz_name))
+                email.isEmpty() -> showToast(resources.getString(R.string.plz_email))
+                pass.isEmpty() -> showToast(resources.getString(R.string.plz_pass))
+                confPass != pass -> showToast(resources.getString(R.string.plz_match))
                 else -> {
                     registerViewModel.register(name, email, pass, object : MyCallback{
                         override fun authResult(authResult: Task<AuthResult>) {
@@ -83,7 +83,7 @@ class RegisterFragment : Fragment() {
                             if (authResult.isSuccessful) {
                                 findNavController().navigate(R.id.action_registerFragment_to_loginFragment)
                             } else {
-                                Toast.makeText(context, "something happened", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, resources.getString(R.string.oops), Toast.LENGTH_SHORT).show()
                             }
                         }
                     })

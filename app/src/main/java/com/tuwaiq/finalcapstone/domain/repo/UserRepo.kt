@@ -9,7 +9,7 @@ interface UserRepo {
 
     fun username(myCallback: MyCallback)
 
-    fun updateUsername(newName: String)
+    suspend fun updateUsername(newName: String)
 
     fun updateUserMood(note: Mood)
 

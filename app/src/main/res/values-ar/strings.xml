@@ -26,4 +26,22 @@
     <string name="chat">الشات</string>
     <string name="moods_chart">احصائية المودز</string>
     <string name="greetings" translatable="false">%1$s ،%2$s\n\n\t\t\t\t ما هو شعورك اليوم؟</string>
+    <string name="explore_other_moods" translatable="false">تصفح مودز مختلفة</string>
+    <string name="my_moods" translatable="false">موداتي</string>
+    <string name="show_my_moods" translatable="false">أظهر موداتي</string>
+    <string name="hide_my_moods" translatable="false">أخفي موداتي</string>
+    <string name="img_not_uploaded">صورتك لم يتم رفعها بعد</string>
+    <string name="fine">لا أمانع</string>
+    <string name="wait">انتظر</string>
+    <string name="no_mood">لم تدخل مودك اليوم، هل تريد ادخاله ام المتابعة مع آخر مود؟</string>
+    <string name="continue_">المتابعة</string>
+    <string name="log_it">إدخاله</string>
+    <string name="plz_name">الرجاء ادخال اسم</string>
+    <string name="plz_email">الرجاء ادخال ايميل</string>
+    <string name="plz_pass">الرجاء ادخال كلمة سر</string>
+    <string name="plz_match">الرجاء ادخال كلمة سر مطابقة</string>
+    <string name="oops">حصلت مشكلة</string>
+    <string name="morning">صباح الخير</string>
+    <string name="evening">مساء الخير</string>
+    <string name="afternoon">مساء الخير</string>
 </resources>

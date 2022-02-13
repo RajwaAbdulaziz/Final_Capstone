@@ -26,4 +26,22 @@
     <string name="private_moods">Dispoziții private</string>
     <string name="chat">conversație</string>
     <string name="moods_chart">Graficul stărilor de spirit</string>
+    <string name="explore_other_moods">Explorează alte stări de spirit</string>
+    <string name="my_moods">Starile mele de spirit</string>
+    <string name="show_my_moods">Arată-mi stările de spirit</string>
+    <string name="hide_my_moods">Ascunde-mi stările de spirit</string>
+    <string name="img_not_uploaded">Imaginea dvs. nu a fost încărcată</string>
+    <string name="fine">Asta e bine</string>
+    <string name="wait">Aștepta</string>
+    <string name="no_mood">Nu v-ați autentificat astăzi, ați dori să vă conectați sau să continuați cu cea mai recentă?</string>
+    <string name="continue_">Continua</string>
+    <string name="log_it">Conectați-vă</string>
+    <string name="plz_name">Vă rugăm să introduceți un nume</string>
+    <string name="plz_email">Vă rugăm să introduceți un e-mail</string>
+    <string name="plz_pass">Vă rugăm să introduceți o parolă</string>
+    <string name="plz_match">Vă rugăm să introduceți o parolă potrivită</string>
+    <string name="oops">a aparut o eroare</string>
+    <string name="morning">Buna dimineata</string>
+    <string name="evening">Buna ziua</string>
+    <string name="afternoon">Bună seara</string>
 </resources>

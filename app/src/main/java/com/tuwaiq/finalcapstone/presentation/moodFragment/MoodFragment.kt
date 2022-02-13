@@ -109,10 +109,10 @@ class MoodFragment : Fragment() {
                     Log.d(TAG, "time: ${LocalTime.now()}")
                     val greeting = when {
                         LocalTime.now().isAfter(LocalTime.MIDNIGHT) && LocalTime.now()
-                            .isBefore(LocalTime.NOON) -> "Good Morning"
+                            .isBefore(LocalTime.NOON) -> resources.getString(R.string.morning)
                         LocalTime.now().isAfter(LocalTime.NOON) && LocalTime.now()
-                            .isBefore(LocalTime.MIDNIGHT) -> "Good Evening"
-                        else -> "Good Afternoon"
+                            .isBefore(LocalTime.MIDNIGHT) -> resources.getString(R.string.evening)
+                        else -> resources.getString(R.string.afternoon)
                     }
                     Log.d(TAG, "n: ${LocalTime.NOON}")
                     Log.d(TAG, "m: ${LocalTime.MIDNIGHT}")
@@ -121,26 +121,7 @@ class MoodFragment : Fragment() {
                         resources.getString(R.string.greetings, greeting, name)
                 }})
 
-        val imageX = chosenMoodImageView.x
-        Log.d(TAG, "v: $imageX")
-        val imageY = chosenMoodImageView.y
        binding.goodImageBtn.setOnClickListener {
-
-//           //binding.firstLayout.translationZ = 90f
-//           binding.firstLayout.bringToFront()
-//           //binding.linearLayout.invalidate()
-//           binding.firstLayout.invalidate()
-//           binding.secondLayout.invalidate()
-//           binding.thirdLayout.invalidate()
-//           ObjectAnimator.ofFloat(binding.goodLayout, "x", 350f).apply {
-//               duration = 1000
-//               start()
-//           }
-//
-//           ObjectAnimator.ofFloat(binding.goodLayout, "y", 200f).apply {
-//               duration = 1000
-//               start()
-//           }
 
             when (color) {
                 "green" -> {
@@ -258,10 +239,6 @@ class MoodFragment : Fragment() {
 
         binding.angryImageBtn.setOnClickListener {
 
-//            ObjectAnimator.ofFloat(binding.angryLayout, "x", 350f).apply {
-//                duration = 800
-//                start()
-//            }
             when (color) {
                 "green" -> {
                     moodColorAnimation(green, lightRed)
@@ -283,8 +260,7 @@ class MoodFragment : Fragment() {
                 }
             }
 
-            //binding.chosenMoodImageBtn.visibility = View.GONE
-            chosenMoodImageView.setImageResource(R.drawable.angry)
+            binding.chosenMoodImageBtn.setImageResource(R.drawable.angry)
 
             color = "light_red"
             mood = "angry"
@@ -318,70 +294,6 @@ class MoodFragment : Fragment() {
             color = "light_gray"
             mood = "neutral"
         }
-//
-//        wtfImageBtn.setOnClickListener {
-//            when (color) {
-//                "yellowish" -> {
-//                    moodColorAnimation(yellowish, orange)
-//                }
-//                "blue" -> {
-//                    moodColorAnimation(blue, orange)
-//                }
-//                "dark_blue" -> {
-//                    moodColorAnimation(darkBlue, orange)
-//                }
-//                "red" -> {
-//                    moodColorAnimation(red, orange)
-//                }
-//                "pink" -> {
-//                    moodColorAnimation(pink, orange)
-//                }
-//                "yellow" -> {
-//                    moodColorAnimation(yellow, orange)
-//                }
-//                "green" -> {
-//                    moodColorAnimation(green, orange)
-//                }
-//                else -> {
-//                    layout.setBackgroundColor(resources.getColor(R.color.orange))
-//                }
-//            }
-//            color = "orange"
-//            mood = "wtf"
-//        }
-//
-//        disgustedImageBtn.setOnClickListener {
-//            when (color) {
-//                "yellowish" -> {
-//                    moodColorAnimation(yellowish, green)
-//                }
-//                "blue" -> {
-//                    moodColorAnimation(blue, green)
-//                }
-//                "dark_blue" -> {
-//                    moodColorAnimation(darkBlue, green)
-//                }
-//                "red" -> {
-//                    moodColorAnimation(red, green)
-//                }
-//                "pink" -> {
-//                    moodColorAnimation(pink, green)
-//                }
-//                "orange" -> {
-//                    moodColorAnimation(orange, green)
-//                }
-//                "yellow" -> {
-//                    moodColorAnimation(yellow, green)
-//                }
-//                else -> {
-//                    layout.setBackgroundColor(resources.getColor(R.color.green))
-//                }
-//            }
-//            color = "green"
-//            mood = "disgusted"
-//        }
-
-
 
         binding.nextArrow.setOnClickListener {
             sharedPref.edit().putString("color", color).apply()

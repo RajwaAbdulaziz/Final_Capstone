@@ -8,6 +8,8 @@ import com.tuwaiq.finalcapstone.domain.model.Mood
 interface MyCallback {
     fun onMoodCallback(list: List<Mood>){}
 
+    fun onProfileMoodCallback(list: List<Mood>){}
+
     fun onChatCallback(list: List<Chat>){}
 
     fun username(name: String) {}

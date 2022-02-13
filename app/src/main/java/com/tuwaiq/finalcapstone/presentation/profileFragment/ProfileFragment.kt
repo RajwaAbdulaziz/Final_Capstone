@@ -131,7 +131,9 @@ class ProfileFragment : Fragment() {
             binding.personalNameTv.isCursorVisible = false
             binding.personalNameTv.isFocusableInTouchMode = false
             binding.personalNameTv.inputType = InputType.TYPE_NULL
-            profileViewModel.updateUsername(binding.personalNameTv.text.toString())
+            lifecycleScope.launch {
+                profileViewModel.updateUsername(binding.personalNameTv.text.toString())
+            }
         }
 
         lifecycleScope.launch {

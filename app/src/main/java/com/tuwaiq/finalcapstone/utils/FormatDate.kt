@@ -6,7 +6,7 @@ import java.util.*
 class FormatDate {
 
     operator fun invoke(date: Date, spf2: String): String {
-        var spf = SimpleDateFormat("E LLL dd hh:mm:ss z yyyy")
+        var spf = SimpleDateFormat("E LLL dd hh:mm:ss z yyyy", Locale.US)
         val parsed = spf.parse(date.toString())
         spf = SimpleDateFormat(spf2)
         return spf.format(parsed)

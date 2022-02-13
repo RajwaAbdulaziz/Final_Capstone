@@ -62,7 +62,6 @@ class ListFragment : Fragment() {
         sharedPref = activity?.getSharedPreferences("switch", Context.MODE_PRIVATE)!!
 
     }
-
         override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
@@ -108,16 +107,6 @@ class ListFragment : Fragment() {
             binding.datePickerTimeline.setActiveDate(n)
 
             binding.datePickerTimeline.setInitialDate(year, month.minus(1), day.minus(3))
-//            val r = 1675086278000
-//            val a = Date().rangeTo(Date(r))
-//            val b = a.start.time
-//            val c = a.endInclusive.time
-//            val dateList = arrayOf<Date>()
-//            for(n in b..c) {
-//                dateList.fill(Date(n))
-//            }
-//            Log.d(TAG, "dates: $dateList")
-            //binding.datePickerTimeline.deactivateDates(dateList)
 
             binding.datePickerTimeline.setOnDateSelectedListener(object : OnDateSelectedListener {
                 override fun onDateSelected(year: Int, month: Int, day: Int, dayOfWeek: Int) {
@@ -147,7 +136,7 @@ class ListFragment : Fragment() {
 
     private suspend fun updateUI(day: Int) {
         val moodsV = listViewModel.checkMoodsV()
-        var newList = listOf<Mood>()
+        var newList: List<Mood>
         val formatDate = FormatDate()
         listViewModel.getListOfMoods(-1, object : MyCallback{
             override fun onMoodCallback(list: List<Mood>) {
@@ -158,22 +147,17 @@ class ListFragment : Fragment() {
                 } else {
                     list
                 }
-                val a = newList.filter {mood ->
-                    val b = formatDate(Date(), "d")
-                    val c = formatDate(mood.date, "d")
+                val moodList = newList.filter {mood ->
+                    val currentDay = formatDate(Date(), "d")
+                    val moodDay = formatDate(mood.date, "d")
                     if (day == -1) {
-                        b == c
+                        currentDay == moodDay
                     } else {
-                        c == day.toString()
+                        moodDay == day.toString()
                     }
                 }
-                binding.moodsRv.adapter = MoodAdapter(a)
+                binding.moodsRv.adapter = MoodAdapter(moodList)
             }
-
-            override fun username(name: String) {
-                super.username(name)
-            }
-
         })
 
             binding.shimmerFrameLayout.stopShimmerAnimation()
@@ -193,13 +177,9 @@ class ListFragment : Fragment() {
         fun bind(moods: Mood) {
             this.moods = moods
 
-            when(moods.owner) {
-                FirebaseUtils().auth.currentUser?.uid -> {
-                    binding.spinner.visibility = View.VISIBLE
-                    binding.ownerTv.visibility = View.VISIBLE
-                    itemView.setOnClickListener(this)
-                }
-                else -> binding.ownerTv.visibility = View.INVISIBLE
+            if (moods.owner == FirebaseUtils().auth.currentUser?.uid) {
+                binding.spinner.visibility = View.VISIBLE
+                //binding.ownerTv.text = moods.current
             }
 
             binding.spinner.onItemSelectedListener = this
@@ -211,18 +191,7 @@ class ListFragment : Fragment() {
             aa?.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             binding.spinner.adapter = aa
 
-            //binding.nameTv.text = moods.ownerName
-
-           // if (moods.owner == FirebaseUtils().auth.currentUser?.uid) {
-//                listViewModel.currentUsername(object : MyCallback {
-//                    override fun username(name: String) {
-//                        super.username(name)
-//                        binding.nameTv.text = name
-//                    }
-//                })
-            //}else {
                 binding.nameTv.text = moods.ownerName
-            //}
 
                 binding.noteTv.text = moods.note
 
@@ -231,16 +200,16 @@ class ListFragment : Fragment() {
                     binding.expandIb.setOnClickListener(this)
                 }
 
+                Glide.with(requireContext())
+                .load(moods.memePic)
+                .into(binding.memePicIv)
+
                 if (moods.privatePic == "false") {
 
                     Glide.with(requireContext())
                         .load(moods.pic)
                         .into(binding.picIv)
                 }
-
-            Glide.with(requireContext())
-                .load(moods.memePic)
-                .into(binding.memePicIv)
 
                 when (moods.mood) {
                     "good" -> binding.chosenMoodIv.setImageResource(R.drawable.good)
@@ -265,55 +234,52 @@ class ListFragment : Fragment() {
         override fun onClick(p0: View?) {
 
             when (p0) {
-                itemView -> {
-                    TASK = "UPDATE"
-                    lifecycleScope.launch {
-                        listViewModel.getDocumentId().forEach {
-                            Log.d(TAG, "id: $it")
-                            if (it == moods.moodId) {
-                                sharedPref.edit().putString("moodColor", moods.color).apply()
-                                sharedPref.edit().putString("mood", moods.mood).apply()
-                                sharedPref.edit().putString("moodId", moods.moodId).apply()
-                                findNavController().navigate(R.id.action_listFragment2_to_moodDetailsFragment)
-                            }
-                        }
-                    }
-                }
+//                itemView -> {
+//                    TASK = "UPDATE"
+//                    lifecycleScope.launch {
+//                        listViewModel.getDocumentId().forEach {
+//                            Log.d(TAG, "id: $it")
+//                            if (it == moods.moodId) {
+//                                sharedPref.edit().putString("moodColor", moods.color).apply()
+//                                sharedPref.edit().putString("mood", moods.mood).apply()
+//                                sharedPref.edit().putString("moodId", moods.moodId).apply()
+//                                findNavController().navigate(R.id.action_listFragment2_to_moodDetailsFragment)
+//                            }
+//                        }
+//                    }
+//                }
                 binding.expandIb -> {
                     if (!bool) {
                         binding.constraintLayout3.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
                         TransitionManager.beginDelayedTransition(binding.constraintLayout3, AutoTransition())
 
-                        when {
-                            moods.note != "" -> {
+                            if (moods.note != "") {
+                                Log.d(TAG, "1")
                                 binding.noteBorderCardView.visibility = View.VISIBLE
                             }
-                            moods.pic != "" && moods.privatePic != "true" -> binding.picIv.visibility = View.VISIBLE
 
-                            moods.memePic != "-1" -> binding.memePicIv.visibility = View.VISIBLE
-
-                            moods.note != "" && (moods.pic != "" || moods.memePic != "-1") -> {
-                                Log.d(TAG, "YESSS")
-                                binding.noteBorderCardView.visibility = View.VISIBLE
+                            if ((moods.pic != "" && moods.privatePic != "true") || moods.memePic != "-1") {
+                                Log.d(TAG, "2")
                                 binding.picIv.visibility = View.VISIBLE
                                 binding.memePicIv.visibility = View.VISIBLE
                             }
-                        }
 
                         val interpolator = OvershootInterpolator()
                         ViewCompat.animate(binding.expandIb).rotation(180f).withLayer().setDuration(300)
                             .setInterpolator(interpolator).start()
+
+                        binding.expandIb.translationY = -60f
                         bool = true
 
                     } else if (bool){
                         binding.noteBorderCardView.visibility = View.GONE
-                        binding.noteTv.visibility = View.GONE
                         binding.memePicIv.visibility = View.GONE
                         binding.picIv.visibility = View.GONE
 
                         val interpolator = OvershootInterpolator()
                         ViewCompat.animate(binding.expandIb).rotation(360f).withLayer().setDuration(300)
                             .setInterpolator(interpolator).start()
+                        binding.expandIb.translationY = 0f
                         bool = false
                     }
                     recyclerView.requestLayout()

@@ -29,8 +29,6 @@ import androidx.navigation.fragment.navArgs
 import coil.load
 import com.anujkumarsharma.tooltipprogressbar.TooltipProgressBar
 import com.bumptech.glide.Glide
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
@@ -56,9 +54,13 @@ import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
 import android.app.AlertDialog
 import android.content.DialogInterface
+import android.location.Location
+import android.os.Looper
 import android.view.animation.AnticipateInterpolator
 import antonkozyriatskyi.circularprogressindicator.CircularProgressIndicator
+import com.google.android.gms.location.*
 import com.tuwaiq.finalcapstone.MyCallback
+import java.util.concurrent.TimeUnit
 
 
 private const val TAG = "MoodDetailsFragment"
@@ -68,6 +70,7 @@ var c = false.toString()
 var progress = 0.0
 var progressComplete = 0.0
 var hasPic = false
+var hasLocation = false
 @AndroidEntryPoint
 class MoodDetailsFragment : Fragment() {
 
@@ -91,6 +94,9 @@ class MoodDetailsFragment : Fragment() {
     private var colorRes = 0
     private lateinit var sharedPref: SharedPreferences
 
+    private lateinit var locationCallback: LocationCallback
+    private lateinit var locationRequest: LocationRequest
+    private var currentLocation: Location? = null
     private var userName = ""
     private var username = ""
 
@@ -296,11 +302,11 @@ class MoodDetailsFragment : Fragment() {
     override fun onStart() {
         super.onStart()
 
-        val user = FirebaseAuth.getInstance().currentUser?.uid
+        val user = FirebaseUtils().auth.currentUser?.uid
 
         Log.d(TAG, "chose: $CHOSE_MEME")
         if (CHOSE_MEME) {
-            Log.d(TAG, "meme: ${meme}")
+            Log.d(TAG, "meme: $meme")
             binding.memePickerIv.load(meme)
             CHOSE_MEME = false
         }
@@ -336,135 +342,131 @@ class MoodDetailsFragment : Fragment() {
         }
 
         binding.locationBtn.setOnClickListener {
+            hasLocation = true
             getCurrentLocation()
         }
 
-        if (TASK == "UPDATE") {
-
-//            locationBtn.setOnClickListener{
-//            getCurrentLocation()
+//        if (TASK == "UPDATE") {
+//
+////            locationBtn.setOnClickListener{
+////            getCurrentLocation()
+////        }
+//
+//            binding.circularProgress.visibility = View.INVISIBLE
+//
+//            binding.picImageView.setOnClickListener {
+//                binding.picImageView.isClickable = false
+//                Snackbar.make(it, "You can't edit your pic", Snackbar.LENGTH_SHORT).show()
+//            }
+//            FirebaseUtils().fireStoreDatabase.collection("Mood")
+//                .document(moodId).get().addOnCompleteListener {
+//
+//                    when (it.result.getString("mood")) {
+//                        "good" -> binding.selectedMoodIv.setImageResource(R.drawable.good)
+//                        "great" -> binding.selectedMoodIv.setImageResource(R.drawable.great)
+//                        "sad" -> binding.selectedMoodIv.setImageResource(R.drawable.sad)
+//                        "depressed" -> binding.selectedMoodIv.setImageResource(R.drawable.depressed)
+//                        "angry" -> binding.selectedMoodIv.setImageResource(R.drawable.angry)
+//                        "neutral" -> binding.selectedMoodIv.setImageResource(R.drawable.neutral)
+//                        else -> binding.selectedMoodIv.setImageBitmap(null)
+//                    }
+//
+//                    when (it.result.getString("color")) {
+//                        "pink" -> {
+//                            binding.noteEt.setTextColor(resources.getColor(R.color.dark_pink))
+//                            binding.noteEt.setHintTextColor(resources.getColor(R.color.dark_pink))
+//                            colorRes = R.color.dark_pink
+//                        }
+//                        "green" -> {
+//                            binding.noteEt.setTextColor(resources.getColor(R.color.dark_green))
+//                            binding.noteEt.setHintTextColor(resources.getColor(R.color.dark_green))
+//                            colorRes = R.color.green
+//                        }
+//                        "blue" -> {
+//                            binding.noteEt.setTextColor(resources.getColor(R.color.dark_blue))
+//                            binding.noteEt.setHintTextColor(resources.getColor(R.color.dark_blue))
+//                            colorRes = R.color.blue
+//                        }
+//                        "dark_blue" -> {
+//                            binding.noteEt.setTextColor(resources.getColor(R.color.darkest_blue))
+//                            binding.noteEt.setHintTextColor(resources.getColor(R.color.darkest_blue))
+//                            colorRes = R.color.dark_blue
+//                        }
+//                        "light_red" -> {
+//                            binding.noteEt.setTextColor(resources.getColor(R.color.red))
+//                            binding.noteEt.setHintTextColor(resources.getColor(R.color.red))
+//                            colorRes = R.color.red
+//                        }
+//                        "light_gray" -> {
+//                            binding.noteEt.setTextColor(resources.getColor(R.color.gray))
+//                            binding.noteEt.setHintTextColor(resources.getColor(R.color.gray))
+//                            colorRes = R.color.gray
+//                        }
+//                        else -> {
+//                            binding.noteEt.setTextColor(resources.getColor(R.color.black))
+//                            binding.noteEt.setHintTextColor(resources.getColor(R.color.black))
+//                            colorRes = R.color.black
+//                        }
+//                    }
+//
+//                    binding.noteEt.setText(it.result.getString("note"))
+//
+//                    Glide.with(requireContext())
+//                        .load(it.result.getString("pic"))
+//                        .into(binding.picImageView)
+//
+//                    if (it.result.getString("pic") != null) {
+//                        picUrl = it.result.getString("pic")!!
+//                    }
+//
+//                    binding.memePickerIv.load(it.result.getString("memePic"))
+//
+//                    binding.memePickerIv.setOnClickListener {
+//                        findNavController().navigate(R.id.action_moodDetailsFragment_to_memeApiFragment)
+//                    }
+//
+//                    binding.addMood.setOnClickListener {
+//                        val uid = FirebaseAuth.getInstance().currentUser?.uid
+//
+//                        moodDetailsViewModel.currentUserName(object : MyCallback {
+//                            override fun username(name: String) {
+//                                super.username(name)
+//
+//                                userName = name
+//                            }
+//
+//                        }).toString()
+//
+//                        Log.d(TAG, "mood: $mood")
+//                        val note = uid?.let { uid ->
+//                            Mood(
+//                                binding.noteEt.text.toString(),
+//                                color,
+//                                picUrl,
+//                                mood,
+//                                uid,
+//                                userName,
+//                                meme,
+//                                lat,
+//                                long,
+//                                moodId
+//                            )
+//                        }
+//                        FirebaseUtils().fireStoreDatabase.collection("Users")
+//                            .document(uid!!).update("note", FieldValue.arrayUnion(note))
+//
+//                        if (note != null) {
+//                            FirebaseUtils().fireStoreDatabase.collection("Mood")
+//                                .document(moodId).set(note)
+//                        }
+//                        findNavController().navigate(R.id.action_moodDetailsFragment_to_listFragment2)
+//
+//                    }
+//                }
+//            TASK = ""
 //        }
 
-            binding.circularProgress.visibility = View.INVISIBLE
-
-            binding.picImageView.setOnClickListener {
-                binding.picImageView.isClickable = false
-                Snackbar.make(it, "You can't edit your pic", Snackbar.LENGTH_SHORT).show()
-            }
-            FirebaseUtils().fireStoreDatabase.collection("Mood")
-                .document(moodId).get().addOnCompleteListener {
-
-                    when (it.result.getString("mood")) {
-                        "good" -> binding.selectedMoodIv.setImageResource(R.drawable.good)
-                        "great" -> binding.selectedMoodIv.setImageResource(R.drawable.great)
-                        "sad" -> binding.selectedMoodIv.setImageResource(R.drawable.sad)
-                        "depressed" -> binding.selectedMoodIv.setImageResource(R.drawable.depressed)
-                        "angry" -> binding.selectedMoodIv.setImageResource(R.drawable.angry)
-                        "neutral" -> binding.selectedMoodIv.setImageResource(R.drawable.neutral)
-                        else -> binding.selectedMoodIv.setImageBitmap(null)
-                    }
-
-                    when (it.result.getString("color")) {
-                        "pink" -> {
-                            binding.noteEt.setTextColor(resources.getColor(R.color.dark_pink))
-                            binding.noteEt.setHintTextColor(resources.getColor(R.color.dark_pink))
-                            colorRes = R.color.dark_pink
-                        }
-                        "green" -> {
-                            binding.noteEt.setTextColor(resources.getColor(R.color.dark_green))
-                            binding.noteEt.setHintTextColor(resources.getColor(R.color.dark_green))
-                            colorRes = R.color.green
-                        }
-                        "blue" -> {
-                            binding.noteEt.setTextColor(resources.getColor(R.color.dark_blue))
-                            binding.noteEt.setHintTextColor(resources.getColor(R.color.dark_blue))
-                            colorRes = R.color.blue
-                        }
-                        "dark_blue" -> {
-                            binding.noteEt.setTextColor(resources.getColor(R.color.darkest_blue))
-                            binding.noteEt.setHintTextColor(resources.getColor(R.color.darkest_blue))
-                            colorRes = R.color.dark_blue
-                        }
-                        "light_red" -> {
-                            binding.noteEt.setTextColor(resources.getColor(R.color.red))
-                            binding.noteEt.setHintTextColor(resources.getColor(R.color.red))
-                            colorRes = R.color.red
-                        }
-                        "light_gray" -> {
-                            binding.noteEt.setTextColor(resources.getColor(R.color.gray))
-                            binding.noteEt.setHintTextColor(resources.getColor(R.color.gray))
-                            colorRes = R.color.gray
-                        }
-                        else -> {
-                            binding.noteEt.setTextColor(resources.getColor(R.color.black))
-                            binding.noteEt.setHintTextColor(resources.getColor(R.color.black))
-                            colorRes = R.color.black
-                        }
-                    }
-
-                    binding.noteEt.setText(it.result.getString("note"))
-
-                    Glide.with(requireContext())
-                        .load(it.result.getString("pic"))
-                        .into(binding.picImageView)
-
-                    if (it.result.getString("pic") != null) {
-                        picUrl = it.result.getString("pic")!!
-                    }
-
-                    binding.memePickerIv.load(it.result.getString("memePic"))
-
-                    binding.memePickerIv.setOnClickListener {
-                        findNavController().navigate(R.id.action_moodDetailsFragment_to_memeApiFragment)
-                    }
-
-                    binding.addMood.setOnClickListener {
-                        val uid = FirebaseAuth.getInstance().currentUser?.uid
-
-                        moodDetailsViewModel.currentUserName(object : MyCallback {
-                            override fun username(name: String) {
-                                super.username(name)
-
-                                userName = name
-                            }
-
-                        }).toString()
-
-                        Log.d(TAG, "mood: $mood")
-                        val note = uid?.let { uid ->
-                            Mood(
-                                binding.noteEt.text.toString(),
-                                color,
-                                picUrl,
-                                mood,
-                                uid,
-                                userName,
-                                meme,
-                                lat,
-                                long,
-                                moodId
-                            )
-                        }
-                        FirebaseUtils().fireStoreDatabase.collection("Users")
-                            .document(uid!!).update("note", FieldValue.arrayUnion(note))
-
-                        if (note != null) {
-                            FirebaseUtils().fireStoreDatabase.collection("Mood")
-                                .document(moodId).set(note)
-                        }
-                        findNavController().navigate(R.id.action_moodDetailsFragment_to_listFragment2)
-
-                    }
-                }
-            TASK = ""
-        }
-
-        binding.picSwitch.setOnCheckedChangeListener { compoundButton, b ->
-//            if (b) {
-//                compoundButton.setText(R.string.private_pic)
-//            } else {
-//                compoundButton.setText(R.string.public_pic)
-//            }
+        binding.picSwitch.setOnCheckedChangeListener { _, b ->
             c = b.toString()
             Log.d(TAG, c)
         }
@@ -478,8 +480,6 @@ class MoodDetailsFragment : Fragment() {
                     username = name
                 }
             })
-                //Log.d(TAG, userName)
-                Log.d(TAG, lat.toString())
 
                 if (user != null) {
 
@@ -511,15 +511,15 @@ class MoodDetailsFragment : Fragment() {
                             }.also {
                                 if (hasPic && progress != progressComplete) {
                                     AlertDialog.Builder(context)
-                                        .setMessage("Your image isn't uploaded yet")
+                                        .setMessage(resources.getText(R.string.img_not_uploaded))
                                         .setNegativeButton(
-                                            "That's fine",
+                                            resources.getText(R.string.fine),
                                             DialogInterface.OnClickListener { dialogInterface, i ->
                                                 saveMood(user)
                                                 findNavController().navigate(R.id.action_moodDetailsFragment_to_listFragment2)
                                             })
                                         .setPositiveButton(
-                                            "Wait",
+                                            resources.getText(R.string.wait),
                                             DialogInterface.OnClickListener { dialogInterface, i ->
                                                 dialogInterface.dismiss()
                                             })
@@ -532,7 +532,6 @@ class MoodDetailsFragment : Fragment() {
                             }
                         }
                 }
-            Log.d(TAG, "progress: ${progress}")
         }
     }
 
@@ -553,6 +552,7 @@ class MoodDetailsFragment : Fragment() {
     }
 
     private fun getCurrentLocation() {
+        Log.d(TAG, "getCurrentLocation: ")
         if (ActivityCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -562,11 +562,33 @@ class MoodDetailsFragment : Fragment() {
             ) == PackageManager.PERMISSION_GRANTED
         ) {
 
-            fusedLocationClient.lastLocation.addOnSuccessListener {
-                binding.latLangTv.text = "${it.latitude}  ${it.longitude}"
-                lat = it.latitude
-                long = it.longitude
+            // TODO: Step 1.3, Create a LocationRequest.
+            locationRequest = LocationRequest.create().apply {
+                interval = TimeUnit.SECONDS.toMillis(60)
+                fastestInterval = TimeUnit.SECONDS.toMillis(30)
+                maxWaitTime = TimeUnit.MINUTES.toMillis(2)
+                priority = LocationRequest.PRIORITY_HIGH_ACCURACY
             }
+            locationCallback = object : LocationCallback() {
+                override fun onLocationResult(locationResult: LocationResult) {
+                    super.onLocationResult(locationResult)
+
+                    currentLocation = locationResult.lastLocation
+
+                    binding.latLangTv.text = "${currentLocation!!.latitude}  ${currentLocation!!.longitude}"
+                    lat = currentLocation!!.latitude
+                    long = currentLocation!!.longitude
+
+                    Log.d(TAG, "currentLocation $currentLocation")
+                }
+            }
+
+            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
+//            fusedLocationClient.lastLocation.addOnSuccessListener {
+//                binding.latLangTv.text = "${it.latitude}  ${it.longitude}"
+//                lat = it.latitude
+//                long = it.longitude
+//            }
             // here to request the missing permissions, and then overriding
             //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
             //                                          int[] grantResults)
@@ -577,5 +599,12 @@ class MoodDetailsFragment : Fragment() {
             requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
             requestPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
         }
+    }
+
+    override fun onPause() {
+        if (hasLocation) {
+            fusedLocationClient.removeLocationUpdates(locationCallback)
+        }
+        super.onPause()
     }
 }

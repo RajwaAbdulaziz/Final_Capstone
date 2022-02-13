@@ -21,6 +21,7 @@ import com.tuwaiq.finalcapstone.data.remote.memeApi.models.Meme
 import com.tuwaiq.finalcapstone.databinding.MemeApiFragmentBinding
 import com.tuwaiq.finalcapstone.databinding.MemeApiListItemBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -45,6 +46,9 @@ class MemeApiFragment : Fragment() {
         memeRv = view.findViewById(R.id.memes_rv)
         binding.memesRv.layoutManager = GridLayoutManager(context, 2)
 
+        lifecycleScope.launch {
+            updateUI()
+        }
 
         return binding.root
     }
@@ -56,16 +60,13 @@ class MemeApiFragment : Fragment() {
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewLifecycleOwner.lifecycleScope.launch {
-            updateUI()
-        }
+
     }
 
     private suspend fun updateUI() {
-        memeApiViewModel.getMemes().onEach {
-            Log.e(TAG, "updateUI: $it")
-            memeRv.adapter = MemeAdapter(it)
-        }.launchIn(lifecycleScope)
+        memeApiViewModel.getMemes().collect {
+            binding.memesRv.adapter = MemeAdapter(it)
+        }
     }
 
     inner class MemeViewHolder(private val binding: MemeApiListItemBinding): RecyclerView.ViewHolder(binding.root), View.OnClickListener {
@@ -85,7 +86,7 @@ class MemeApiFragment : Fragment() {
             when(p0) {
                 itemView -> {
                     CHOSE_MEME = true
-                    Log.d(TAG, "meme: ${meme.url}")
+                    //Log.d(TAG, "meme: ${meme.url}")
                     val action = MemeApiFragmentDirections.actionMemeApiFragmentToMoodDetailsFragment("", "", "", "", meme.url)
                     findNavController().navigate(action)
                 }

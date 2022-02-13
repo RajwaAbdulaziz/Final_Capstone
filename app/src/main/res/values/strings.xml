@@ -26,9 +26,24 @@
     <string name="map_id" translatable="false">68eeeeecfcb51a99</string>
     <string name="chat">Chat</string>
     <string name="moods_chart">Moods Chart</string>
-    <string name="explore_other_moods" translatable="false">Explore other moods</string>
-    <string name="my_moods" translatable="false">My moods</string>
+    <string name="explore_other_moods">Explore other moods</string>
+    <string name="my_moods">My moods</string>
     <string name="input" translatable="false">Input</string>
-    <string name="show_my_moods" translatable="false">Show My Moods</string>
-    <string name="hide_my_moods" translatable="false">Hide My Moods</string>
+    <string name="show_my_moods">Show My Moods</string>
+    <string name="hide_my_moods">Hide My Moods</string>
+    <string name="img_not_uploaded">Your image isn\'t uploaded yet</string>
+    <string name="fine">That\'s fine</string>
+    <string name="wait">Wait</string>
+    <string name="no_mood">You didn\'t log in a mood today, would you like to log it in or continue with your latest one?</string>
+    <string name="continue_">Continue</string>
+    <string name="log_it">Log it in</string>
+    <string name="plz_name">Please enter a name</string>
+    <string name="plz_email">Please enter an email</string>
+    <string name="plz_pass">Please enter a password</string>
+    <string name="plz_match">Please enter a matching password</string>
+    <string name="oops">an error occurred</string>
+    <string name="morning">Good morning</string>
+    <string name="evening">Good afternoon</string>
+    <string name="afternoon">Good evening</string>
+
 </resources>

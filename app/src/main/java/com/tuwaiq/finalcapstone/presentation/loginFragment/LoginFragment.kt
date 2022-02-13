@@ -59,8 +59,8 @@ class LoginFragment : Fragment() {
             val password = binding.loginPasswordEt.text.toString()
 
             when{
-                email.isEmpty() -> showToast("Enter your email")
-                password.isEmpty() -> showToast("Enter your password")
+                email.isEmpty() -> showToast(resources.getString(R.string.plz_name))
+                password.isEmpty() -> showToast(resources.getString(R.string.plz_pass))
                 else -> {
                     loginViewModel.login(email, password, object : MyCallback{
                         override fun authResult(authResult: Task<AuthResult>) {
@@ -69,7 +69,7 @@ class LoginFragment : Fragment() {
                             if (authResult.isSuccessful) {
                                 findNavController().navigate(R.id.action_loginFragment_to_listFragment2)
                             } else {
-                                Toast.makeText(context, "Wrong info", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, resources.getString(R.string.oops), Toast.LENGTH_SHORT).show()
                             }
                         }
                     })

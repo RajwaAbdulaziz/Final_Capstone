@@ -34,4 +34,8 @@ object AppModule {
     @Singleton
     @Provides
     fun provideChatRepo(): ChatRepo = ChatRepoImpl()
+
+//    @Singleton
+//    @Provides
+//    fun provideMemeApi():
 }

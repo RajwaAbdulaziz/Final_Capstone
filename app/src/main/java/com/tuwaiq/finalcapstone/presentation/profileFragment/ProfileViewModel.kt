@@ -28,7 +28,7 @@ class ProfileViewModel @Inject constructor(
         return currentUserUseCase(myCallback)
     }
 
-    fun updateUsername(newName: String) {
+    suspend fun updateUsername(newName: String) {
         updateUsernameUseCase(newName)
     }
 
