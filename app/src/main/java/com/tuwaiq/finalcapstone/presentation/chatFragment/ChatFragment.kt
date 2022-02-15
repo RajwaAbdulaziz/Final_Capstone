@@ -35,6 +35,7 @@ import java.util.*
 
 private const val TAG = "ChatFragment"
 private var done = false
+private var onStop = false
 @AndroidEntryPoint
 class ChatFragment : Fragment() {
 
@@ -59,9 +60,15 @@ class ChatFragment : Fragment() {
         fab.hide()
     }
 
+    override fun onPause() {
+        super.onPause()
+        onStop = true
+    }
+
     override fun onStart() {
         super.onStart()
 
+        onStop = false
         if (FirebaseUtils().auth.currentUser == null) {
             val intent = Intent(context, LoginFragment::class.java)
             startActivity(intent)

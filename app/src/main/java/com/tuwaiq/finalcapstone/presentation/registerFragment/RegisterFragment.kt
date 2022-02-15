@@ -2,7 +2,6 @@
 
 package com.tuwaiq.finalcapstone.presentation.registerFragment
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -70,11 +69,12 @@ class RegisterFragment : Fragment() {
             val pass = binding.registerPasswordEt.text.toString()
             val confPass = binding.registerConfPassEt.text.toString()
 
+            validateRegister(pass, confPass)
             when{
                 name.isEmpty() -> showToast(resources.getString(R.string.plz_name))
                 email.isEmpty() -> showToast(resources.getString(R.string.plz_email))
                 pass.isEmpty() -> showToast(resources.getString(R.string.plz_pass))
-                confPass != pass -> showToast(resources.getString(R.string.plz_match))
+                !validateRegister(pass, confPass) ->  showToast(resources.getString(R.string.plz_match))
                 else -> {
                     registerViewModel.register(name, email, pass, object : MyCallback{
                         override fun authResult(authResult: Task<AuthResult>) {
@@ -92,6 +92,9 @@ class RegisterFragment : Fragment() {
         }
     }
 
+    fun validateRegister(pass: String, confPass: String): Boolean {
+        return confPass == pass
+    }
 
 
     private fun showToast(text: String) {

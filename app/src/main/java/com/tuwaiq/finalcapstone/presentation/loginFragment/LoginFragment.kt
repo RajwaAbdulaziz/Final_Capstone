@@ -1,6 +1,7 @@
 package com.tuwaiq.finalcapstone.presentation.loginFragment
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +11,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthResult
@@ -17,7 +19,10 @@ import com.tuwaiq.finalcapstone.MyCallback
 import com.tuwaiq.finalcapstone.R
 import com.tuwaiq.finalcapstone.databinding.LoginFragmentBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
+private const val TAG = "LoginFragment"
 @AndroidEntryPoint
 class LoginFragment : Fragment() {
 
@@ -62,17 +67,7 @@ class LoginFragment : Fragment() {
                 email.isEmpty() -> showToast(resources.getString(R.string.plz_name))
                 password.isEmpty() -> showToast(resources.getString(R.string.plz_pass))
                 else -> {
-                    loginViewModel.login(email, password, object : MyCallback{
-                        override fun authResult(authResult: Task<AuthResult>) {
-                            super.authResult(authResult)
-
-                            if (authResult.isSuccessful) {
-                                findNavController().navigate(R.id.action_loginFragment_to_listFragment2)
-                            } else {
-                                Toast.makeText(context, resources.getString(R.string.oops), Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    })
+                    validateLogin(email, password)
                 }
             }
         }
@@ -81,6 +76,20 @@ class LoginFragment : Fragment() {
             findNavController().navigate(R.id.action_loginFragment_to_registerFragment)
             }
         }
+
+    fun validateLogin(email: String, password: String) {
+        loginViewModel.login(email, password, object : MyCallback{
+            override fun authResult(authResult: Task<AuthResult>) {
+                super.authResult(authResult)
+
+                if (authResult.isSuccessful) {
+                    findNavController().navigate(R.id.action_loginFragment_to_listFragment2)
+                } else {
+                    Toast.makeText(context, resources.getString(R.string.oops), Toast.LENGTH_SHORT).show()
+                }
+            }
+        })
+    }
 
     private fun showToast(text: String) {
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
